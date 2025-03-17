@@ -1,18 +1,18 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>/404.html</loc></url>
-<url><loc>/LICENSE-text.html</loc></url>
-<url><loc>/LICENSE.html</loc></url>
-<url><loc>/authors.html</loc></url>
-<url><loc>/index.html</loc></url>
-<url><loc>/reference/allocation.html</loc></url>
-<url><loc>/reference/allocation_discrete.html</loc></url>
-<url><loc>/reference/allocation_plot.html</loc></url>
-<url><loc>/reference/demo_data_load.html</loc></url>
-<url><loc>/reference/friction.html</loc></url>
-<url><loc>/reference/index.html</loc></url>
-<url><loc>/reference/mask_raster_to_polygon.html</loc></url>
-<url><loc>/reference/traveltime.html</loc></url>
-<url><loc>/reference/traveltime_plot.html</loc></url>
-<url><loc>/reference/traveltime_stats.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/404.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/LICENSE-text.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/LICENSE.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/authors.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/index.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/allocation.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/allocation_discrete.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/allocation_plot.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/demo_data_load.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/friction.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/index.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/mask_raster_to_polygon.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/traveltime.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/traveltime_plot.html</loc></url>
+<url><loc>https://giacfalk.github.io/locationallocation/reference/traveltime_stats.html</loc></url>
 </urlset>
 
