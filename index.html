@@ -60,6 +60,19 @@
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/logo.png?raw=true" alt="" width="300"></p>
 <p>Package developer: Giacomo Falchetta, <a href="mailto:giacomo.falchetta@cmcc.it" class="email">giacomo.falchetta@cmcc.it</a></p>
+<ul>
+<li><p>Documentation and vignette website: <a href="https://giacfalk.github.io/locationallocation" class="uri">https://giacfalk.github.io/locationallocation</a></p></li>
+<li><p>Reference manuscript: <a href="https://doi.org/10.31223/X5XQ69" class="external-link uri">https://doi.org/10.31223/X5XQ69</a></p></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="sc">@</span>article{Falchetta2025,</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  title <span class="ot">=</span> {locationallocation<span class="sc">:</span> solving Maximal Coverage Location<span class="sc">-</span>Allocation geospatial infrastructure assessment and planning problems},</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  url <span class="ot">=</span> {http<span class="sc">:</span><span class="er">//</span>dx.doi.org<span class="sc">/</span><span class="fl">10.31223</span><span class="sc">/</span>X5XQ69},</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  DOI <span class="ot">=</span> {<span class="fl">10.31223</span><span class="sc">/</span>x5xq69},</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  publisher <span class="ot">=</span> {EarthArXiv},</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  author <span class="ot">=</span> {Falchetta,  Giacomo},</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  year <span class="ot">=</span> {<span class="dv">2025</span>},</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  month <span class="ot">=</span> mar </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>}</span></code></pre></div>
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
@@ -75,7 +88,7 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>Install with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
 <span><span class="fu">install_github</span><span class="op">(</span><span class="st">"https://github.com/giacfalk/locationallocation"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -84,13 +97,13 @@
 </h2>
 <p>Operate the package as follows.</p>
 <p>First, load the package.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">locationallocation</span><span class="op">)</span></span></code></pre></div>
 <p>As an example, We demonstrate how the package can tackle urban-scale climate risk through robust infrastructure assessment and geospatial planning. We run the <code><a href="reference/demo_data_load.html">demo_data_load()</a></code> function to load a set of demo datasets to run the package’s function. The demo data contains the coordinate-point location of public drinking water fountains in the city of Naples, Italy, as well as a gridded population raster data from GHS-POP, a 100-m resolution map of heat hazard (number of days with Wet-Bulb Globe Temperature greater than 25° C in the historical period 2008-2017, obtained from the UrbClim model), and the administrative boundaries of the city.</p>
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/map_demand_existing_facilities.png?raw=true" alt="" width="600"></p>
 <p>Then, we can use the <code>traveltime</code> function to generate a map of the current accessibility to the facility point sf input (here, fountains) within the specified geographical boundaries, and with a choosen travel mode (walk or fastest), and a given output spatial resolution (in meters; achieved using disseving spatial downscaling techniques). Once the function has run successfully, we can generate a map of the resulting layer using the <code>traveltime_plot</code> function.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/demo_data_load.html">demo_data_load</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">out_tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/traveltime.html">traveltime</a></span><span class="op">(</span>facilities<span class="op">=</span><span class="va">fountains</span>, bb_area<span class="op">=</span><span class="va">boundary</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span><span class="op">)</span></span>
@@ -99,26 +112,26 @@
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/traveltime_map_fountains.png?raw=true" alt="" width="600"></p>
 <p>We can also produce a summary plot and statistic based on the output of the traveltime function and a given demand (e.g., population) raster, as well as a given time threshold parameter:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/traveltime_stats.html">traveltime_stats</a></span><span class="op">(</span>traveltime <span class="op">=</span> <span class="va">out_tt</span>, demand_raster <span class="op">=</span> <span class="va">pop</span>, breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span>, objectiveminutes<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p>which will print an output message such as:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"38.54 % of demand layer within the objectiveminutes threshold."</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"38.54 % of demand layer within the objectiveminutes threshold."</span></span></code></pre></div>
 <p>We can now use the <code>allocation</code> function to optmise the spatial allocation of new water fountains to ensure that (virtually) everyone (i.e., the totality of the raster layer specified by the <code>demand_raster</code> parameter) can walk to one within 15 minutes, as specified by the <code>objectiveminutes</code> parameter:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output_allocation</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/allocation.html">allocation</a></span><span class="op">(</span>demand_raster <span class="op">=</span> <span class="va">pop</span>, traveltime_raster<span class="op">=</span><span class="va">out_tt</span>, bb_area <span class="op">=</span> <span class="va">boundary</span>, facilities<span class="op">=</span><span class="va">fountains</span>, weights<span class="op">=</span><span class="cn">NULL</span>, objectiveminutes<span class="op">=</span><span class="fl">15</span>, objectiveshare<span class="op">=</span><span class="fl">0.01</span>, heur<span class="op">=</span><span class="st">"max"</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">output_allocation</span>, bb_area <span class="op">=</span> <span class="va">boundary</span><span class="op">)</span></span></code></pre></div>
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_15mins_fountains.png?raw=true" alt="" width="600"></p>
 <p>Note that is is also possible to solve an allocation problem specifying a <code>weights</code> parameter, to attribute more relative importance or priority to areas where the demand_raster is overlapping with some weighting factors (defined by another raster layer), such as exposure to hot days, as in the following example:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output_allocation_weighted</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/allocation.html">allocation</a></span><span class="op">(</span>demand_raster <span class="op">=</span> <span class="va">pop</span>, traveltime_raster<span class="op">=</span><span class="va">out_tt</span>, bb_area <span class="op">=</span> <span class="va">boundary</span>, facilities<span class="op">=</span><span class="va">fountains</span>, weights<span class="op">=</span><span class="va">hotdays</span>, objectiveminutes<span class="op">=</span><span class="fl">15</span>, objectiveshare<span class="op">=</span><span class="fl">0.01</span>, heur<span class="op">=</span><span class="st">"max"</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">output_allocation_weighted</span>, bb_area <span class="op">=</span> <span class="va">boundary</span><span class="op">)</span></span></code></pre></div>
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_15mins_fountains_weighted.png?raw=true" alt="" width="600"></p>
 <p>A variant of the allocation problem is the case when the set of candidate locations to allocate new faciltiies is discrete (and not continuous over the study area, as in the previous example). In this case, the user needs to provide a discrete set of location points into the <code>candidate</code> parameter of the allocation_discrete function, as well as a maximum number of facilities (<code>n_fac</code> parameter) that can be selected among the candidate locations. The function will apply a quasi-optimality heuristic (using a randomisation based approach, where the number of replications - defined by the <code>n_samples</code> parameters - will gradually approach the global optimum but it will linearly increase the computational time.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">candidates</span> <span class="op">&lt;-</span> <span class="fu">st_sample</span><span class="op">(</span><span class="va">boundary</span>, <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">output_allocation_discrete</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span>demand_raster <span class="op">=</span> <span class="va">pop</span>, traveltime_raster<span class="op">=</span><span class="cn">NULL</span>, bb_area <span class="op">=</span> <span class="va">boundary</span>, facilities<span class="op">=</span><span class="va">fountains</span>, candidate<span class="op">=</span><span class="va">candidates</span>, n_fac <span class="op">=</span> <span class="fl">10</span>, weights<span class="op">=</span><span class="cn">NULL</span>, objectiveminutes<span class="op">=</span><span class="fl">15</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span>, n_samples<span class="op">=</span><span class="fl">100</span><span class="op">)</span></span>
@@ -127,7 +140,7 @@
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_discrete_fountains.png?raw=true" alt="" width="600"></p>
 <p>Consider also the case of a problem where there are no existing facilities to start with, and hence the discrete location-allocation problem needs to optimise the allocation to cover as much as possible of the demand within the limited set of discrete choices over space to allocate new facilities, as well as the constraint set by the maximum number of allocable facilities:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">333</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">output_allocation_discrete_from_scratch</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span>demand_raster <span class="op">=</span> <span class="va">pop</span>, traveltime_raster<span class="op">=</span><span class="cn">NULL</span>, bb_area <span class="op">=</span> <span class="va">boundary</span>, facilities<span class="op">=</span><span class="cn">NULL</span>, candidate<span class="op">=</span><span class="va">candidates</span>, n_fac <span class="op">=</span> <span class="fl">10</span>, weights<span class="op">=</span><span class="cn">NULL</span>, objectiveminutes<span class="op">=</span><span class="fl">15</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span>, n_samples<span class="op">=</span><span class="fl">100</span><span class="op">)</span></span>
