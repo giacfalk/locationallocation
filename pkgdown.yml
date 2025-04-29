@@ -1,8 +1,8 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.2
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-04-28T16:06Z
+last_built: 2025-04-29T14:13Z
 urls:
   reference: https://giacfalk.github.io/locationallocation/reference
   article: https://giacfalk.github.io/locationallocation/articles
