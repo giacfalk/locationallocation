@@ -49,7 +49,8 @@
 <span>  <span class="va">mode</span>,</span>
 <span>  <span class="va">res_output</span>,</span>
 <span>  <span class="va">n_samples</span>,</span>
-<span>  <span class="va">par</span></span>
+<span>  <span class="va">par</span>,</span>
+<span>  approach <span class="op">=</span> <span class="st">"norm"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -103,6 +104,14 @@
 
 <dt id="arg-n-samples">n_samples<a class="anchor" aria-label="anchor" href="#arg-n-samples"></a></dt>
 <dd><p>The number of samples to generate in the heuristic approach for identifying the best set of facilities to be allocated.</p></dd>
+
+
+<dt id="arg-par">par<a class="anchor" aria-label="anchor" href="#arg-par"></a></dt>
+<dd><p>A logical value indicating whether to run the function in parallel or not. Default is FALSE.</p></dd>
+
+
+<dt id="arg-approach">approach<a class="anchor" aria-label="anchor" href="#arg-approach"></a></dt>
+<dd><p>The approach to be used for the allocation. Options are "norm" (default) and "equity". If "norm", the allocation is based on the normalized demand raster multiplied by the normalized weights raster. If "absweights", the allocation is based on the normalized demand raster multiplied by the raw weights raster.</p></dd>
 
 </dl></div>
 
