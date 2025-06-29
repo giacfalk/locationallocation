@@ -48,7 +48,9 @@
 <span>  <span class="va">dowscaling_model_type</span>,</span>
 <span>  <span class="va">mode</span>,</span>
 <span>  <span class="va">res_output</span>,</span>
-<span>  approach <span class="op">=</span> <span class="st">"norm"</span></span>
+<span>  approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
+<span>  exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  exp_weights <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,6 +104,14 @@
 
 <dt id="arg-approach">approach<a class="anchor" aria-label="anchor" href="#arg-approach"></a></dt>
 <dd><p>The approach to be used for the allocation. Options are "norm" (default) and "equity". If "norm", the allocation is based on the normalized demand raster multiplied by the normalized weights raster. If "absweights", the allocation is based on the normalized demand raster multiplied by the raw weights raster.</p></dd>
+
+
+<dt id="arg-exp-demand">exp_demand<a class="anchor" aria-label="anchor" href="#arg-exp-demand"></a></dt>
+<dd><p>The exponent for the demand raster. Default is 1. A higher value will give less relative weight to areas with higher demand - with respect to the weights layer. This is useful in cases where the users want to increase the allocation in areas with higher values in the weights layer.</p></dd>
+
+
+<dt id="arg-exp-weights">exp_weights<a class="anchor" aria-label="anchor" href="#arg-exp-weights"></a></dt>
+<dd><p>The exponent for the weights raster. Default is 1.A higher value will give less relative weight to areas with higher weights - with respect to the demand layer. This is useful in cases where the users want to increase the allocation in areas with higher values in the demand layer.</p></dd>
 
 </dl></div>
 
