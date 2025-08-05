@@ -143,21 +143,19 @@
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_discrete_fountains.png?raw=true" alt="" width="600"></p>
 <p>Consider the scenario where the user wants to select up to <code>n_fac</code> facilities to attain a given <code>objectiveshare</code> of the total demand (if this is feasible):</p>
-<p>output_allocation_discrete_targetshare &lt;- allocation_discrete(demand_raster = pop, traveltime_raster=NULL, bb_area = boundary, facilities=fountains, candidate=candidates, n_fac = 10, objectiveshare=0.75, weights=NULL, objectiveminutes=15, dowscaling_model_type=“lm”, mode=“walk”, res_output=100, n_samples=1000)</p>
-<p>allocation_plot_discrete(output_allocation_discrete_targetshare, bb_area = boundary)</p>
-<pre><code>
-&lt;p align="center"&gt;
-&lt;img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_discrete_fountains.png?raw=true" alt="" width="600"/&gt;
-&lt;/p&gt;
-
-Finally, consider the case of a problem where there are no existing facilities to start with, and hence the discrete location-allocation problem needs to optimise the allocation to cover as much as possible of the demand within the limited set of discrete choices over space to allocate new facilities, as well as the constraint set by the maximum number of allocable facilities:
-
-``` r
-set.seed(333)
-
-output_allocation_discrete_from_scratch &lt;- allocation_discrete(demand_raster = pop, traveltime_raster=NULL, bb_area = boundary, facilities=NULL, candidate=candidates, n_fac = 10, weights=NULL, objectiveminutes=15, dowscaling_model_type="lm", mode="walk", res_output=100, n_samples=1000)
-
-allocation_plot_discrete(output_allocation_discrete_from_scratch, bb_area = boundary)</code></pre>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">output_allocation_discrete_targetshare</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span>demand_raster <span class="op">=</span> <span class="va">pop</span>, traveltime_raster<span class="op">=</span><span class="cn">NULL</span>, bb_area <span class="op">=</span> <span class="va">boundary</span>, facilities<span class="op">=</span><span class="va">fountains</span>, candidate<span class="op">=</span><span class="va">candidates</span>, n_fac <span class="op">=</span> <span class="fl">10</span>, objectiveshare<span class="op">=</span><span class="fl">0.75</span>, weights<span class="op">=</span><span class="cn">NULL</span>, objectiveminutes<span class="op">=</span><span class="fl">15</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span>, n_samples<span class="op">=</span><span class="fl">1000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/allocation_plot_discrete.html">allocation_plot_discrete</a></span><span class="op">(</span><span class="va">output_allocation_discrete_targetshare</span>, bb_area <span class="op">=</span> <span class="va">boundary</span><span class="op">)</span></span></code></pre></div>
+<p align="center">
+<img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_discrete_fountains.png?raw=true" alt="" width="600"></p>
+<p>Finally, consider the case of a problem where there are no existing facilities to start with, and hence the discrete location-allocation problem needs to optimise the allocation to cover as much as possible of the demand within the limited set of discrete choices over space to allocate new facilities, as well as the constraint set by the maximum number of allocable facilities:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">333</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">output_allocation_discrete_from_scratch</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span>demand_raster <span class="op">=</span> <span class="va">pop</span>, traveltime_raster<span class="op">=</span><span class="cn">NULL</span>, bb_area <span class="op">=</span> <span class="va">boundary</span>, facilities<span class="op">=</span><span class="cn">NULL</span>, candidate<span class="op">=</span><span class="va">candidates</span>, n_fac <span class="op">=</span> <span class="fl">10</span>, weights<span class="op">=</span><span class="cn">NULL</span>, objectiveminutes<span class="op">=</span><span class="fl">15</span>, dowscaling_model_type<span class="op">=</span><span class="st">"lm"</span>, mode<span class="op">=</span><span class="st">"walk"</span>, res_output<span class="op">=</span><span class="fl">100</span>, n_samples<span class="op">=</span><span class="fl">1000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/allocation_plot_discrete.html">allocation_plot_discrete</a></span><span class="op">(</span><span class="va">output_allocation_discrete_from_scratch</span>, bb_area <span class="op">=</span> <span class="va">boundary</span><span class="op">)</span></span></code></pre></div>
 <p align="center">
 <img src="https://github.com/giacfalk/locationallocation/blob/main/outputs/allocation_discrete_fromscratch_fountains.png?raw=true" alt="" width="600"></p>
 <p>Of course, also in the case of the discrete allocation problem, a weight layer and weights normalisation and exponentiation parameters can be set as arguments to the function.</p>
