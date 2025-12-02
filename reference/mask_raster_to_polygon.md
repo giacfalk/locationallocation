@@ -32,6 +32,11 @@ mask_raster_to_polygon(ras, mask, inverse = FALSE, updatevalue = NA)
   [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
   with (default: `NA`).
 
+## Value
+
+A masked [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html)
+object.
+
 ## Examples
 
 ``` r

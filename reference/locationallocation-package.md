@@ -9,9 +9,9 @@ health, emergency response, and urban planning.
 
 Useful links:
 
-- <https://giacfalk.github.io/locationallocation>
+- <https://giacfalk.github.io/locationallocation/>
 
-- <https://github.com/giacfalk/locationallocation>
+- <https://github.com/giacfalk/locationallocation/>
 
 - Report bugs at
   <https://github.com/giacfalk/locationallocation/issues/>

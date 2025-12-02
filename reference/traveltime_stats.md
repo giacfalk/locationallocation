@@ -12,8 +12,8 @@ curve plot.
 traveltime_stats(
   traveltime,
   demand,
-  breaks = c(5, 10, 15, 30),
   objectiveminutes = 15,
+  breaks = c(5, 10, 15, 30),
   print = TRUE
 )
 ```
@@ -31,16 +31,16 @@ traveltime_stats(
   A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
   with the demand layer (e.g. population density).
 
+- objectiveminutes:
+
+  (optional) A number indicating the target travel time in minutes used
+  to compute the statistics (default: `15`).
+
 - breaks:
 
   (optional) A [`numeric`](https://rdrr.io/r/base/numeric.html) object
   indicating the breaks (in minutes) for the cumulative curve plot
   (default: `c(5, 10, 15, 30)`).
-
-- objectiveminutes:
-
-  (optional) A number indicating the target travel time in minutes used
-  to compute the statistics (default: `15`).
 
 - print:
 
@@ -50,11 +50,15 @@ traveltime_stats(
 
 ## Value
 
-A [`list`](https://rdrr.io/r/base/list.html) containing:
+An [invisible](https://rdrr.io/r/base/invisible.html)
+[`list`](https://rdrr.io/r/base/list.html) with the following elements:
 
-- `percent`: A [`numeric`](https://rdrr.io/r/base/numeric.html) value
-  indicating the percent of demand covered within the objective travel
+- `coverage`: A [`numeric`](https://rdrr.io/r/base/numeric.html) value
+  indicating the share of demand covered within the objective travel
   time.
+
+- `unmet_demand`: A [`numeric`](https://rdrr.io/r/base/numeric.html)
+  value indicating the share of demand that remains unmet.
 
 - `data`: A
   [`tibble`](https://dplyr.tidyverse.org/reference/reexports.html)
@@ -87,8 +91,8 @@ if (FALSE) { # \dontrun{
   traveltime_data |>
     traveltime_stats(
       demand = naples_population,
-      breaks = c(5, 10, 15, 30),
-      objectiveminutes = 15
+      objectiveminutes = 15,
+      breaks = c(5, 10, 15, 30)
     )
 } # }
 ```

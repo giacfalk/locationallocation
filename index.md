@@ -13,10 +13,10 @@ MCLA problems with geospatial data. It builds on widely used spatial
 libraries in R, follows [tidyverse
 principles](https://tidyverse.tidyverse.org/articles/manifesto.html),
 and integrates seamlessly with the broader [tidyverse
-ecosystem](https://www.tidyverse.org/). The package can generate
-travel-time maps and optimize the placement of facilities or
-infrastructure according to accessibility criteria, which can be
-weighted by one or more variables or by a user-defined function.
+ecosystem](https://tidyverse.org/). The package can generate travel-time
+maps and optimize the placement of facilities or infrastructure
+according to accessibility criteria, which can be weighted by one or
+more variables or by a user-defined function.
 
 Potential applications of the package extend to the domains of public
 infrastructure assessment and planning (public services provision,
@@ -156,6 +156,11 @@ allocation_data <-
   )
 ```
 
+``` R
+#> ✔ Target coverage share of 99% attained with 28 facilities within the 15
+#> minutes threshold. The achieved coverage share is 99.04153%.
+```
+
 ``` r
 allocation_data |> allocation_plot(naples_shape)
 ```
@@ -183,6 +188,11 @@ allocation_data <-
     exp_demand = 1,
     exp_weights = 1
   )
+```
+
+``` R
+#> ✔ Target coverage share of 99% attained with 25 facilities within the 15
+#> minutes threshold. The achieved coverage share is 99.17146%.
 ```
 
 ``` r
@@ -213,6 +223,11 @@ allocation_data <-
     exp_demand = 2, # <--- Changed
     exp_weights = 1
   )
+```
+
+``` R
+#> ✔ Target coverage share of 99% attained with 9 facilities within the 15
+#> minutes threshold. The achieved coverage share is 99.17055%.
 ```
 
 ``` r
@@ -258,6 +273,11 @@ allocation_data <-
   )
 ```
 
+``` R
+#> ℹ 5 facilities allocated within the 15 minutes threshold. The maximum
+#> coverage share attained was 88.82433%.
+```
+
 ``` r
 allocation_data |> allocation_plot(naples_shape)
 ```
@@ -290,6 +310,11 @@ allocation_data <-
   )
 ```
 
+``` R
+#> ✔ Target coverage share of 90% attained with 2 facilities within the 15
+#> minutes threshold. The achieved coverage share is 90.26097%.
+```
+
 ``` r
 allocation_data |> allocation_plot(naples_shape)
 ```
@@ -315,12 +340,17 @@ allocation_data <-
     traveltime = NULL,
     weights = NULL,
     objectiveminutes = 15,
-    objectiveshare = 0.9,
+    objectiveshare = 0.45,
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1,
     par = FALSE
   )
+```
+
+``` R
+#> ✔ Target coverage share of 45% attained with 2 facilities within the 15
+#> minutes threshold. The achieved coverage share is 45.79176%.
 ```
 
 ``` r

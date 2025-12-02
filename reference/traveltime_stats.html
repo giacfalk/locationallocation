@@ -62,8 +62,8 @@ along with a cumulative curve plot.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">traveltime_stats</span><span class="op">(</span></span>
 <span>  <span class="va">traveltime</span>,</span>
 <span>  <span class="va">demand</span>,</span>
-<span>  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span>,</span>
 <span>  objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span>,</span>
 <span>  print <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,15 +82,15 @@ along with a cumulative curve plot.</p>
 demand layer (e.g. population density).</p></dd>
 
 
+<dt id="arg-objectiveminutes">objectiveminutes<a class="anchor" aria-label="anchor" href="#arg-objectiveminutes"></a></dt>
+<dd><p>(optional) A number indicating the target travel time
+in minutes used to compute the statistics (default: <code>15</code>).</p></dd>
+
+
 <dt id="arg-breaks">breaks<a class="anchor" aria-label="anchor" href="#arg-breaks"></a></dt>
 <dd><p>(optional) A <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></code> object indicating the
 breaks (in minutes) for the cumulative curve plot
 (default: <code>c(5, 10, 15, 30)</code>).</p></dd>
-
-
-<dt id="arg-objectiveminutes">objectiveminutes<a class="anchor" aria-label="anchor" href="#arg-objectiveminutes"></a></dt>
-<dd><p>(optional) A number indicating the target travel time
-in minutes used to compute the statistics (default: <code>15</code>).</p></dd>
 
 
 <dt id="arg-print">print<a class="anchor" aria-label="anchor" href="#arg-print"></a></dt>
@@ -100,8 +100,11 @@ whether to print the results to the console (default: <code>TRUE</code>).</p></d
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></code> containing:</p><ul><li><p><code>percent</code>: A <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></code> value indicating the percent of
+    <p>An <a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a> <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></code> with the
+following elements:</p><ul><li><p><code>coverage</code>: A <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></code> value indicating the share of
 demand covered within the objective travel time.</p></li>
+<li><p><code>unmet_demand</code>: A <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></code> value indicating the share
+of demand that remains unmet.</p></li>
 <li><p><code>data</code>: A <code><a href="https://dplyr.tidyverse.org/reference/reexports.html" class="external-link">tibble</a></code> object with the data used to
 generate the cumulative curve plot.</p></li>
 <li><p><code>plot</code>: A <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></code> object with the cumulative curve
@@ -130,8 +133,8 @@ plot.</p></li>
 <span class="r-in"><span>  <span class="va">traveltime_data</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>    <span class="fu">traveltime_stats</span><span class="op">(</span></span></span>
 <span class="r-in"><span>      demand <span class="op">=</span> <span class="va">naples_population</span>,</span></span>
-<span class="r-in"><span>      breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span></span></span>
+<span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span></span>
+<span class="r-in"><span>      breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

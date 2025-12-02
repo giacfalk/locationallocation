@@ -60,7 +60,8 @@ friction(
 
 ## Value
 
-A [`list`](https://rdrr.io/r/base/list.html) containing:
+An [invisible](https://rdrr.io/r/base/invisible.html)
+[`list`](https://rdrr.io/r/base/list.html) with the following elements:
 
 - `friction_layer`: A
   [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object

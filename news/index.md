@@ -30,6 +30,10 @@
 - Added the demo data as documented exports, and changed their names to:
   `naples_shape`, `naples_population`, `naples_fountains`, and
   `naples_hot_days`.
+- Added scale and north arrow annotations to maps using the
+  [`ggspatial`](https://paleolimbot.github.io/ggspatial/) R package.
+  These are on by default but can be disabled by setting the
+  `annotation_scale` and `annotation_north_arrow` arguments to `FALSE`.
 - Changed the theme of [`ggplot2`](https://ggplot2.tidyverse.org/) plots
   to `theme_minimal()` with customizations.
 - Changed

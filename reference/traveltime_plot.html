@@ -60,7 +60,10 @@ interest.</p>
 <span>  <span class="va">traveltime</span>,</span>
 <span>  <span class="va">bb_area</span>,</span>
 <span>  facilities <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  contour_traveltime <span class="op">=</span> <span class="fl">15</span></span>
+<span>  contour_traveltime <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>  annotation_location <span class="op">=</span> <span class="st">"br"</span>,</span>
+<span>  annotation_scale <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  annotation_north_arrow <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -86,6 +89,25 @@ facilities.</p></dd>
 <dt id="arg-contour-traveltime">contour_traveltime<a class="anchor" aria-label="anchor" href="#arg-contour-traveltime"></a></dt>
 <dd><p>(optional) A number indicating the contour
 thresholds for the travel time (default: <code>15</code>).</p></dd>
+
+
+<dt id="arg-annotation-location">annotation_location<a class="anchor" aria-label="anchor" href="#arg-annotation-location"></a></dt>
+<dd><p>(optional) A <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></code> string
+specifying the location of the annotation on the plot. See
+<code><a href="https://paleolimbot.github.io/ggspatial/reference/annotation_scale.html" class="external-link">annotation_scale</a></code> for possible values
+(default: <code>"br"</code>).</p></dd>
+
+
+<dt id="arg-annotation-scale">annotation_scale<a class="anchor" aria-label="anchor" href="#arg-annotation-scale"></a></dt>
+<dd><p>(optional) A <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></code> flag
+indicating whether to include a scale annotation on the plot (default:
+<code>TRUE</code>).</p></dd>
+
+
+<dt id="arg-annotation-north-arrow">annotation_north_arrow<a class="anchor" aria-label="anchor" href="#arg-annotation-north-arrow"></a></dt>
+<dd><p>(optional) A <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></code> flag
+indicating whether to include a north arrow annotation on the plot
+(default: <code>TRUE</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

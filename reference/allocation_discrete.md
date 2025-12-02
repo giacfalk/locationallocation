@@ -167,8 +167,16 @@ allocation_discrete(
 
 ## Value
 
-A [`list`](https://rdrr.io/r/base/list.html) with the following
-elements:
+An [invisible](https://rdrr.io/r/base/invisible.html)
+[`list`](https://rdrr.io/r/base/list.html) with the following elements:
+
+- `coverage`: A [`numeric`](https://rdrr.io/r/base/numeric.html) value
+  indicating the share of demand covered within the objective travel
+  time after allocating the new facilities.
+
+- `unmet_demand`: A [`numeric`](https://rdrr.io/r/base/numeric.html)
+  value indicating the share of demand that remains unmet after
+  allocating the new facilities.
 
 - `objective_minutes`: The value of the `objectiveminutes` parameter
   used.
@@ -183,10 +191,6 @@ elements:
   [`raster`](https://rdrr.io/pkg/raster/man/raster.html) RasterLayer
   object representing the travel time map with the newly allocated
   facilities.
-
-- `unmet_demand`: A [`numeric`](https://rdrr.io/r/base/numeric.html)
-  value indicating the share of demand that remains unmet after
-  allocating the new facilities.
 
 ## See also
 

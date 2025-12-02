@@ -12,7 +12,10 @@ traveltime_plot(
   traveltime,
   bb_area,
   facilities = NULL,
-  contour_traveltime = 15
+  contour_traveltime = 15,
+  annotation_location = "br",
+  annotation_scale = TRUE,
+  annotation_north_arrow = TRUE
 )
 ```
 
@@ -38,6 +41,25 @@ traveltime_plot(
 
   (optional) A number indicating the contour thresholds for the travel
   time (default: `15`).
+
+- annotation_location:
+
+  (optional) A [`character`](https://rdrr.io/r/base/character.html)
+  string specifying the location of the annotation on the plot. See
+  [`annotation_scale`](https://paleolimbot.github.io/ggspatial/reference/annotation_scale.html)
+  for possible values (default: `"br"`).
+
+- annotation_scale:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether to include a scale annotation on the plot (default:
+  `TRUE`).
+
+- annotation_north_arrow:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether to include a north arrow annotation on the plot
+  (default: `TRUE`).
 
 ## Value
 

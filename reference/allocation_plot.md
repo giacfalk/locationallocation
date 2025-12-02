@@ -10,7 +10,13 @@ coverage attained.
 ## Usage
 
 ``` r
-allocation_plot(allocation, bb_area)
+allocation_plot(
+  allocation,
+  bb_area,
+  annotation_location = "br",
+  annotation_scale = TRUE,
+  annotation_north_arrow = TRUE
+)
 ```
 
 ## Arguments
@@ -28,6 +34,25 @@ allocation_plot(allocation, bb_area)
   A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
   boundary box object with the area of interest.
 
+- annotation_location:
+
+  (optional) A [`character`](https://rdrr.io/r/base/character.html)
+  string specifying the location of the annotation on the plot. See
+  [`annotation_scale`](https://paleolimbot.github.io/ggspatial/reference/annotation_scale.html)
+  for possible values (default: `"br"`).
+
+- annotation_scale:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether to include a scale annotation on the plot (default:
+  `TRUE`).
+
+- annotation_north_arrow:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether to include a north arrow annotation on the plot
+  (default: `TRUE`).
+
 ## Value
 
 A [`ggplot2`](https://ggplot2.tidyverse.org/reference/ggplot.html) plot
@@ -39,13 +64,14 @@ showing the potential locations for new facilities.
 ## Plotting Results of the `allocation()` Function -----
 
 if (FALSE) { # \dontrun{
-  traveltime_data <- traveltime(
-    facilities = naples_fountains,
-    bb_area = naples_shape,
-    dowscaling_model_type = "lm",
-    mode = "walk",
-    res_output = 100
-  )
+  traveltime_data <-
+    naples_fountains |>
+    traveltime(
+      bb_area = naples_shape,
+      dowscaling_model_type = "lm",
+      mode = "walk",
+      res_output = 100
+    )
 
   allocation_data <-
     naples_population |>
@@ -70,13 +96,14 @@ if (FALSE) { # \dontrun{
 if (FALSE) { # \dontrun{
   library(sf)
 
-  traveltime_data <- traveltime(
-    facilities = naples_fountains,
-    bb_area = naples_shape,
-    dowscaling_model_type = "lm",
-    mode = "walk",
-    res_output = 100
-  )
+  traveltime_data <-
+    naples_fountains |>
+    traveltime(
+      bb_area = naples_shape,
+      dowscaling_model_type = "lm",
+      mode = "walk",
+      res_output = 100
+    )
 
   allocation_data <-
     naples_population |>
