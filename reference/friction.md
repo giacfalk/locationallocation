@@ -17,7 +17,9 @@ friction(
   bb_area,
   mode = "walk",
   dowscaling_model_type = "lm",
-  res_output = 100
+  res_output = 100,
+  cache = FALSE,
+  file = NULL
 )
 ```
 
@@ -57,6 +59,19 @@ friction(
   number indicating the spatial resolution of the friction raster (and
   of the analysis), in meters. If the resolution is less than `1000`, a
   spatial downscaling approach is used (default: `100`).
+
+- cache:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether to cache the downloaded friction data for future
+  use (default: `TRUE`).
+
+- file:
+
+  (optional) A [`character`](https://rdrr.io/r/base/character.html)
+  string indicating the path to a local friction surface raster file. If
+  provided, the function will use this file instead of downloading the
+  friction data.
 
 ## Value
 

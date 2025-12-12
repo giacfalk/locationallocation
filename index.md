@@ -127,7 +127,7 @@ traveltime_data |>
     breaks = c(5, 10, 15, 30),
     objectiveminutes = 15
   )
-#> ℹ 85.52495% of coverage within the 15 minutes threshold.
+#> ℹ 85.45148% of coverage within the 15 minutes threshold.
 ```
 
 ![](reference/figures/traveltime-stats-1.png)
@@ -158,7 +158,7 @@ allocation_data <-
 
 ``` R
 #> ✔ Target coverage share of 99% attained with 28 facilities within the 15
-#> minutes threshold. The achieved coverage share is 99.04153%.
+#> minutes threshold. The achieved coverage share is 99.03953%.
 ```
 
 ``` r
@@ -192,7 +192,7 @@ allocation_data <-
 
 ``` R
 #> ✔ Target coverage share of 99% attained with 25 facilities within the 15
-#> minutes threshold. The achieved coverage share is 99.17146%.
+#> minutes threshold. The achieved coverage share is 99.16903%.
 ```
 
 ``` r
@@ -227,7 +227,7 @@ allocation_data <-
 
 ``` R
 #> ✔ Target coverage share of 99% attained with 9 facilities within the 15
-#> minutes threshold. The achieved coverage share is 99.17055%.
+#> minutes threshold. The achieved coverage share is 99.15597%.
 ```
 
 ``` r
@@ -275,7 +275,7 @@ allocation_data <-
 
 ``` R
 #> ℹ 5 facilities allocated within the 15 minutes threshold. The maximum
-#> coverage share attained was 88.82433%.
+#> coverage share attained was 88.76062%.
 ```
 
 ``` r
@@ -312,7 +312,7 @@ allocation_data <-
 
 ``` R
 #> ✔ Target coverage share of 90% attained with 2 facilities within the 15
-#> minutes threshold. The achieved coverage share is 90.26097%.
+#> minutes threshold. The achieved coverage share is 90.20134%.
 ```
 
 ``` r
@@ -350,7 +350,7 @@ allocation_data <-
 
 ``` R
 #> ✔ Target coverage share of 45% attained with 2 facilities within the 15
-#> minutes threshold. The achieved coverage share is 45.79176%.
+#> minutes threshold. The achieved coverage share is 46.40227%.
 ```
 
 ``` r
@@ -368,14 +368,14 @@ support its continued improvement.
 ``` r
 citation("locationallocation")
 #> To cite locationallocation in publications use:
-#>
+#> 
 #>   Falchetta, G. (2025). locationallocation: Solving Maximal Coverage
 #>   Location-Allocation geospatial infrastructure assessment and
 #>   planning problems [Preprint, manuscript submitted for
 #>   publication]. EarthArXiv. https://doi.org/10.31223/X5XQ69
-#>
+#> 
 #> A BibTeX entry for LaTeX users is
-#>
+#> 
 #>   @Article{falchetta2025,
 #>     title = {locationallocation: Solving Maximal Coverage Location-Allocation geospatial infrastructure assessment and planning problems},
 #>     author = {Giacomo Falchetta},

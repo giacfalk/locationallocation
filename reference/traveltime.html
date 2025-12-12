@@ -64,7 +64,9 @@ layer is generated.</p>
 <span>  <span class="va">bb_area</span>,</span>
 <span>  mode <span class="op">=</span> <span class="st">"walk"</span>,</span>
 <span>  dowscaling_model_type <span class="op">=</span> <span class="st">"lm"</span>,</span>
-<span>  res_output <span class="op">=</span> <span class="fl">100</span></span>
+<span>  res_output <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  cache <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -108,6 +110,18 @@ forest) (default: <code>"lm"</code>).</p></dd>
 resolution of the friction raster (and of the analysis), in meters. If the
 resolution is less than <code>1000</code>, a spatial downscaling approach is used
 (default: <code>100</code>).</p></dd>
+
+
+<dt id="arg-cache">cache<a class="anchor" aria-label="anchor" href="#arg-cache"></a></dt>
+<dd><p>(optional) A <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></code> flag
+indicating whether to cache the downloaded friction data for future use
+(default: <code>TRUE</code>).</p></dd>
+
+
+<dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
+<dd><p>(optional) A <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></code> string indicating
+the path to a local friction surface raster file. If provided, the
+function will use this file instead of downloading the friction data.</p></dd>
 
 </dl></div>
     <div class="section level2">
