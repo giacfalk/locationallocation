@@ -53,5 +53,11 @@ normalize_raster <- function(r) {
 }
 
 get_cache_directory <- function() {
-  tools::R_user_dir("locationallocation", which = "cache")
+  out <- tools::R_user_dir("locationallocation", which = "cache")
+
+  if (!dir.exists(out)) {
+    dir.create(out, recursive = TRUE)
+  }
+
+  out
 }
