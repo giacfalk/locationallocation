@@ -379,17 +379,14 @@ citation("locationallocation")
 #>   planning problems [Preprint, manuscript submitted for
 #>   publication]. EarthArXiv. https://doi.org/10.31223/X5XQ69
 #> 
-#> A BibTeX entry for LaTeX users is
 #> 
-#>   @Article{falchetta2025,
-#>     title = {locationallocation: Solving Maximal Coverage Location-Allocation geospatial infrastructure assessment and planning problems},
-#>     author = {Giacomo Falchetta},
-#>     year = {2025},
-#>     journal = {EarthArXiv},
-#>     doi = {10.31223/X5XQ69},
-#>     langid = {en},
-#>     note = {Preprint, manuscript submitted for publication},
-#>   }
+#> @misc{falchetta_locationallocation_2025,
+#>   author       = {Falchetta, Giacomo and Vartanian, Daniel},
+#>   title        = {locationallocation: an R package to solve Maximal Coverage Location-Allocation problems},
+#>   year         = {2025},
+#>   howpublished = {\url{https://github.com/giacfalk/locationallocation}},
+#>   note         = {GitHub repository},
+#> }
 ```
 
 ## License
@@ -397,7 +394,7 @@ citation("locationallocation")
 [![](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ``` text
-Copyright (C) 2025 Giacomo Falchetta
+Copyright (C) 2025 Giacomo Falchetta, Daniel Vartanian
 
 locationallocation is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
