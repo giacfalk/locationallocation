@@ -321,16 +321,16 @@
     },
     "15": {
       "@type": "SoftwareApplication",
-      "identifier": "raster",
-      "name": "raster",
-      "version": ">= 3.6.32",
+      "identifier": "stars",
+      "name": "stars",
+      "version": ">= 0.6.8",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=raster"
+      "sameAs": "https://CRAN.R-project.org/package=stars"
     },
     "16": {
       "@type": "SoftwareApplication",
@@ -366,24 +366,11 @@
     },
     "19": {
       "@type": "SoftwareApplication",
-      "identifier": "terra",
-      "name": "terra",
-      "version": ">= 1.8.86",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=terra"
-    },
-    "20": {
-      "@type": "SoftwareApplication",
       "identifier": "tools",
       "name": "tools",
       "version": ">= 4.4"
     },
-    "21": {
+    "20": {
       "@type": "SoftwareApplication",
       "identifier": "zip",
       "name": "zip",

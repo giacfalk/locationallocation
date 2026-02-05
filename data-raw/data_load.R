@@ -1,5 +1,5 @@
 library(here)
-library(raster)
+library(stars)
 library(sf)
 library(usethis)
 
@@ -12,9 +12,9 @@ library(usethis)
 #'   representing the administrative boundary of the city of Naples, Italy.
 #' - `naples_fountains`: A [`sf`][sf::st_as_sf()] point geometry object
 #'   representing the water fountains in the city of Naples, Italy.
-#' - `naples_population`: A [`Raster`][raster::raster()] object representing the
+#' - `naples_population`: A [`stars`][stars::st_as_stars()] object representing the
 #'   population density in the city of Naples, Italy.
-#' - `naples_hot_days`: A [`Raster`][raster::raster()] object representing the
+#' - `naples_hot_days`: A [`stars`][stars::st_as_stars()] object representing the
 #'   number of hot days in the city of Naples, Italy.
 #'
 #' @return An invisible `NULL`. This function is used for its side effect.
@@ -35,12 +35,12 @@ data_load <- function() {
     ),
     list(
       file = here::here("data-raw", "naples-population.tif"),
-      fun = \(x) raster::readAll(raster::raster(x)),
+      fun = stars::read_stars,
       name = "naples_population"
     ),
     list(
       file = here::here("data-raw", "naples-hot-days.tif"),
-      fun = \(x) raster::readAll(raster::raster(x)),
+      fun = stars::read_stars,
       name = "naples_hot_days"
     )
   )

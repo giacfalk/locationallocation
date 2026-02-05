@@ -25,7 +25,7 @@ allocation_discrete(
 )
 }
 \arguments{
-\item{demand}{A \code{\link[raster:raster]{RasterLayer}} object with the
+\item{demand}{A \code{\link[stars:st_as_stars]{stars}} object with the
 demand layer (e.g. population density).}
 
 \item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
@@ -125,7 +125,7 @@ of demand that remains unmet after allocating the new facilities.
 \item \code{objective_share}: The value of the \code{objectiveshare} parameter used.
 \item \code{facilities}: A \code{\link[sf:sf]{sf}} object with the newly allocated
 facilities.
-\item \code{travel_time}: A \code{\link[raster:raster]{raster}} RasterLayer object
+\item \code{travel_time}: A \code{\link[stars:st_as_stars]{stars}} object
 representing the travel time map with the newly allocated facilities.
 }
 }

@@ -14,7 +14,7 @@ library(badger)
 library(ggplot2)
 library(here)
 library(magrittr)
-library(raster)
+library(stars)
 library(sf)
 library(tidyterra)
 
@@ -93,7 +93,7 @@ These datasets include the coordinates of public drinking water fountains (blue 
 #| echo: false
 
 library(ggplot2)
-library(raster)
+library(stars)
 library(sf)
 library(tidyterra)
 

@@ -36,7 +36,7 @@
 #'
 #' @return An [invisible][base::invisible] [`list`][base::list] with the
 #'   following elements:
-#'   - `friction_layer`: A [`RasterLayer`][raster::raster()] object with the
+#'   - `friction_layer`: A [`stars`][stars::st_as_stars()] object with the
 #'   friction surface layer.
 #'   - `transition_matrix`: A [`TransitionLayer`][gdistance::transition()] with
 #'   the transition matrix for cost-distance calculations.
@@ -91,16 +91,15 @@ friction <- function(
 
     checkmate::assert_file_exists(file)
 
-    friction_layer <- file |> terra::rast()
+    friction_layer <- file |> stars::read_stars()
 
     friction_layer <-
       friction_layer |>
-      terra::crop(
+      stars::st_crop(
         bb_area |>
           sf::st_transform(sf::st_crs(friction_layer)) |>
-          terra::ext()
-      ) |>
-      raster::raster()
+          sf::st_bbox()
+      )
   } else {
     if (mode == "fastest") {
       dataset <- "Accessibility__201501_Global_Travel_Speed_Friction_Surface"
@@ -120,7 +119,7 @@ friction <- function(
         malariaAtlas::getRaster(
           extent = matrix(sf::st_bbox(bb_area), ncol = 2),
         ) |>
-        raster::raster()
+        stars::st_as_stars()
     }
   }
 
@@ -138,65 +137,51 @@ friction <- function(
     r <-
       bb_area |>
       sf::st_transform(crs = 3395) |>
-      raster::extent() |>
-      raster::raster(res = res_output, crs = sf::st_crs(3395)$proj4string)
+      sf::st_bbox() |>
+      stars::st_as_stars(dx = res_output, dy = res_output) |>
+      sf::st_set_crs(3395)
 
     streets <-
       x$osm_lines |>
       sf::st_transform(crs = 3395) |>
       sf::st_buffer(res_output) |>
-      terra::vect() |>
-      terra::rasterize(
-        r |> terra::rast(),
-        background = NA,
-        fun = "sum"
-      ) |>
-      raster::raster()
+      stars::st_rasterize(
+        template = r
+      )
 
     d <-
       streets |>
-      terra::rast() |>
-      terra::project(y = sf::st_crs(4326)$proj4string)
+      stars::st_warp(crs = sf::st_crs(4326), method = "near")
 
-    terra::values(d) <- ifelse(
-      terra::values(d) < 0,
-      0,
-      terra::values(d)
-    )
-
-    terra::values(d) <- ifelse(
-      is.na(terra::values(d)),
-      0,
-      terra::values(d)
-    )
+    d_values <- stars::st_values(d)
+    d_values <- ifelse(is.na(d_values) | d_values < 0, 0, d_values)
+    stars::st_values(d) <- d_values
 
     d <-
       d |>
-      raster::raster() |>
-      raster::crop(friction_layer)
+      stars::st_crop(sf::st_bbox(friction_layer))
 
     d_2 <- d
 
-    d <- raster::stack(d, d_2)
-
-    names(d) <- paste0("l", 1:raster::nlayers(d))
+    d <- c(d, d_2)
+    names(d) <- paste0("l", seq_along(d))
 
     min_iter <- 2
     max_iter <- 10
     p_train <- 0.5
 
-    if (length(unique(raster::values(friction_layer))) == 1) {
-      raster::values(friction_layer) <-
+    if (length(unique(stars::st_values(friction_layer))) == 1) {
+      stars::st_values(friction_layer) <-
         stats::runif(
-          min = unique(raster::values(friction_layer)) * 0.9,
-          max = unique(raster::values(friction_layer)) * 1.1,
-          n = length(raster::values(friction_layer))
+          min = unique(stars::st_values(friction_layer)) * 0.9,
+          max = unique(stars::st_values(friction_layer)) * 1.1,
+          n = length(stars::st_values(friction_layer))
         )
     }
 
     res_rf <- dissever::dissever(
-      coarse = friction_layer, # stack of fine resolution covariates
-      fine = d, # coarse resolution raster
+      coarse = as_raster_if_needed(friction_layer), # stack of fine resolution covariates
+      fine = as_raster_if_needed(d), # coarse resolution raster
       method = dowscaling_model_type, # regression method used for disseveration
       p = p_train, # proportion of pixels sampled for training regression model
       min_iter = min_iter, # minimum iterations
@@ -204,13 +189,16 @@ friction <- function(
       verbose = TRUE
     )
 
-    raster::values(res_rf$map) <- ifelse(
-      raster::values(res_rf$map) <= 0,
-      min(raster::values(friction_layer), na.rm = TRUE),
-      raster::values(res_rf$map)
+    res_rf_map <- as_stars_if_needed(res_rf$map)
+    res_rf_values <- stars::st_values(res_rf_map)
+    res_rf_values <- ifelse(
+      res_rf_values <= 0,
+      min(stars::st_values(friction_layer), na.rm = TRUE),
+      res_rf_values
     )
+    stars::st_values(res_rf_map) <- res_rf_values
 
-    friction_layer <- res_rf$map
+    friction_layer <- res_rf_map
   } else {
     friction_layer <- friction_layer
   }
@@ -219,6 +207,7 @@ friction <- function(
 
   transition_matrix <-
     friction_layer |>
+    as_raster_if_needed() |>
     # RAM intensive, can be very slow for large areas.
     gdistance::transition(\(x) 1 / mean(x), 16)
 

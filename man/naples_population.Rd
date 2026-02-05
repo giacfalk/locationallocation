@@ -5,7 +5,7 @@
 \alias{naples_population}
 \title{Population density in the city of Naples, Italy}
 \format{
-A \code{\link[raster:raster]{RasterLayer}} object with 1 layer.
+A \code{\link[stars:st_as_stars]{stars}} object with 1 layer.
 }
 \source{
 Global Human Settlement Layer
@@ -15,7 +15,7 @@ Global Human Settlement Layer
 naples_population
 }
 \description{
-A \code{\link[raster:raster]{RasterLayer}} object representing the population
+A \code{\link[stars:st_as_stars]{stars}} object representing the population
 density in the city of Naples, Italy.
 
 The dataset is based on the Global Human

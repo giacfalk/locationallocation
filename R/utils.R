@@ -1,19 +1,57 @@
-#' This function is a workaround to ensure that the `raster` package
-#' is loaded when plotting `RasterLayer` objects from within the
-#' `locationallocation` package (e.g., `plot(naples_population)`).
-#'
-#' Simply importing `plot` with `importFrom()` does not work because
-#' S4 method dispatch requires the `raster` package to be loaded for
-#' RasterLayer objects to be plotted correctly.
-#'
 #' @noRd
 #' @export
 plot <- function(x, ...) {
-  if (inherits(x, "RasterLayer")) {
-    raster::plot(x, ...)
-  } else {
-    graphics::plot(x, ...)
+  graphics::plot(x, ...)
+}
+
+as_stars_if_needed <- function(x) {
+  if (inherits(x, "stars")) {
+    return(x)
   }
+
+  if (!requireNamespace("stars", quietly = TRUE)) {
+    cli::cli_abort("The {.pkg stars} package is required to handle raster data.")
+  }
+
+  stars::st_as_stars(x)
+}
+
+as_raster_if_needed <- function(x) {
+  if (inherits(x, "Raster")) {
+    return(x)
+  }
+
+  if (!requireNamespace("raster", quietly = TRUE)) {
+    cli::cli_abort(
+      "The {.pkg raster} package is required for cost-distance calculations."
+    )
+  }
+
+  methods::as(x, "Raster")
+}
+
+assert_stars <- function(x, null_ok = FALSE) {
+  if (isTRUE(null_ok) && is.null(x)) {
+    return(invisible(TRUE))
+  }
+
+  checkmate::assert_class(x, "stars")
+}
+
+stars_sum <- function(x) {
+  sum(stars::st_values(x), na.rm = TRUE)
+}
+
+stars_max_cell <- function(x) {
+  value_name <- names(x)[1]
+  values <- as.vector(stars::st_values(x))
+  values_no_na <- ifelse(is.na(values), -Inf, values)
+  max_index <- which.max(values_no_na)
+
+  data <- as.data.frame(x, xy = TRUE)
+  max_row <- data[which.max(data[[value_name]]), c("x", "y"), drop = FALSE]
+
+  list(index = max_index, xy = max_row)
 }
 
 facilities_coordinates <- function(facilities, bb_area = NULL) {
@@ -47,8 +85,9 @@ points_to_matrix <- function(points, n = NULL) {
 }
 
 normalize_raster <- function(r) {
-  r_min <- raster::cellStats(r, stat = "min")
-  r_max <- raster::cellStats(r, stat = "max")
+  r_values <- stars::st_values(r)
+  r_min <- min(r_values, na.rm = TRUE)
+  r_max <- max(r_values, na.rm = TRUE)
 
   (r - r_min) / (r_max - r_min)
 }

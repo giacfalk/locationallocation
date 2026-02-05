@@ -235,8 +235,7 @@ perform location-allocation spatial optimization at a high
 spatial-resolution (particularly useful in urban-scale applications). A
 set of reporting functions and graphical outputs are pre-calculated as
 part of the package. The package further relies on *malariaAtlas* and
-*gdistance* functions, as well as on *raster*, *terra*, and *sf* object
-classes.\
+*gdistance* functions, as well as on *stars* and *sf* object classes.\
 
 - **Friction layers:** Malaria Atlas friction surfaces: walking or
   fastest mode. These datasets provide 1-km resolution global gridded
@@ -249,7 +248,7 @@ classes.\
 - **Point locations for candidate facilities:** Optional, a point simple
   feature geometry object ($sf$).
 
-- **Demand weights:** A raster. It can be, for instance, population
+- **Demand weights:** A raster (handled as a *stars* object). It can be, for instance, population
   counts per location (grid cell) - optionally in a weighted form by
   specifying the $weights$ argument to another raster of a function of
   several rasters. This would allow using a risk framework where the

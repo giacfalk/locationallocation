@@ -25,15 +25,14 @@ get_cache_data <- function(dataset, bb_area) {
   if (!is.na(file)) {
     cli::cli_progress_step("Using cached surface friction data")
 
-    out <- file |> terra::rast()
+    out <- file |> stars::read_stars()
 
     out |>
-      terra::crop(
+      stars::st_crop(
         bb_area |>
           sf::st_transform(sf::st_crs(out)) |>
-          terra::ext()
-      ) |>
-      raster::raster()
+          sf::st_bbox()
+      )
   } else {
     cli::cli_progress_step("Downloading and caching surface friction data")
 

@@ -1,2 +1,2 @@
-#' @param demand A [`RasterLayer`][raster::raster()] object with the
+#' @param demand A [`stars`][stars::st_as_stars()] object with the
 #'   demand layer (e.g. population density).

@@ -67,7 +67,7 @@ traveltime_plot <- function(
     traveltime |>
     magrittr::extract2("travel_time") |>
     mask_raster_to_polygon(bb_area) |>
-    raster::as.data.frame(xy = TRUE) |>
+    as.data.frame(xy = TRUE) |>
     stats::na.omit()
 
   plot <-
@@ -101,7 +101,7 @@ traveltime_plot <- function(
     max_travel_time <-
       traveltime |>
       magrittr::extract2("travel_time") |>
-      raster::values() |>
+      stars::st_values() |>
       max(na.rm = TRUE)
 
     if (max_travel_time > contour_traveltime) {

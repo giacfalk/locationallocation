@@ -16,7 +16,7 @@ traveltime_stats(
 \item{traveltime}{A \code{\link[base:list]{list}} with the output of the
 \code{\link[=traveltime]{traveltime()}} function.}
 
-\item{demand}{A \code{\link[raster:raster]{RasterLayer}} object with the
+\item{demand}{A \code{\link[stars:st_as_stars]{stars}} object with the
 demand layer (e.g. population density).}
 
 \item{objectiveminutes}{(optional) A number indicating the target travel time

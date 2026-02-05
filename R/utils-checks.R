@@ -128,7 +128,7 @@ assert_minimal_coverage <- function(
   null_ok = FALSE
 ) {
   assert_traveltime(traveltime)
-  checkmate::assert_class(demand, "RasterLayer")
+  assert_stars(demand)
   checkmate::assert_number(objectiveminutes, lower = 0)
   checkmate::assert_number(objectiveshare, lower = 0, upper = 1, null.ok = TRUE)
   checkmate::assert_flag(null_ok)

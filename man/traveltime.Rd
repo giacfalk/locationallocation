@@ -57,7 +57,7 @@ function will use this file instead of downloading the friction data.}
 An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
 following elements:
 \itemize{
-\item \code{travel_time}: A \code{\link[raster:raster]{RasterLayer}} object with the travel
+\item \code{travel_time}: A \code{\link[stars:st_as_stars]{stars}} object with the travel
 time map.
 \item \code{friction}: A \code{\link[base:list]{list}} with the outputs of the
 \code{\link[=friction]{friction()}} function.

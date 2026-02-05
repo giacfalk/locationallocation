@@ -53,7 +53,7 @@ function will use this file instead of downloading the friction data.}
 An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
 following elements:
 \itemize{
-\item \code{friction_layer}: A \code{\link[raster:raster]{RasterLayer}} object with the
+\item \code{friction_layer}: A \code{\link[stars:st_as_stars]{stars}} object with the
 friction surface layer.
 \item \code{transition_matrix}: A \code{\link[gdistance:transition]{TransitionLayer}} with
 the transition matrix for cost-distance calculations.

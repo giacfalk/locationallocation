@@ -22,7 +22,7 @@
 #' @template params-bb-area
 #' @template params-facilities
 #' @template params-traveltime-b
-#' @param weights (optional) A raster with the weights for the demand (default:
+#' @param weights (optional) A `stars` raster with the weights for the demand (default:
 #' `NULL`).
 #' @template params-objectiveminutes
 #' @template params-objectiveshare-a
@@ -73,7 +73,7 @@
 #'   - `objective_share`: The value of the `objectiveshare` parameter used.
 #'   - `facilities`: A [`sf`][sf::sf()] object with the newly allocated
 #'   facilities.
-#'   - `travel_time`: A [`raster`][raster::raster()] RasterLayer object
+#'   - `travel_time`: A [`stars`][stars::st_as_stars()] object
 #'   representing the travel time map with the newly allocated facilities.
 #'
 #' @family location-allocation functions
@@ -152,16 +152,24 @@ apply_demand_transformation <- function(demand, weights, approach, exp_demand, e
 # Helper function: Find next facility location based on heuristic
 find_next_facility <- function(demand, heur, all_prev = NULL) {
   if (heur == "kd") {
-    return(raster::which.max(raster::raster(spatialEco::sp.kde(
-      x = sf::st_as_sf(raster::rasterToPoints(demand, spatial = TRUE)),
-      bw = terra::res(demand)*10,
-      res = terra::res(demand),
+    kde <- spatialEco::sp.kde(
+      x = sf::st_as_sf(demand, as_points = TRUE),
+      bw = min(stars::st_dimensions(demand)$x$delta,
+               stars::st_dimensions(demand)$y$delta) * 10,
+      res = min(stars::st_dimensions(demand)$x$delta,
+                stars::st_dimensions(demand)$y$delta),
       standardize = TRUE,
       scale.factor = 10000
-    )) %>% raster::projectRaster(demand))) }
+    )
+
+    kde <- as_stars_if_needed(kde) |>
+      stars::st_warp(dest = demand, method = "near")
+
+    return(stars_max_cell(kde))
+  }
 
   # heur == "max"
-  raster::which.max(demand)
+  stars_max_cell(demand)
 }
 
 # Helper function: Initialize or accumulate new facilities
@@ -178,14 +186,11 @@ accumulate_facility <- function(new_facilities, pos) {
 
 # Helper function: Apply travel time mask to demand
 mask_demand_by_traveltime <- function(demand, traveltime, objectiveminutes) {
-  demand |>
-    raster::overlay(
-      traveltime,
-      fun = function(x, y) {
-        x[y <= objectiveminutes] <- NA
-        x
-      }
-    )
+  demand_values <- stars::st_values(demand)
+  traveltime_values <- stars::st_values(traveltime)
+  demand_values[traveltime_values <= objectiveminutes] <- NA
+  stars::st_values(demand) <- demand_values
+  demand
 }
 
 allocation <- function(
@@ -204,14 +209,22 @@ allocation <- function(
     exp_demand = 1,
     exp_weights = 1
 ) {
-  checkmate::assert_class(demand, "RasterLayer")
+  demand <- as_stars_if_needed(demand)
+  demand <- as_stars_if_needed(demand)
+  assert_stars(demand)
   assert_bb_area(bb_area)
   assert_facilities(facilities)
   assert_traveltime(traveltime, null_ok = TRUE)
   checkmate::assert_choice(mode, choices = c("walk", "fastest"))
   checkmate::assert_choice(dowscaling_model_type, choices = c("lm", "rf"))
   checkmate::assert_count(res_output, positive = TRUE)
-  checkmate::assert_class(weights, "RasterLayer", null.ok = TRUE)
+  if (!is.null(weights)) {
+    weights <- as_stars_if_needed(weights)
+  }
+  if (!is.null(weights)) {
+    weights <- as_stars_if_needed(weights)
+  }
+  assert_stars(weights, null_ok = TRUE)
   checkmate::assert_number(objectiveminutes, lower = 0)
   checkmate::assert_number(objectiveshare, lower = 0, upper = 1)
   checkmate::assert_choice(heur, choices = c("max", "kd"))
@@ -252,17 +265,14 @@ allocation <- function(
     traveltime_raster_outer[[1]] |>
     mask_raster_to_polygon(bb_area)
 
-  raster::crs(traveltime) <-
-    "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-
-  traveltime <- raster::projectRaster(traveltime, demand)
-
-  raster::crs(traveltime) <- "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+  sf::st_crs(traveltime) <- 4326
+  traveltime <- stars::st_warp(traveltime, dest = demand, method = "near")
+  sf::st_crs(traveltime) <- 4326
 
   # Apply demand transformation using helper
   demand <- apply_demand_transformation(demand, weights, approach, exp_demand, exp_weights, bb_area)
 
-  totalpopconstant <- demand |> raster::cellStats("sum", na.rm = TRUE)
+  totalpopconstant <- stars_sum(demand)
 
   demand <- mask_demand_by_traveltime(demand, traveltime, objectiveminutes)
 
@@ -274,11 +284,7 @@ allocation <- function(
     iter <- iter + 1
 
     all <- find_next_facility(demand, heur, all_prev = NULL)
-
-    pos <-
-      demand |>
-      raster::xyFromCell(all) |>
-      as.data.frame()
+    pos <- all$xy
 
     new_facilities <- accumulate_facility(new_facilities, pos)
 
@@ -300,21 +306,18 @@ allocation <- function(
     traveltime_raster_new <-
       traveltime_raster_outer[[2]][[3]] |>
       gdistance::accCost(xy_matrix) |>
-      raster::crop(raster::extent(demand)) |>
-      raster::`crs<-`(
-        value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-      ) |>
-      raster::projectRaster(demand) |>
-      raster::`crs<-`(
-        value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-      ) |>
+      as_stars_if_needed() |>
+      stars::st_crop(sf::st_bbox(demand)) |>
+      sf::st_set_crs(4326) |>
+      stars::st_warp(dest = demand, method = "near") |>
+      sf::st_set_crs(4326) |>
       mask_raster_to_polygon(bb_area)
 
     demand <- mask_demand_by_traveltime(demand, traveltime_raster_new, objectiveminutes)
 
     k <-
       demand |>
-      raster::cellStats("sum", na.rm = TRUE) |>
+      stars_sum() |>
       magrittr::divide_by(totalpopconstant)
 
     k_save[iter] <- k
@@ -330,7 +333,9 @@ allocation <- function(
     if (k < (1 - objectiveshare)) {
       break
     } else if (k == k_save[iter - 1]) {
-      raster::values(demand)[all] <- NA
+      demand_values <- stars::st_values(demand)
+      demand_values[all$index] <- NA
+      stars::st_values(demand) <- demand_values
     }
   }
 
@@ -382,28 +387,22 @@ apply_demand_transformation <- function(demand, weights, approach, exp_demand, e
 
 # Helper: Mask demand by travel time threshold
 mask_demand_by_traveltime <- function(demand, traveltime_raster, objectiveminutes) {
-  demand |>
-    raster::overlay(
-      traveltime_raster,
-      fun = function(x, y) {
-        x[y <= objectiveminutes] <- NA
-        x
-      }
-    )
+  demand_values <- stars::st_values(demand)
+  traveltime_values <- stars::st_values(traveltime_raster)
+  demand_values[traveltime_values <= objectiveminutes] <- NA
+  stars::st_values(demand) <- demand_values
+  demand
 }
 
 # Helper: Calculate travel time raster from cost surface
 calculate_traveltime_raster <- function(traveltime_raster_outer, xy_matrix, demand, bb_area) {
   traveltime_raster_outer[[2]][[3]] |>
     gdistance::accCost(xy_matrix) |>
-    raster::crop(raster::extent(demand)) |>
-    raster::`crs<-`(
-      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-    ) |>
-    raster::projectRaster(demand) |>
-    raster::`crs<-`(
-      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-    ) |>
+    as_stars_if_needed() |>
+    stars::st_crop(sf::st_bbox(demand)) |>
+    sf::st_set_crs(4326) |>
+    stars::st_warp(dest = demand, method = "near") |>
+    sf::st_set_crs(4326) |>
     mask_raster_to_polygon(bb_area)
 }
 
@@ -471,9 +470,9 @@ initialize_traveltime <- function(traveltime, demand, bb_area, mode, dowscaling_
     return(list(traveltime_outer = traveltime, is_new = FALSE))
   }
 
-  traveltime_new <- demand |>
-    raster::`values<-`(objectiveminutes + 1) |>
-    mask_raster_to_polygon(bb_area)
+  traveltime_new <- demand
+  stars::st_values(traveltime_new) <- objectiveminutes + 1
+  traveltime_new <- traveltime_new |> mask_raster_to_polygon(bb_area)
 
   friction <- bb_area |>
     friction(
@@ -504,7 +503,7 @@ allocation_discrete <- function(
     exp_weights = 1,
     par = FALSE
 ) {
-  checkmate::assert_class(demand, "RasterLayer")
+  assert_stars(demand)
   assert_bb_area(bb_area)
   checkmate::assert_multi_class(candidate, c("sf", "sfc"))
   assert_facilities(facilities, null_ok = TRUE)
@@ -515,7 +514,7 @@ allocation_discrete <- function(
   checkmate::assert_choice(mode, choices = c("walk", "fastest"))
   checkmate::assert_choice(dowscaling_model_type, choices = c("lm", "rf"))
   checkmate::assert_count(res_output, positive = TRUE)
-  checkmate::assert_class(weights, "RasterLayer", null.ok = TRUE)
+  assert_stars(weights, null_ok = TRUE)
   checkmate::assert_number(objectiveminutes, lower = 0)
   checkmate::assert_number(objectiveshare, lower = 0, upper = 1, null.ok = TRUE)
   checkmate::assert_choice(approach, choices = c("norm", "absweights"))
@@ -567,16 +566,12 @@ allocation_discrete <- function(
   )
   traveltime_raster_outer <- traveltime_init$traveltime_outer
 
-  totalpopconstant <- demand |> raster::cellStats("sum", na.rm = TRUE)
+  totalpopconstant <- stars_sum(demand)
 
   traveltime_raster_outer[[1]] <- traveltime_raster_outer[[1]] |>
-    raster::`crs<-`(
-      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-    ) |>
-    raster::projectRaster(demand) |>
-    raster::`crs<-`(
-      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-    )
+    sf::st_set_crs(4326) |>
+    stars::st_warp(dest = demand, method = "near") |>
+    sf::st_set_crs(4326)
 
   demand <- mask_demand_by_traveltime(demand, traveltime_raster_outer[[1]], objectiveminutes)
   demand_raster_bk <- demand
@@ -615,7 +610,7 @@ allocation_discrete <- function(
       demand_rasterio <- mask_demand_by_traveltime(demand_rasterio, traveltime_raster_new, objectiveminutes)
 
       demand_rasterio |>
-        raster::cellStats("sum", na.rm = TRUE) |>
+        stars_sum() |>
         magrittr::divide_by(totalpopconstant)
     }
 
@@ -645,7 +640,7 @@ allocation_discrete <- function(
     demand <- mask_demand_by_traveltime(demand, traveltime_raster_new, objectiveminutes)
 
     k <- demand |>
-      raster::cellStats("sum", na.rm = TRUE) |>
+      stars_sum() |>
       magrittr::divide_by(totalpopconstant)
 
     out <- list(
@@ -713,7 +708,7 @@ allocation_discrete <- function(
         demand_rasterio <- mask_demand_by_traveltime(demand_rasterio, traveltime_raster_new, objectiveminutes)
 
         demand_rasterio |>
-          raster::cellStats("sum", na.rm = TRUE) |>
+          stars_sum() |>
           magrittr::divide_by(totalpopconstant)
       }
 
@@ -743,7 +738,7 @@ allocation_discrete <- function(
       demand <- mask_demand_by_traveltime(demand, traveltime_raster_new, objectiveminutes)
 
       k <- demand |>
-        raster::cellStats("sum", na.rm = TRUE) |>
+        stars_sum() |>
         magrittr::divide_by(totalpopconstant)
 
       cli::cli_alert_info(
