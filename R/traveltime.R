@@ -13,7 +13,7 @@
 #'
 #' @return An [invisible][base::invisible] [`list`][base::list] with the
 #'   following elements:
-#'   - `travel_time`: A [`RasterLayer`][raster::raster()] object with the travel
+#'   - `travel_time`: A [`stars`][stars::st_as_stars()] object with the travel
 #'     time map.
 #'   - `friction`: A [`list`][base::list] with the outputs of the
 #'     [`friction()`][friction] function.
@@ -83,8 +83,10 @@ traveltime <- function(
   travel_time <-
     friction_data[[3]] |>
     gdistance::accCost(points) |>
-    mask_raster_to_polygon(bb_area) |>
-    raster::`crs<-`(value = "+proj=longlat +datum=WGS84 +no_defs +type=crs")
+    as_stars_raster() |>
+    mask_raster_to_polygon(bb_area)
+
+  sf::st_crs(travel_time) <- sf::st_crs(4326)
 
   list(
     travel_time = travel_time,

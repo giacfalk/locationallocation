@@ -108,7 +108,7 @@ allocation_plot <- function(
   max_limit <-
     allocation |>
     magrittr::extract2("travel_time") |>
-    raster::values() |>
+    stars_values() |>
     max(na.rm = TRUE)
 
   plot <-
@@ -118,7 +118,7 @@ allocation_plot <- function(
       data = allocation |> #nolint
         magrittr::extract2("travel_time") |>
         mask_raster_to_polygon(bb_area) |>
-        raster::as.data.frame(xy = TRUE) |>
+        stars_to_dataframe() |>
         stats::na.omit()
     ) +
     ggplot2::geom_sf(

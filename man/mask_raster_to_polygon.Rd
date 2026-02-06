@@ -2,27 +2,27 @@
 % Please edit documentation in R/mask_raster_to_polygon.R
 \name{mask_raster_to_polygon}
 \alias{mask_raster_to_polygon}
-\title{Mask a \code{RasterLayer} object to a \code{sf} object}
+\title{Mask a \code{stars} object to a \code{sf} object}
 \usage{
 mask_raster_to_polygon(ras, mask, inverse = FALSE, updatevalue = NA)
 }
 \arguments{
-\item{ras}{A \code{\link[raster:raster]{RasterLayer}} object.}
+\item{ras}{A \code{\link[stars:st_as_stars]{stars}} object.}
 
-\item{mask}{A \code{\link[raster:raster]{RasterLayer}} or \code{\link[sf:st_as_sf]{sf}}
+\item{mask}{A \code{\link[stars:st_as_stars]{stars}} or \code{\link[sf:st_as_sf]{sf}}
 object.}
 
 \item{inverse}{A \code{\link[base:logical]{logical}} flag. If \code{TRUE}, the mask
 is inverted (default: \code{FALSE}).}
 
-\item{updatevalue}{The value to update the \code{\link[raster:raster]{RasterLayer}}
+\item{updatevalue}{The value to update the \code{\link[stars:st_as_stars]{stars}}
 object with (default: \code{NA}).}
 }
 \value{
-A masked \code{\link[raster:raster]{RasterLayer}} object.
+A masked \code{\link[stars:st_as_stars]{stars}} object.
 }
 \description{
-This function rapidly masks a \code{\link[raster:raster]{RasterLayer}} object to
+This function rapidly masks a \code{\link[stars:st_as_stars]{stars}} object to
 a \code{\link[sf:st_as_sf]{sf}} object.
 }
 \examples{

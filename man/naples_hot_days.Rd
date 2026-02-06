@@ -5,7 +5,7 @@
 \alias{naples_hot_days}
 \title{Hot days in the city of Naples, Italy}
 \format{
-A \code{\link[raster:raster]{RasterLayer}} object with 1 layer.
+A \code{\link[stars:st_as_stars]{stars}} object with 1 layer.
 }
 \source{
 \href{https://www.urban-climate.eu/model}{UrbClim}.
@@ -14,7 +14,7 @@ A \code{\link[raster:raster]{RasterLayer}} object with 1 layer.
 naples_hot_days
 }
 \description{
-A \code{\link[raster:raster]{RasterLayer}} object representing the number of hot
+A \code{\link[stars:st_as_stars]{stars}} object representing the number of hot
 days in the city of Naples, Italy.
 
 This 100-meter resolution heat hazard map shows the number of days with

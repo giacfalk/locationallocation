@@ -1,19 +1,19 @@
-#' Mask a `RasterLayer` object to a `sf` object
+#' Mask a `stars` object to a `sf` object
 #'
 #' @description
 #'
-#' This function rapidly masks a [`RasterLayer`][raster::raster()] object to
+#' This function rapidly masks a [`stars`][stars::st_as_stars()] object to
 #' a [`sf`][sf::st_as_sf()] object.
 #'
-#' @param ras A [`RasterLayer`][raster::raster()] object.
-#' @param mask A [`RasterLayer`][raster::raster()] or [`sf`][sf::st_as_sf()]
-#' object.
+#' @param ras A [`stars`][stars::st_as_stars()] object.
+#' @param mask A [`stars`][stars::st_as_stars()] or [`sf`][sf::st_as_sf()]
+#'   object.
 #' @param inverse A [`logical`][base::logical()] flag. If `TRUE`, the mask
 #'   is inverted (default: `FALSE`).
-#' @param updatevalue The value to update the [`RasterLayer`][raster::raster()]
+#' @param updatevalue The value to update the [`stars`][stars::st_as_stars()]
 #'   object with (default: `NA`).
 #'
-#' @return A masked [`RasterLayer`][raster::raster()] object.
+#' @return A masked [`stars`][stars::st_as_stars()] object.
 #'
 #' @family utility functions
 #' @keywords masking
@@ -27,10 +27,16 @@ mask_raster_to_polygon <- function(
   inverse = FALSE,
   updatevalue = NA
 ) {
-  checkmate::assert_class(ras, "RasterLayer")
-  checkmate::assert_multi_class(mask, c("Raster", "sf"))
+  checkmate::assert_class(ras, "stars")
+  checkmate::assert_multi_class(mask, c("stars", "sf"))
   checkmate::assert_flag(inverse)
   checkmate::assert_atomic(updatevalue, len = 1)
+
+  ras <- as_stars_raster(ras)
+
+  if (inherits(mask, "stars")) {
+    mask <- stars::st_as_sf(mask)
+  }
 
   if (inherits(mask, "sf")) {
     test <-
@@ -51,21 +57,20 @@ mask_raster_to_polygon <- function(
 
     mask <-
       mask |>
-      sf::st_crop(
-        c(
-          xmin = raster::xmin(ras),
-          ymin = raster::ymin(ras),
-          xmax = raster::xmax(ras),
-          ymax = raster::ymax(ras)
-        )
-      ) |>
-      sf::st_cast() |>
-      terra::vect() |>
-      suppressWarnings()
+      sf::st_crop(sf::st_bbox(ras)) |>
+      sf::st_cast()
   }
 
-  ras |>
-    terra::rast() |>
-    terra::mask(mask, inverse = inverse) |>
-    raster::raster()
+  mask <- sf::st_transform(mask, sf::st_crs(ras))
+
+  out <- stars::st_crop(ras, mask)
+  out <- stars::st_mask(out, mask, inverse = inverse)
+
+  if (!is.na(updatevalue)) {
+    values <- stars_values(out)
+    values[is.na(values)] <- updatevalue
+    out <- stars_set_values(out, values)
+  }
+
+  out
 }

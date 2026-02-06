@@ -11,8 +11,7 @@ test_check("locationallocation")
 # - Reduce cyclomatic complexity.
 # - Add unit tests.
 # - Add test coverage (Codecov).
-# - Move to the r-spatial framework or adopt `terra`
-#   (the first option aligns better with tidyverse principles).
+# - Move fully to the r-spatial framework (stars + sf).
 # - Standardize parameter names (for example, `updatevalue` to `new_value`).
 # - Merge `traveltime` and `traveltime_discrete`.
 # - Merge `allocation` and `allocation_discrete`.

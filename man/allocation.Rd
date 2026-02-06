@@ -22,7 +22,7 @@ allocation(
 )
 }
 \arguments{
-\item{demand}{A \code{\link[raster:raster]{RasterLayer}} object with the
+\item{demand}{A \code{\link[stars:st_as_stars]{stars}} object with the
 demand layer (e.g. population density).}
 
 \item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
@@ -56,11 +56,11 @@ forest) (default: \code{"lm"}).}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
+resolution of the friction layer (and of the analysis), in meters. If the
 resolution is less than \code{1000}, a spatial downscaling approach is used
 (default: \code{100}).}
 
-\item{weights}{(optional) A raster with the weights for the demand (default:
+\item{weights}{(optional) A \code{stars} layer with the weights for the demand (default:
 \code{NULL}).}
 
 \item{objectiveminutes}{(optional) A number indicating the target travel time
@@ -74,11 +74,11 @@ and \code{"kd"} (default: \code{"max"}).}
 
 \item{approach}{(optional) The approach to be used for the allocation.
 Options are \code{"norm"} and \code{"absweights"}. If "norm", the allocation is based
-on the normalized demand raster multiplied by the normalized weights
-raster. If \code{"absweights"}, the allocation is based on the normalized demand
-raster multiplied by the raw weights raster (default: \code{"norm"}).}
+on the normalized demand layer multiplied by the normalized weights
+layer. If \code{"absweights"}, the allocation is based on the normalized demand
+layer multiplied by the raw weights layer (default: \code{"norm"}).}
 
-\item{exp_demand}{(optional) The exponent for the demand raster. Default is
+\item{exp_demand}{(optional) The exponent for the demand layer. Default is
 \enumerate{
 \item A higher value will give less relative weight to areas with higher
 demand - with respect to the weights layer. This is useful in cases where
@@ -86,7 +86,7 @@ the users want to increase the allocation in areas with higher values in
 the weights layer (default: \code{1}).
 }}
 
-\item{exp_weights}{(optional) The exponent for the weights raster. Default is
+\item{exp_weights}{(optional) The exponent for the weights layer. Default is
 \enumerate{
 \item A higher value will give less relative weight to areas with higher
 weights - with respect to the demand layer. This is useful in cases where
@@ -107,7 +107,7 @@ of demand that remains unmet after allocating the new facilities.
 \item \code{objective_share}: The value of the \code{objectiveshare} parameter used.
 \item \code{facilities}: A \code{\link[sf:sf]{sf}} object with the newly allocated
 facilities.
-\item \code{travel_time}: A \code{\link[raster:raster]{raster}} RasterLayer object
+\item \code{travel_time}: A \code{\link[stars:st_as_stars]{stars}} object
 representing the travel time map with the newly allocated facilities.
 }
 }
