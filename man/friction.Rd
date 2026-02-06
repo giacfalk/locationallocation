@@ -2,7 +2,7 @@
 % Please edit documentation in R/friction.R
 \name{friction}
 \alias{friction}
-\title{Download and downscale a friction surface layer}
+\title{Download and resample a friction surface layer}
 \usage{
 friction(
   bb_area,
@@ -33,12 +33,13 @@ Surface}.
 \item{dowscaling_model_type}{(optional) A \code{\link[base:character]{character}}
 string indicating the type of model used for the spatial downscaling of the
 friction layer. Options are \code{"lm"} (linear model) and \code{"rf"} (random
-forest) (default: \code{"lm"}).}
+forest) (default: \code{"lm"}). This argument is retained for compatibility;
+the current implementation resamples the friction layer using \code{stars}.}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
-resolution is less than \code{1000}, a spatial downscaling approach is used
+resolution of the friction layer (and of the analysis), in meters. If the
+resolution is less than \code{1000}, a spatial resampling approach is used
 (default: \code{100}).}
 
 \item{cache}{(optional) A \code{\link[base:logical]{logical}} flag
@@ -46,14 +47,14 @@ indicating whether to cache the downloaded friction data for future use
 (default: \code{TRUE}).}
 
 \item{file}{(optional) A \code{\link[base:character]{character}} string indicating
-the path to a local friction surface raster file. If provided, the
+the path to a local friction surface layer file. If provided, the
 function will use this file instead of downloading the friction data.}
 }
 \value{
 An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
 following elements:
 \itemize{
-\item \code{friction_layer}: A \code{\link[raster:raster]{RasterLayer}} object with the
+\item \code{friction_layer}: A \code{\link[stars:st_as_stars]{stars}} object with the
 friction surface layer.
 \item \code{transition_matrix}: A \code{\link[gdistance:transition]{TransitionLayer}} with
 the transition matrix for cost-distance calculations.
@@ -66,8 +67,7 @@ with the geocorrection matrix for accurate distance calculations.
 \href{https://en.wikipedia.org/wiki/Friction_of_distance}{friction surface} layer
 from the Malaria Atlas Project (\href{https://malariaatlas.org/}{MAP}) database
 (Hay et al., 2006; Malaria Atlas Project, 2015, 2019) and optionally
-downscale it to the spatial resolution of the analysis using road network
-data from OpenStreetMap (n.d.) (\href{https://www.openstreetmap.org/}{OSM}).
+resamples it to the spatial resolution of the analysis using \code{stars}.
 
 This function requires an active internet connection.
 }
@@ -89,8 +89,6 @@ Malaria Atlas Project. (2019). \emph{Friction surface: Global walking only
 friction surface} (Version 202001).
 \url{https://data.malariaatlas.org/maps}
 
-OpenStreetMap Foundation. (n.d.). \emph{OpenStreetMap} [Computer software].
-\url{https://www.openstreetmap.org}
 }
 \seealso{
 Other travel time functions: 

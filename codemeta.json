@@ -205,19 +205,6 @@
     },
     "5": {
       "@type": "SoftwareApplication",
-      "identifier": "dissever",
-      "name": "dissever",
-      "version": ">= 0.2.3",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=dissever"
-    },
-    "6": {
-      "@type": "SoftwareApplication",
       "identifier": "dplyr",
       "name": "dplyr",
       "version": ">= 1.1.4",
@@ -229,7 +216,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=dplyr"
     },
-    "7": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "gdistance",
       "name": "gdistance",
@@ -242,7 +229,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=gdistance"
     },
-    "8": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "ggplot2",
       "name": "ggplot2",
@@ -255,13 +242,13 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=ggplot2"
     },
-    "9": {
+    "8": {
       "@type": "SoftwareApplication",
       "identifier": "graphics",
       "name": "graphics",
       "version": ">= 4.4"
     },
-    "10": {
+    "9": {
       "@type": "SoftwareApplication",
       "identifier": "ggspatial",
       "name": "ggspatial",
@@ -274,7 +261,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=ggspatial"
     },
-    "11": {
+    "10": {
       "@type": "SoftwareApplication",
       "identifier": "magrittr",
       "name": "magrittr",
@@ -287,7 +274,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=magrittr"
     },
-    "12": {
+    "11": {
       "@type": "SoftwareApplication",
       "identifier": "malariaAtlas",
       "name": "malariaAtlas",
@@ -300,39 +287,13 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=malariaAtlas"
     },
-    "13": {
-      "@type": "SoftwareApplication",
-      "identifier": "osmdata",
-      "name": "osmdata",
-      "version": ">= 0.3.0",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=osmdata"
-    },
-    "14": {
+    "12": {
       "@type": "SoftwareApplication",
       "identifier": "parallel",
       "name": "parallel",
       "version": ">= 4.4"
     },
-    "15": {
-      "@type": "SoftwareApplication",
-      "identifier": "raster",
-      "name": "raster",
-      "version": ">= 3.6.32",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=raster"
-    },
-    "16": {
+    "13": {
       "@type": "SoftwareApplication",
       "identifier": "sf",
       "name": "sf",
@@ -345,7 +306,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=sf"
     },
-    "17": {
+    "14": {
       "@type": "SoftwareApplication",
       "identifier": "spatialEco",
       "name": "spatialEco",
@@ -358,32 +319,19 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=spatialEco"
     },
-    "18": {
+    "15": {
       "@type": "SoftwareApplication",
       "identifier": "stats",
       "name": "stats",
       "version": ">= 4.4"
     },
-    "19": {
-      "@type": "SoftwareApplication",
-      "identifier": "terra",
-      "name": "terra",
-      "version": ">= 1.8.86",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=terra"
-    },
-    "20": {
+    "16": {
       "@type": "SoftwareApplication",
       "identifier": "tools",
       "name": "tools",
       "version": ">= 4.4"
     },
-    "21": {
+    "17": {
       "@type": "SoftwareApplication",
       "identifier": "zip",
       "name": "zip",
@@ -396,7 +344,19 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=zip"
     },
-    "SystemRequirements": null
+    "18": {
+      "@type": "SoftwareApplication",
+      "identifier": "stars",
+      "name": "stars",
+      "version": ">= 0.6.8",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=stars"
+    }
   },
   "fileSize": "3620.701KB",
   "citation": [
@@ -421,7 +381,10 @@
         "@type": "PublicationIssue",
         "datePublished": "2025",
         "isPartOf": {
-          "@type": ["PublicationVolume", "Periodical"],
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
           "name": "EarthArXiv"
         }
       }
@@ -431,5 +394,13 @@
   "readme": "https://github.com/giacfalk/locationallocation/blob/main/README.md",
   "contIntegration": "https://github.com/giacfalk/locationallocation/actions",
   "developmentStatus": "https://www.repostatus.org/#active",
-  "keywords": ["accessibility-analysis", "geospatial-analysis", "location-allocation", "r", "spatial-accessibility", "travel-time", "mcla-problem"]
+  "keywords": [
+    "accessibility-analysis",
+    "geospatial-analysis",
+    "location-allocation",
+    "r",
+    "spatial-accessibility",
+    "travel-time",
+    "mcla-problem"
+  ]
 }

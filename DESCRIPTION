@@ -31,7 +31,6 @@ Imports:
     checkmate (>= 2.3.3),
     cli (>= 3.6.5),
     curl (>= 7.0.0),
-    dissever (>= 0.2.3),
     dplyr (>= 1.1.4),
     gdistance (>= 1.6.5),
     ggplot2 (>= 4.0.1),
@@ -39,13 +38,11 @@ Imports:
     ggspatial (>= 1.1.10),
     magrittr (>= 2.0.4),
     malariaAtlas (>= 1.6.4),
-    osmdata (>= 0.3.0),
     parallel (>= 4.4),
-    raster (>= 3.6.32),
     sf (>= 1.0.23),
     spatialEco (>= 2.0.3),
+    stars (>= 0.6.8),
     stats (>= 4.4),
-    terra (>= 1.8.86),
     tools (>= 4.4),
     zip (>= 2.3.3)
 Suggests:

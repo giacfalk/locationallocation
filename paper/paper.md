@@ -227,16 +227,13 @@ facilities.\
 ## Software and data implementation {#software-and-data-implementation .unnumbered}
 
 The approach includes consideration of different travel modes and can be
-applied to any location in the world. A spatial statistical downscaling
-of \"disseving\" (based on the *dissever* R package [@Roudier2017])
-approach for the underlying friction surface data based on street
-network data from Open Street Map API is embedded in the package to
-perform location-allocation spatial optimization at a high
-spatial-resolution (particularly useful in urban-scale applications). A
-set of reporting functions and graphical outputs are pre-calculated as
-part of the package. The package further relies on *malariaAtlas* and
-*gdistance* functions, as well as on *raster*, *terra*, and *sf* object
-classes.\
+applied to any location in the world. The package resamples friction
+surface data to higher spatial resolution using `stars`, enabling
+location-allocation spatial optimization at a high spatial resolution
+(particularly useful in urban-scale applications). A set of reporting
+functions and graphical outputs are pre-calculated as part of the
+package. The package further relies on *malariaAtlas* and *gdistance*
+functions, as well as on `stars` and `sf` object classes.\
 
 - **Friction layers:** Malaria Atlas friction surfaces: walking or
   fastest mode. These datasets provide 1-km resolution global gridded
@@ -249,10 +246,10 @@ classes.\
 - **Point locations for candidate facilities:** Optional, a point simple
   feature geometry object ($sf$).
 
-- **Demand weights:** A raster. It can be, for instance, population
+- **Demand weights:** A `stars` layer. It can be, for instance, population
   counts per location (grid cell) - optionally in a weighted form by
-  specifying the $weights$ argument to another raster of a function of
-  several rasters. This would allow using a risk framework where the
+  specifying the $weights$ argument to another `stars` layer or a function of
+  several layers. This would allow using a risk framework where the
   demand is defined as a risk map $R$ of:
   $R = POP \times HAZARD \times VULNERABILITY$.
 
@@ -272,11 +269,12 @@ arguments:
 - $bb\_area$: A boundary box object with the area of interest.
 
 - dowscaling_model_type: The type of model used for the spatial
-  statistical downscaling of the travel time layer.
+  statistical downscaling of the travel time layer (retained for
+  compatibility; current resampling uses `stars`).
 
 - $mode$: The mode of transport.
 
-- $res\_output$: The spatial resolution of the friction raster (and of
+- $res\_output$: The spatial resolution of the friction layer (and of
   the analysis), in meters. If \<1000, a spatial statistical downscaling
   approach is used.
 
@@ -294,7 +292,7 @@ optimal location for the facilities based on the demand, travel time,
 and weights for the demand, and target travel time threshold and share
 of the demand to be covered, having the following arguments:
 
-- $demand\_raster$: A raster object with the demand for the service.
+- $demand\_raster$: A `stars` layer with the demand for the service.
 
 - $traveltime\_raster$: The output of the traveltime function. If not
   provided, the function will run the traveltime function first.
@@ -303,7 +301,7 @@ of the demand to be covered, having the following arguments:
 
 - $facilities$: An sf object with the existing facilities.
 
-- $weights$: A raster with the weights for the demand.
+- $weights$: A `stars` layer with the weights for the demand.
 
 - $objectiveminutes$: The objective travel time in minutes.
 
@@ -317,7 +315,7 @@ of the demand to be covered, having the following arguments:
 
 - $mode$: The mode of transport.
 
-- $res\_output$: The spatial resolution of the friction raster (and of
+- $res\_output$: The spatial resolution of the friction layer (and of
   the analysis), in meters. If \<1000, a spatial statistical downscaling
   approach is used.
 
@@ -331,7 +329,7 @@ res_output, n_samples)
 
 The $allocation_discrete$ function, having the following arguments:
 
-- $demand\_raster$: A raster object with the demand for the service.
+- $demand\_raster$: A `stars` layer with the demand for the service.
 
 - $traveltime\_raster$; The output of the traveltime function. If not
   provided, the function will run the traveltime function first.
@@ -345,16 +343,17 @@ The $allocation_discrete$ function, having the following arguments:
 
 - $n\_fac$: The number of facilities that can be allocated.
 
-- $weights$: A raster with the weights for the demand.
+- $weights$: A `stars` layer with the weights for the demand.
 
 - $objectiveminutes$: The objective travel time in minutes.
 
 - $dowscaling\_model\_type$: The type of model used for the spatial
-  statistical downscaling of the travel time layer.
+  statistical downscaling of the travel time layer (retained for
+  compatibility; current resampling uses `stars`).
 
 - $mode$: The mode of transport.
 
-- $res\_output$: The spatial resolution of the friction raster (and of
+- $res\_output$: The spatial resolution of the friction layer (and of
   the analysis), in meters. If \<1000, a spatial statistical downscaling
   approach is used.
 
@@ -386,10 +385,10 @@ with consideration of exposure (population density) and hazard (average
 number of days per year with a local Wet-Bulb Globe Temperature \> 25°
 C).\
 
-First, we obtain water fountain coordinate location for city from the
-Open Street Maps API using the *osmdata* package using the query
-*$amenity = drinking\_water$*. We also obtain gridded population data at
-a 100m spatial resolution from GHS-POP data product [@Florczyk2019], a
+First, we obtain water fountain coordinate location for city from
+OpenStreetMap using the query *$amenity = drinking\_water$*. We also
+obtain gridded population data at a 100m spatial resolution from the
+GHS-POP data product [@Florczyk2019], a
 urban microclimate model output for historical Wet-Bulb Globe
 Temperature from the UrbClim model [@Lauwaet2024], and the
 administrative boundaries of the city of Naples from the Eurostat's LAU
@@ -409,7 +408,7 @@ out_tt <- traveltime(facilities=naples_fountains, bb_area=naples_shape,
 dowscaling_model_type="lm", mode="walk", res_output=100)
 ```
 
-The function yields a raster output which - for each pixel - shows the
+The function yields a `stars` output which - for each pixel - shows the
 estimated travel time to reach the most accessible facility (nearest in
 travel time terms) for the selected travel mode. The resulting layer can
 be visualized via:
@@ -424,7 +423,7 @@ fountain in Naples,
 Italy.\label{fig:enter-label}](figures_paper/traveltime_map_fountains.png)
 
 We can also produce a summary plot and statistic based on the output of
-the $traveltime$ function and a given demand (e.g., population) raster,
+the $traveltime$ function and a given demand (e.g., population) layer,
 as well as a given time threshold parameter:
 
 ``` {.r language="R"}
@@ -476,8 +475,8 @@ dowscaling_model_type="lm", mode="walk", res_output=100)
 allocation_plot(output_allocation_weighted, bb_area = naples_shape)
 ```
 
-where $tmax$ is a raster layer matching the extent, spatial resolution
-of the $naples_population$ demand raster. We can notice how results change when using
+where $tmax$ is a `stars` layer matching the extent and spatial resolution
+of the $naples_population$ demand layer. We can notice how results change when using
 such weighted approach:
 
 ![Map of the continuous location-allocation weighted problem solution

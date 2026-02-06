@@ -97,19 +97,6 @@ references:
   doi: 10.32614/CRAN.package.curl
   version: '>= 7.0.0'
 - type: software
-  title: dissever
-  abstract: 'dissever: Spatial Downscaling using the Dissever Algorithm'
-  notes: Imports
-  url: https://github.com/pierreroudier/dissever
-  repository: https://CRAN.R-project.org/package=dissever
-  authors:
-  - family-names: Roudier
-    given-names: Pierre
-    email: roudierp@landcareresearch.co.nz
-  year: '2025'
-  doi: 10.32614/CRAN.package.dissever
-  version: '>= 0.2.3'
-- type: software
   title: dplyr
   abstract: 'dplyr: A Grammar of Data Manipulation'
   notes: Imports
@@ -270,30 +257,6 @@ references:
   doi: 10.32614/CRAN.package.malariaAtlas
   version: '>= 1.6.4'
 - type: software
-  title: osmdata
-  abstract: 'osmdata: Import ''OpenStreetMap'' Data as Simple Features or Spatial
-    Objects'
-  notes: Imports
-  url: https://docs.ropensci.org/osmdata/
-  repository: https://CRAN.R-project.org/package=osmdata
-  authors:
-  - family-names: Maspons
-    given-names: Joan
-    email: joanmaspons@gmail.com
-    orcid: https://orcid.org/0000-0003-2286-8727
-  - family-names: Padgham
-    given-names: Mark
-    email: mark.padgham@email.com
-  - family-names: Rudis
-    given-names: Bob
-  - family-names: Lovelace
-    given-names: Robin
-  - family-names: Salmon
-    given-names: Maëlle
-  year: '2025'
-  doi: 10.32614/CRAN.package.osmdata
-  version: '>= 0.3.0'
-- type: software
   title: parallel
   abstract: 'R: A Language and Environment for Statistical Computing'
   notes: Imports
@@ -304,20 +267,6 @@ references:
     address: Vienna, Austria
   year: '2025'
   version: '>= 4.4'
-- type: software
-  title: raster
-  abstract: 'raster: Geographic Data Analysis and Modeling'
-  notes: Imports
-  url: https://rspatial.org/raster
-  repository: https://CRAN.R-project.org/package=raster
-  authors:
-  - family-names: Hijmans
-    given-names: Robert J.
-    email: r.hijmans@gmail.com
-    orcid: https://orcid.org/0000-0001-5872-2872
-  year: '2025'
-  doi: 10.32614/CRAN.package.raster
-  version: '>= 3.6.32'
 - type: software
   title: sf
   abstract: 'sf: Simple Features for R'
@@ -332,6 +281,23 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.sf
   version: '>= 1.0.23'
+- type: software
+  title: stars
+  abstract: 'stars: Spatiotemporal Arrays, Raster and Vector Data Cubes'
+  notes: Imports
+  url: https://r-spatial.github.io/stars/
+  repository: https://CRAN.R-project.org/package=stars
+  authors:
+  - family-names: Pebesma
+    given-names: Edzer
+    email: edzer.pebesma@uni-muenster.de
+    orcid: https://orcid.org/0000-0001-8049-7069
+  - family-names: Bivand
+    given-names: Roger
+    orcid: https://orcid.org/0000-0003-2392-6140
+  year: '2025'
+  doi: 10.32614/CRAN.package.stars
+  version: '>= 0.6.8'
 - type: software
   title: spatialEco
   abstract: 'spatialEco: Spatial Analysis and Modelling Utilities'
@@ -357,20 +323,6 @@ references:
     address: Vienna, Austria
   year: '2025'
   version: '>= 4.4'
-- type: software
-  title: terra
-  abstract: 'terra: Spatial Data Analysis'
-  notes: Imports
-  url: https://rspatial.org/
-  repository: https://CRAN.R-project.org/package=terra
-  authors:
-  - family-names: Hijmans
-    given-names: Robert J.
-    email: r.hijmans@gmail.com
-    orcid: https://orcid.org/0000-0001-5872-2872
-  year: '2025'
-  doi: 10.32614/CRAN.package.terra
-  version: '>= 1.8.86'
 - type: software
   title: tools
   abstract: 'R: A Language and Environment for Statistical Computing'
@@ -549,4 +501,3 @@ references:
   year: '2025'
   doi: 10.32614/CRAN.package.testthat
   version: '>= 3.3.0'
-

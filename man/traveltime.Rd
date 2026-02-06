@@ -41,7 +41,7 @@ forest) (default: \code{"lm"}).}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
+resolution of the friction layer (and of the analysis), in meters. If the
 resolution is less than \code{1000}, a spatial downscaling approach is used
 (default: \code{100}).}
 
@@ -50,14 +50,14 @@ indicating whether to cache the downloaded friction data for future use
 (default: \code{TRUE}).}
 
 \item{file}{(optional) A \code{\link[base:character]{character}} string indicating
-the path to a local friction surface raster file. If provided, the
+the path to a local friction surface layer file. If provided, the
 function will use this file instead of downloading the friction data.}
 }
 \value{
 An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
 following elements:
 \itemize{
-\item \code{travel_time}: A \code{\link[raster:raster]{RasterLayer}} object with the travel
+\item \code{travel_time}: A \code{\link[stars:st_as_stars]{stars}} object with the travel
 time map.
 \item \code{friction}: A \code{\link[base:list]{list}} with the outputs of the
 \code{\link[=friction]{friction()}} function.

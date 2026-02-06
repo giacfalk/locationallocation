@@ -1,19 +1,77 @@
-#' This function is a workaround to ensure that the `raster` package
-#' is loaded when plotting `RasterLayer` objects from within the
-#' `locationallocation` package (e.g., `plot(naples_population)`).
-#'
-#' Simply importing `plot` with `importFrom()` does not work because
-#' S4 method dispatch requires the `raster` package to be loaded for
-#' RasterLayer objects to be plotted correctly.
-#'
-#' @noRd
-#' @export
-plot <- function(x, ...) {
-  if (inherits(x, "RasterLayer")) {
-    raster::plot(x, ...)
-  } else {
-    graphics::plot(x, ...)
+as_stars_raster <- function(x) {
+  if (inherits(x, "stars")) {
+    return(x)
   }
+
+  stars::st_as_stars(x)
+}
+
+stars_values <- function(x) {
+  values <- stars::st_values(x)
+
+  if (is.list(values)) {
+    values <- values[[1]]
+  }
+
+  as.vector(values)
+}
+
+stars_set_values <- function(x, values) {
+  existing <- stars::st_values(x)
+
+  if (is.list(existing)) {
+    dim_values <- dim(existing[[1]])
+    existing[[1]] <- array(values, dim = dim_values)
+    stars::st_values(x) <- existing
+  } else {
+    dim_values <- dim(existing)
+    stars::st_values(x) <- array(values, dim = dim_values)
+  }
+
+  x
+}
+
+stars_cell_stats <- function(x, stat = "sum") {
+  values <- stars_values(x)
+
+  switch(
+    stat,
+    sum = sum(values, na.rm = TRUE),
+    min = min(values, na.rm = TRUE),
+    max = max(values, na.rm = TRUE),
+    cli::cli_abort("Unsupported stat value.")
+  )
+}
+
+stars_resolution <- function(x) {
+  dims <- stars::st_dimensions(x)
+  c(abs(dims$x$delta), abs(dims$y$delta))
+}
+
+stars_to_dataframe <- function(x) {
+  sf_points <- stars::st_as_sf(x, as_points = TRUE, merge = FALSE)
+  coords <- sf::st_coordinates(sf_points)
+  values <- sf::st_drop_geometry(sf_points)
+
+  data.frame(
+    x = coords[, 1],
+    y = coords[, 2],
+    layer = values[[1]]
+  )
+}
+
+stars_xy_from_index <- function(x, index) {
+  sf_points <- stars::st_as_sf(x, as_points = TRUE, merge = FALSE)
+  coords <- sf::st_coordinates(sf_points[index, , drop = FALSE])
+
+  data.frame(x = coords[, 1], y = coords[, 2])
+}
+
+normalize_raster <- function(r) {
+  r_min <- stars_cell_stats(r, stat = "min")
+  r_max <- stars_cell_stats(r, stat = "max")
+
+  (r - r_min) / (r_max - r_min)
 }
 
 facilities_coordinates <- function(facilities, bb_area = NULL) {
@@ -44,13 +102,6 @@ points_to_matrix <- function(points, n = NULL) {
     magrittr::inset(seq_len(n), 1, points["X"]) |>
     magrittr::inset(seq_len(n), 2, points["Y"]) |>
     as.matrix()
-}
-
-normalize_raster <- function(r) {
-  r_min <- raster::cellStats(r, stat = "min")
-  r_max <- raster::cellStats(r, stat = "max")
-
-  (r - r_min) / (r_max - r_min)
 }
 
 get_cache_directory <- function() {

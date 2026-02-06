@@ -75,7 +75,7 @@ package.
 These datasets include the coordinates of public drinking water
 fountains (blue dots) in Naples, Italy
 ([`naples_fountains`](https://giacfalk.github.io/locationallocation/reference/naples_fountains.html));
-a gridded population raster from the Global Human Settlement Layer
+a gridded population layer provided as a `stars` raster from the Global Human Settlement Layer
 ([GHSL](https://human-settlement.emergency.copernicus.eu)) Population
 Grid
 ([GHS-POP](https://human-settlement.emergency.copernicus.eu/download.php?ds=pop))
@@ -98,8 +98,8 @@ function to create a map of current accessibility to the facility points
 [`naples_fountains`](https://giacfalk.github.io/locationallocation/reference/naples_fountains.html))
 within the specified geographical boundaries. The function allows the
 user to select a travel mode (walking or fastest route) and an output
-spatial resolution in meters, achieved through [dissevering spatial
-downscaling techniques](https://doi.org/10.1016/j.cageo.2011.08.021).
+spatial resolution in meters, which is achieved by resampling the
+friction layer with `stars`.
 
 ``` r
 traveltime_data <-
@@ -132,7 +132,7 @@ traveltime_data |>
 We can also generate a summary plot and compute statistics using the
 output of the
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.html)
-function, together with a demand raster (e.g., population density) and a
+function, together with a demand `stars` raster (e.g., population density) and a
 specified time threshold, using the
 [`traveltime_stats`](https://giacfalk.github.io/locationallocation/reference/traveltime_stats.html)
 function:
@@ -152,7 +152,7 @@ traveltime_data |>
 We can now use the
 [`allocation()`](https://giacfalk.github.io/locationallocation/reference/allocation.html)
 function to optimize the placement of new water fountains, ensuring that
-(virtually) everyone (i.e., the full extent of the raster layer
+(virtually) everyone (i.e., the full extent of the `stars` layer
 specified by the `demand` parameter) can reach one within 15 minutes, as
 defined by the `objectiveminutes` parameter:
 
@@ -185,7 +185,7 @@ allocation_data |> allocation_plot(naples_shape)
 Note that it is also possible to solve an allocation problem using the
 `weights` parameter, which assigns greater relative importance or
 priority to areas where demand overlaps with weighting factors defined
-by another raster layer, such as exposure to hot days, as shown in the
+by another `stars` layer, such as exposure to hot days, as shown in the
 following example:
 
 ``` r

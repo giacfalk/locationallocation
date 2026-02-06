@@ -57,7 +57,7 @@ traveltime_stats <- function(
   print = TRUE
 ) {
   assert_traveltime(traveltime)
-  checkmate::assert_class(demand, "RasterLayer")
+  checkmate::assert_class(demand, "stars")
   checkmate::assert_numeric(breaks, min.len = 1)
   checkmate::assert_number(objectiveminutes, lower = 1)
   checkmate::assert_flag(print)
@@ -67,21 +67,22 @@ traveltime_stats <- function(
   traveltime_values <- demand_values <- P15_cumsum <- th <- NULL
   # nolint end
 
-  raster::crs(demand) <- "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+  demand <- as_stars_raster(demand)
+  sf::st_crs(demand) <- sf::st_crs(4326)
+
+  traveltime_raster <-
+    traveltime[[1]] |>
+    as_stars_raster()
+
+  sf::st_crs(traveltime_raster) <- sf::st_crs(4326)
+  traveltime_raster <- stars::st_warp(traveltime_raster, demand)
 
   data_curve <-
-    traveltime[[1]] |>
-    raster::`crs<-`(
-      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+    data.frame(
+      traveltime_values = stars_values(traveltime_raster),
+      demand_values = stars_values(demand)
     ) |>
-    raster::projectRaster(demand) |>
-    raster::`crs<-`(
-      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-    ) |>
-    raster::values() |>
-    data.frame(raster::values(demand)) |>
-    stats::na.omit(data_curve) |>
-    magrittr::set_colnames(c("traveltime_values", "demand_values")) |>
+    stats::na.omit() |>
     dplyr::arrange(traveltime_values) |>
     dplyr::as_tibble() |>
     dplyr::mutate(
