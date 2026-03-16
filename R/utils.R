@@ -7,7 +7,6 @@
 #' RasterLayer objects to be plotted correctly.
 #'
 #' @noRd
-#' @export
 plot <- function(x, ...) {
   if (inherits(x, "RasterLayer")) {
     raster::plot(x, ...)

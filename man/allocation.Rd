@@ -2,7 +2,8 @@
 % Please edit documentation in R/allocation.R
 \name{allocation}
 \alias{allocation}
-\title{Compute the maximal coverage location-allocation for continuous problems}
+\alias{allocation_discrete}
+\title{Compute the maximal coverage location-allocation}
 \usage{
 allocation(
   demand,
@@ -19,6 +20,26 @@ allocation(
   approach = "norm",
   exp_demand = 1,
   exp_weights = 1
+)
+
+allocation_discrete(
+  demand,
+  bb_area,
+  candidate,
+  facilities = NULL,
+  n_fac = Inf,
+  n_samples = 1000,
+  traveltime = NULL,
+  mode = "walk",
+  dowscaling_model_type = "lm",
+  res_output = 100,
+  weights = NULL,
+  objectiveminutes = 15,
+  objectiveshare = NULL,
+  approach = "norm",
+  exp_demand = 1,
+  exp_weights = 1,
+  par = FALSE
 )
 }
 \arguments{
@@ -67,7 +88,9 @@ resolution is less than \code{1000}, a spatial downscaling approach is used
 in minutes used to compute the statistics (default: \code{15}).}
 
 \item{objectiveshare}{(optional) A number indicating the proportion of the
-demand to be covered (default: \code{0.99}).}
+demand to be covered by adding at most the number of facilities defined by
+the \code{n_fac} parameter from the pool of candidate facilities
+(default: \code{NULL}).}
 
 \item{heur}{(optional) The heuristic approach to be used. Options are \code{"max"}
 and \code{"kd"} (default: \code{"max"}).}
@@ -93,6 +116,22 @@ weights - with respect to the demand layer. This is useful in cases where
 the users want to increase the allocation in areas with higher values in
 the demand layer (default: \code{1}).
 }}
+
+\item{candidate}{A \code{\link[sf:st_as_sf]{sf}} object with the candidate
+locations for the new facilities.}
+
+\item{n_fac}{(optional) A positive \link[checkmate:checkIntegerish]{integerish}
+number indicating the maximum number of facilities that can be allocated
+(default: \code{Inf}).}
+
+\item{n_samples}{(optional) A positive
+\link[checkmate:checkIntegerish]{integerish} number indicating the number of
+samples to generate in the heuristic approach for identifying the best set
+of facilities to be allocated (default: \code{1000}).}
+
+\item{par}{(optional) A \code{\link[base:logical]{logical}} flag indicating whether
+to run the function in \link[parallel:clusterApply]{parallel} or not
+(default: \code{FALSE}).}
 }
 \value{
 An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
@@ -116,8 +155,17 @@ representing the travel time map with the newly allocated facilities.
 the accumulated cost algorithm to find the optimal location for the
 facilities based on the share of the demand to be covered.
 
-See \code{\link[=allocation_discrete]{allocation_discrete()}} for discrete
-location-allocation problems.
+\code{allocation_discrete()} allocates facilities in a discrete location problem.
+It uses the accumulated cost algorithm to identify optimal facility locations
+based on the share of demand to be covered, given a user-defined set of
+candidate locations and a maximum number of allocable facilities.
+
+In \code{allocation_discrete()}, if a \code{objectiveshare} parameter is specified, the
+algorithm identifies the best set of size of up to \code{n_fac} facilities to
+achieve the targeted coverage share. The problem is solved using a
+statistical heuristic approach that generates samples of the candidate
+locations (on top of the existing locations) and selects the facilities in
+the one that minimizes the objective function.
 }
 \examples{
 \dontrun{
@@ -137,10 +185,29 @@ location-allocation problems.
 
   allocation_data |> allocation_plot(naples_shape)
 }
+
+\dontrun{
+  library(dplyr)
+  library(sf)
+
+  allocation_data <-
+    naples_population |>
+    allocation_discrete(
+      traveltime = traveltime,
+      bb_area = naples_shape,
+      facilities = naples_fountains,
+      candidate = naples_shape |> st_sample(20),
+      n_fac = 2,
+      weights = naples_hot_days,
+      objectiveminutes = 15,
+      objectiveshare = 0.9
+    )
+
+  allocation_data |> glimpse()
+
+  allocation_data |> allocation_plot(naples_shape)
 }
-\seealso{
-Other location-allocation functions: 
-\code{\link{allocation_discrete}()}
+
 }
 \concept{location-allocation functions}
 \keyword{location-allocation}
