@@ -1,22 +1,22 @@
-#' Compute the maximal coverage location-allocation for continuous and discrete problems
+#' Compute the maximal coverage location-allocation
 #'
 #' @description
 #'
 #' `allocation()` allocate facilities in a continuous location problem. It uses
 #' the accumulated cost algorithm to find the optimal location for the
 #' facilities based on the share of the demand to be covered.
-#' 
-#' #' `allocation_discrete()` allocates facilities in a discrete location problem.
+#'
+#' `allocation_discrete()` allocates facilities in a discrete location problem.
 #' It uses the accumulated cost algorithm to identify optimal facility locations
-#' based on the share of demand to be covered, given a user-defined set
-#' of candidate locations and a maximum number of allocable facilities. 
-#' 
-#' In `allocation_discrete()`, if a `objectiveshare` parameter is specified, the algorithm identifies the
-#' best set of size of up to `n_fac` facilities to achieve the targeted coverage
-#' share. The problem is solved using a statistical heuristic approach that
-#' generates samples of the candidate locations (on top of the existing
-#' locations) and selects the facilities in the one that minimizes the objective
-#' function.
+#' based on the share of demand to be covered, given a user-defined set of
+#' candidate locations and a maximum number of allocable facilities.
+#'
+#' In `allocation_discrete()`, if a `objectiveshare` parameter is specified, the
+#' algorithm identifies the best set of size of up to `n_fac` facilities to
+#' achieve the targeted coverage share. The problem is solved using a
+#' statistical heuristic approach that generates samples of the candidate
+#' locations (on top of the existing locations) and selects the facilities in
+#' the one that minimizes the objective function.
 #'
 #' @template params-demand
 #' @template params-bb-area
@@ -43,9 +43,6 @@
 #'   weights - with respect to the demand layer. This is useful in cases where
 #'   the users want to increase the allocation in areas with higher values in
 #'   the demand layer (default: `1`).
-#' 
-#' When using `allocation_discrete()`:
-#' 
 #' @param candidate A [`sf`][sf::st_as_sf()] object with the candidate
 #'   locations for the new facilities.
 #' @param n_fac (optional) A positive [integerish][checkmate::test_integerish()]
@@ -59,7 +56,7 @@
 #' @param par (optional) A [`logical`][base::logical()] flag indicating whether
 #'   to run the function in [parallel][parallel::parLapply()] or not
 #'   (default: `FALSE`).
-#' 
+#'
 #' @inheritParams friction
 #'
 #' @return An [invisible][base::invisible] [`list`][base::list] with the
@@ -98,7 +95,7 @@
 #'
 #'   allocation_data |> allocation_plot(naples_shape)
 #' }
-#' 
+#'
 #' \dontrun{
 #'   library(dplyr)
 #'   library(sf)
@@ -120,7 +117,7 @@
 #'
 #'   allocation_data |> allocation_plot(naples_shape)
 #' }
-#' 
+#'
 allocation <- function(
   demand,
   bb_area,
@@ -192,89 +189,35 @@ allocation <- function(
 
   raster::crs(traveltime) <- "+proj=longlat +datum=WGS84 +no_defs +type=crs"
 
-  if (!is.null(weights) && approach == "norm") {
-    weights <- weights |> mask_raster_to_polygon(bb_area)
-
-    demand <-
-      demand |>
-      normalize_raster() |>
-      magrittr::raise_to_power(exp_demand) |>
-      magrittr::multiply_by(
-        weights |>
-          normalize_raster() |>
-          magrittr::raise_to_power(exp_weights)
-      )
-  } else if (!is.null(weights) && approach == "absweights") {
-    weights <- weights |> mask_raster_to_polygon(bb_area)
-
-    demand <-
-      demand |>
-      normalize_raster() |>
-      magrittr::raise_to_power(exp_demand) |>
-      magrittr::multiply_by(
-        weights |>
-          magrittr::raise_to_power(exp_weights)
-      )
-  } else if (is.null(weights)) {
-    demand <- demand |> magrittr::raise_to_power(exp_demand)
-  }
+  # Apply demand transformation using helper
+  demand <- apply_demand_transformation(
+    demand,
+    weights,
+    approach,
+    exp_demand,
+    exp_weights,
+    bb_area
+  )
 
   totalpopconstant <- demand |> raster::cellStats("sum", na.rm = TRUE)
 
-  demand <-
-    demand |>
-    raster::overlay(
-      traveltime,
-      fun = function(x, y) {
-        x[y <= objectiveminutes] <- NA
-
-        x
-      }
-    )
+  demand <- mask_demand_by_traveltime(demand, traveltime, objectiveminutes)
 
   iter <- 1
   k_save <- 1
+  new_facilities <- NULL
 
   repeat {
     iter <- iter + 1
 
-    if (heur == "kd") {
-      all <- spatialEco::sp.kde(
-        x = sf::st_as_sf(raster::rasterToPoints(demand, spatial = TRUE)),
-        y = all$layer,
-        bw = 0.0083333,
-        ref = terra::rast(demand),
-        res = 0.0008333333,
-        standardize = TRUE,
-        scale.factor = 10000
-      )
-    } else if (heur == "max") {
-      all <- raster::which.max(demand)
-    }
+    all <- find_next_facility(demand, heur, all_prev = NULL)
 
     pos <-
       demand |>
       raster::xyFromCell(all) |>
       as.data.frame()
 
-    if (exists("new_facilities")) {
-      new_facilities <-
-        new_facilities |>
-        rbind(
-          pos |>
-            sf::st_as_sf(
-              coords = c("x", "y"),
-              crs = 4326
-            )
-        )
-    } else {
-      new_facilities <-
-        pos |>
-        sf::st_as_sf(
-          coords = c("x", "y"),
-          crs = 4326
-        )
-    }
+    new_facilities <- accumulate_facility(new_facilities, pos)
 
     merged_facilities <-
       facilities |>
@@ -304,16 +247,11 @@ allocation <- function(
       ) |>
       mask_raster_to_polygon(bb_area)
 
-    demand <-
-      demand |>
-      raster::overlay(
-        traveltime_raster_new,
-        fun = function(x, y) {
-          x[y <= objectiveminutes] <- NA
-
-          x
-        }
-      )
+    demand <- mask_demand_by_traveltime(
+      demand,
+      traveltime_raster_new,
+      objectiveminutes
+    )
 
     k <-
       demand |>
@@ -356,6 +294,8 @@ allocation <- function(
   invisible(out)
 }
 
+#' @rdname allocation
+#' @export
 allocation_discrete <- function(
   demand,
   bb_area,
@@ -396,27 +336,27 @@ allocation_discrete <- function(
 
   sf::sf_use_s2(TRUE)
 
-  if (!is.null(facilities)) {
-    if (is.null(traveltime)) {
-      cli::cli_alert_info(
-        paste0(
-          "Travel time layer not detected. ",
-          "Running {.strong {cli::col_red('traveltime()')}} ",
-          "function first."
-        )
+  # Handle facilities and traveltime initialization
+  if (is.null(facilities)) {
+    facilities <- data.frame(x = 0, y = 0) |>
+      sf::st_as_sf(coords = c("x", "y"), crs = 4326) |>
+      magrittr::extract(-1, )
+  } else if (is.null(traveltime)) {
+    cli::cli_alert_info(
+      paste0(
+        "Travel time layer not detected. ",
+        "Running {.strong {cli::col_red('traveltime()')}} ",
+        "function first."
       )
+    )
 
-      traveltime <-
-        facilities |>
-        traveltime(
-          bb_area = bb_area,
-          mode = mode,
-          dowscaling_model_type = dowscaling_model_type,
-          res_output = res_output
-        )
-    } else {
-      traveltime_raster_outer <- traveltime
-    }
+    traveltime <- facilities |>
+      traveltime(
+        bb_area = bb_area,
+        mode = mode,
+        dowscaling_model_type = dowscaling_model_type,
+        res_output = res_output
+      )
 
     assert_minimal_coverage(
       traveltime = traveltime,
@@ -425,63 +365,35 @@ allocation_discrete <- function(
       objectiveshare = objectiveshare,
       null_ok = TRUE
     )
-  } else {
-    facilities <-
-      data.frame(x = 0, y = 0) |>
-      sf::st_as_sf(coords = c("x", "y"), crs = 4326) |>
-      magrittr::extract(-1, )
   }
 
   demand <- demand |> mask_raster_to_polygon(bb_area)
 
-  if (!is.null(weights) && approach == "norm") {
-    weights <- weights |> mask_raster_to_polygon(bb_area)
+  # Apply demand transformation
+  demand <- apply_demand_transformation(
+    demand,
+    weights,
+    approach,
+    exp_demand,
+    exp_weights,
+    bb_area
+  )
 
-    demand <-
-      demand |>
-      normalize_raster() |>
-      magrittr::raise_to_power(exp_demand) |>
-      magrittr::multiply_by(
-        weights |>
-          normalize_raster() |>
-          magrittr::raise_to_power(exp_weights)
-      )
-  } else if (!is.null(weights) && approach == "absweights") {
-    weights <- weights |> mask_raster_to_polygon(bb_area)
-
-    demand <-
-      demand |>
-      normalize_raster() |>
-      magrittr::raise_to_power(exp_demand) |>
-      magrittr::multiply_by(
-        weights |>
-          magrittr::raise_to_power(exp_weights)
-      )
-  } else if (is.null(weights)) {
-    demand <- demand |> magrittr::raise_to_power(exp_demand)
-  }
-
-  if (!exists("traveltime_raster_outer")) {
-    traveltime <-
-      demand |>
-      raster::`values<-`(objectiveminutes + 1) |>
-      mask_raster_to_polygon(bb_area)
-
-    friction <-
-      bb_area |>
-      friction(
-        mode = mode,
-        dowscaling_model_type = dowscaling_model_type,
-        res_output = res_output
-      )
-
-    traveltime_raster_outer <- list(traveltime, friction)
-  }
+  # Initialize traveltime layers
+  traveltime_init <- initialize_traveltime(
+    traveltime,
+    demand,
+    bb_area,
+    mode,
+    dowscaling_model_type,
+    res_output,
+    objectiveminutes
+  )
+  traveltime_raster_outer <- traveltime_init$traveltime_outer
 
   totalpopconstant <- demand |> raster::cellStats("sum", na.rm = TRUE)
 
-  traveltime_raster_outer[[1]] <-
-    traveltime_raster_outer[[1]] |>
+  traveltime_raster_outer[[1]] <- traveltime_raster_outer[[1]] |>
     raster::`crs<-`(
       value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
     ) |>
@@ -490,22 +402,16 @@ allocation_discrete <- function(
       value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
     )
 
-  demand <-
-    demand |>
-    raster::overlay(
-      traveltime_raster_outer[[1]],
-      fun = function(x, y) {
-        x[y <= objectiveminutes] <- NA
-
-        x
-      }
-    )
-
+  demand <- mask_demand_by_traveltime(
+    demand,
+    traveltime_raster_outer[[1]],
+    objectiveminutes
+  )
   demand_raster_bk <- demand
 
   if (is.null(objectiveshare)) {
-    samples <-
-      n_samples |>
+    # Single iteration: find best n_fac facilities
+    samples <- n_samples |>
       replicate(
         candidate |>
           sf::st_as_sf() |>
@@ -517,8 +423,7 @@ allocation_discrete <- function(
     runner <- function(i) {
       demand_rasterio <- demand_raster_bk
 
-      points <-
-        facilities |>
+      points <- facilities |>
         sf::st_coordinates() |>
         rbind(
           candidate |>
@@ -531,95 +436,29 @@ allocation_discrete <- function(
       n_points <- points |> dim() |> magrittr::extract(1)
       xy_matrix <- points_to_matrix(points, n_points)
 
-      traveltime_raster_new <-
-        traveltime_raster_outer[[2]][[3]] |>
-        gdistance::accCost(xy_matrix) |>
-        raster::crop(raster::extent(demand_rasterio)) |>
-        raster::`crs<-`(
-          value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-        ) |>
-        raster::projectRaster(demand_rasterio) |>
-        raster::`crs<-`(
-          value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-        ) |>
-        mask_raster_to_polygon(bb_area)
+      traveltime_raster_new <- calculate_traveltime_raster(
+        traveltime_raster_outer,
+        xy_matrix,
+        demand_rasterio,
+        bb_area
+      )
 
-      demand_rasterio <-
-        demand_rasterio |>
-        raster::overlay(
-          traveltime_raster_new,
-          fun = function(x, y) {
-            x[y <= objectiveminutes] <- NA
-
-            x
-          }
-        )
+      demand_rasterio <- mask_demand_by_traveltime(
+        demand_rasterio,
+        traveltime_raster_new,
+        objectiveminutes
+      )
 
       demand_rasterio |>
         raster::cellStats("sum", na.rm = TRUE) |>
         magrittr::divide_by(totalpopconstant)
     }
 
-    if (par == TRUE) {
-      if (.Platform$OS.type == "unix") {
-        outer <-
-          n_samples |>
-          seq_len() |>
-          parallel::mclapply(
-            runner,
-            mc.cores = parallel::detectCores() - 1
-          )
-      } else {
-        # Use `parLapply` for Windows.
-        cl <- parallel::makeCluster(parallel::detectCores() - 1)
-
-        cl |>
-          parallel::clusterExport(
-            varlist = ls(envir = .GlobalEnv)
-          )
-
-        cl |>
-          parallel::clusterExport(
-            varlist = ls(envir = environment()),
-            envir = environment()
-          )
-
-        # Get all currently loaded packages (names only).
-        # Load each package on every cluster worker.
-        cl |>
-          parallel::clusterEvalQ(
-            {
-              # Loop through the package names and load them.
-              packages <- .packages()
-
-              for (i in packages) {
-                suppressMessages(require(i, character.only = TRUE))
-              }
-            }
-          )
-
-        outer <-
-          cl |>
-          parallel::parLapply(
-            seq_len(n_samples),
-            runner
-          )
-
-        parallel::stopCluster(cl)
-        gc()
-      }
-    } else {
-      outer <-
-        n_samples |>
-        seq_len() |>
-        cli::cli_progress_along("Iterating") |>
-        lapply(runner)
-    }
+    outer <- run_samples(n_samples, runner, par)
 
     demand <- demand_raster_bk
 
-    points <-
-      facilities |>
+    points <- facilities |>
       sf::st_coordinates() |>
       rbind(
         candidate |>
@@ -634,32 +473,20 @@ allocation_discrete <- function(
     n_points <- points |> dim() |> magrittr::extract(1)
     xy_matrix <- points_to_matrix(points, n_points)
 
-    traveltime_raster_new <-
-      traveltime_raster_outer[[2]][[3]] |>
-      gdistance::accCost(xy_matrix) |>
-      raster::crop(raster::extent(demand)) |>
-      raster::`crs<-`(
-        value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-      ) |>
-      raster::projectRaster(demand) |>
-      raster::`crs<-`(
-        value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-      ) |>
-      mask_raster_to_polygon(bb_area)
+    traveltime_raster_new <- calculate_traveltime_raster(
+      traveltime_raster_outer,
+      xy_matrix,
+      demand,
+      bb_area
+    )
 
-    demand <-
-      demand |>
-      raster::overlay(
-        traveltime_raster_new,
-        fun = function(x, y) {
-          x[y <= objectiveminutes] <- NA
+    demand <- mask_demand_by_traveltime(
+      demand,
+      traveltime_raster_new,
+      objectiveminutes
+    )
 
-          x
-        }
-      )
-
-    k <-
-      demand |>
+    k <- demand |>
       raster::cellStats("sum", na.rm = TRUE) |>
       magrittr::divide_by(totalpopconstant)
 
@@ -676,7 +503,7 @@ allocation_discrete <- function(
               outer |>
                 unlist() |>
                 which.min()
-            ), # Do not remove the comma!
+            ),
         ),
       travel_time = traveltime_raster_new
     ) |>
@@ -686,8 +513,8 @@ allocation_discrete <- function(
 
     out
   } else {
-    kiters <- seq(2, n_fac)
-    kiter <- kiters[1] - 1
+    # Iterative: increase facilities until objectiveshare is met
+    kiter <- 1
 
     repeat {
       kiter <- kiter + 1
@@ -696,8 +523,7 @@ allocation_discrete <- function(
         "Iteration with {.strong {cli::col_yellow(kiter)}} facilities."
       )
 
-      samples <-
-        n_samples |>
+      samples <- n_samples |>
         replicate(
           candidate |>
             sf::st_as_sf() |>
@@ -709,8 +535,7 @@ allocation_discrete <- function(
       runner <- function(i) {
         demand_rasterio <- demand_raster_bk
 
-        points <-
-          facilities |>
+        points <- facilities |>
           sf::st_coordinates() |>
           rbind(
             candidate |>
@@ -723,95 +548,29 @@ allocation_discrete <- function(
         n_points <- points |> dim() |> magrittr::extract(1)
         xy_matrix <- points_to_matrix(points, n_points)
 
-        traveltime_raster_new <-
-          traveltime_raster_outer[[2]][[3]] |>
-          gdistance::accCost(xy_matrix) |>
-          raster::crop(raster::extent(demand_rasterio)) |>
-          raster::`crs<-`(
-            value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-          ) |>
-          raster::projectRaster(demand_rasterio) |>
-          raster::`crs<-`(
-            value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-          ) |>
-          mask_raster_to_polygon(bb_area)
+        traveltime_raster_new <- calculate_traveltime_raster(
+          traveltime_raster_outer,
+          xy_matrix,
+          demand_rasterio,
+          bb_area
+        )
 
-        demand_rasterio <-
-          demand_rasterio |>
-          raster::overlay(
-            traveltime_raster_new,
-            fun = function(x, y) {
-              x[y <= objectiveminutes] <- NA
-
-              x
-            }
-          )
+        demand_rasterio <- mask_demand_by_traveltime(
+          demand_rasterio,
+          traveltime_raster_new,
+          objectiveminutes
+        )
 
         demand_rasterio |>
           raster::cellStats("sum", na.rm = TRUE) |>
           magrittr::divide_by(totalpopconstant)
       }
 
-      if (par == TRUE) {
-        if (.Platform$OS.type == "unix") {
-          outer <-
-            n_samples |>
-            seq_len() |>
-            parallel::mclapply(
-              runner,
-              mc.cores = parallel::detectCores() - 1
-            )
-        } else {
-          # Use `parLapply` for Windows.
-          cl <- parallel::makeCluster(parallel::detectCores() - 1)
-
-          cl |>
-            parallel::clusterExport(
-              varlist = ls(envir = .GlobalEnv)
-            )
-
-          cl |>
-            parallel::clusterExport(
-              varlist = ls(envir = environment()),
-              envir = environment()
-            )
-
-          # Get all currently loaded packages (names only).
-          # Load each package on every cluster worker.
-          cl |>
-            parallel::clusterEvalQ(
-              {
-                # Loop through the package names and load them.
-                packages <- .packages()
-
-                for (i in packages) {
-                  suppressMessages(require(i, character.only = TRUE))
-                }
-              }
-            )
-
-          outer <-
-            cl |>
-            parallel::parLapply(
-              seq_len(n_samples),
-              runner
-            )
-
-          parallel::stopCluster(cl)
-          gc()
-        }
-      } else {
-        outer <-
-          n_samples |>
-          seq_len() |>
-          cli::cli_progress_along("Iterating") |>
-          lapply(runner)
-      }
+      outer <- run_samples(n_samples, runner, par)
 
       demand <- demand_raster_bk
 
-      points <-
-        facilities |>
+      points <- facilities |>
         sf::st_coordinates() |>
         rbind(
           candidate |>
@@ -826,31 +585,20 @@ allocation_discrete <- function(
       n_points <- points |> dim() |> magrittr::extract(1)
       xy_matrix <- points_to_matrix(points, n_points)
 
-      traveltime_raster_new <-
-        traveltime_raster_outer[[2]][[3]] |>
-        gdistance::accCost(xy_matrix) |>
-        raster::crop(raster::extent(demand)) |>
-        raster::`crs<-`(
-          value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-        ) |>
-        raster::projectRaster(demand) |>
-        raster::`crs<-`(
-          value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
-        ) |>
-        mask_raster_to_polygon(bb_area)
+      traveltime_raster_new <- calculate_traveltime_raster(
+        traveltime_raster_outer,
+        xy_matrix,
+        demand,
+        bb_area
+      )
 
-      demand <-
-        demand |>
-        raster::overlay(
-          traveltime_raster_new,
-          fun = function(x, y) {
-            x[y <= objectiveminutes] <- NA
-            x
-          }
-        )
+      demand <- mask_demand_by_traveltime(
+        demand,
+        traveltime_raster_new,
+        objectiveminutes
+      )
 
-      k <-
-        demand |>
+      k <- demand |>
         raster::cellStats("sum", na.rm = TRUE) |>
         magrittr::divide_by(totalpopconstant)
 
@@ -882,4 +630,231 @@ allocation_discrete <- function(
 
     invisible(out)
   }
+}
+
+apply_demand_transformation <- function(
+  demand,
+  weights,
+  approach,
+  exp_demand,
+  exp_weights,
+  bb_area
+) {
+  if (is.null(weights)) {
+    return(demand |> magrittr::raise_to_power(exp_demand))
+  }
+
+  weights <- weights |> mask_raster_to_polygon(bb_area)
+  normalized_demand <- demand |>
+    normalize_raster() |>
+    magrittr::raise_to_power(exp_demand)
+
+  if (approach == "norm") {
+    return(
+      normalized_demand |>
+        magrittr::multiply_by(
+          weights |>
+            normalize_raster() |>
+            magrittr::raise_to_power(exp_weights)
+        )
+    )
+  }
+
+  # approach == "absweights"
+  normalized_demand |>
+    magrittr::multiply_by(
+      weights |>
+        magrittr::raise_to_power(exp_weights)
+    )
+}
+
+find_next_facility <- function(demand, heur, all_prev = NULL) {
+  if (heur == "kd") {
+    return(raster::which.max(
+      raster::raster(spatialEco::sp.kde(
+        x = sf::st_as_sf(raster::rasterToPoints(demand, spatial = TRUE)),
+        bw = terra::res(demand) * 10,
+        res = terra::res(demand),
+        standardize = TRUE,
+        scale.factor = 10000
+      )) %>%
+        raster::projectRaster(demand)
+    ))
+  }
+
+  # heur == "max"
+  raster::which.max(demand)
+}
+
+accumulate_facility <- function(new_facilities, pos) {
+  new_sf <- pos |>
+    sf::st_as_sf(coords = c("x", "y"), crs = 4326)
+
+  if (is.null(new_facilities)) {
+    return(new_sf)
+  }
+
+  rbind(new_facilities, new_sf)
+}
+
+mask_demand_by_traveltime <- function(demand, traveltime, objectiveminutes) {
+  demand |>
+    raster::overlay(
+      traveltime,
+      fun = function(x, y) {
+        x[y <= objectiveminutes] <- NA
+        x
+      }
+    )
+}
+
+apply_demand_transformation <- function(
+  demand,
+  weights,
+  approach,
+  exp_demand,
+  exp_weights,
+  bb_area
+) {
+  if (is.null(weights)) {
+    return(demand |> magrittr::raise_to_power(exp_demand))
+  }
+
+  weights <- weights |> mask_raster_to_polygon(bb_area)
+  normalized_demand <- demand |>
+    normalize_raster() |>
+    magrittr::raise_to_power(exp_demand)
+
+  if (approach == "norm") {
+    return(
+      normalized_demand |>
+        magrittr::multiply_by(
+          weights |>
+            normalize_raster() |>
+            magrittr::raise_to_power(exp_weights)
+        )
+    )
+  }
+
+  normalized_demand |>
+    magrittr::multiply_by(
+      weights |>
+        magrittr::raise_to_power(exp_weights)
+    )
+}
+
+mask_demand_by_traveltime <- function(
+  demand,
+  traveltime_raster,
+  objectiveminutes
+) {
+  demand |>
+    raster::overlay(
+      traveltime_raster,
+      fun = function(x, y) {
+        x[y <= objectiveminutes] <- NA
+        x
+      }
+    )
+}
+
+calculate_traveltime_raster <- function(
+  traveltime_raster_outer,
+  xy_matrix,
+  demand,
+  bb_area
+) {
+  traveltime_raster_outer[[2]][[3]] |>
+    gdistance::accCost(xy_matrix) |>
+    raster::crop(raster::extent(demand)) |>
+    raster::`crs<-`(
+      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+    ) |>
+    raster::projectRaster(demand) |>
+    raster::`crs<-`(
+      value = "+proj=longlat +datum=WGS84 +no_defs +type=crs"
+    ) |>
+    mask_raster_to_polygon(bb_area)
+}
+
+run_samples <- function(n_samples, runner, par) {
+  if (par == TRUE) {
+    if (.Platform$OS.type == "unix") {
+      return(
+        n_samples |>
+          seq_len() |>
+          parallel::mclapply(
+            runner,
+            mc.cores = parallel::detectCores() - 1
+          )
+      )
+    } else {
+      cl <- parallel::makeCluster(parallel::detectCores() - 1)
+
+      cl |>
+        parallel::clusterExport(
+          varlist = ls(envir = .GlobalEnv)
+        )
+
+      cl |>
+        parallel::clusterExport(
+          varlist = ls(envir = environment()),
+          envir = environment()
+        )
+
+      cl |>
+        parallel::clusterEvalQ(
+          {
+            packages <- .packages()
+            for (i in packages) {
+              suppressMessages(require(i, character.only = TRUE))
+            }
+          }
+        )
+
+      outer <- cl |>
+        parallel::parLapply(
+          seq_len(n_samples),
+          runner
+        )
+
+      parallel::stopCluster(cl)
+      gc()
+      return(outer)
+    }
+  } else {
+    return(
+      n_samples |>
+        seq_len() |>
+        cli::cli_progress_along("Iterating") |>
+        lapply(runner)
+    )
+  }
+}
+
+initialize_traveltime <- function(
+  traveltime,
+  demand,
+  bb_area,
+  mode,
+  dowscaling_model_type,
+  res_output,
+  objectiveminutes
+) {
+  if (!is.null(traveltime)) {
+    return(list(traveltime_outer = traveltime, is_new = FALSE))
+  }
+
+  traveltime_new <- demand |>
+    raster::`values<-`(objectiveminutes + 1) |>
+    mask_raster_to_polygon(bb_area)
+
+  friction <- bb_area |>
+    friction(
+      mode = mode,
+      dowscaling_model_type = dowscaling_model_type,
+      res_output = res_output
+    )
+
+  list(traveltime_outer = list(traveltime_new, friction), is_new = TRUE)
 }

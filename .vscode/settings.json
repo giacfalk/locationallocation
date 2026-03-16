@@ -105,6 +105,7 @@
     "rast",
     "rasterio",
     "rcmdcheck",
+    "rdname",
     "readr",
     "repostatus",
     "revdep",
