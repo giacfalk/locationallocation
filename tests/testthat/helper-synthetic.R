@@ -1,3 +1,9 @@
+# Never write to the user's cache, and do not wait before retrying.
+options(
+  locationallocation.cache_dir = file.path(tempdir(), "locationallocation"),
+  locationallocation.retry_wait = 0
+)
+
 # A small synthetic location-allocation problem that runs offline.
 #
 # - Friction: walking at 5 km/h (0.012 min/m) on a ~210 x 280 m grid, with a

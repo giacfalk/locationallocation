@@ -17,10 +17,19 @@ Authors@R: c(
             comment = c(ORCID = "0000-0001-7782-759X")
         )
   )
-Description: Functions to perform Maximal Coverage Location-Allocation analyses
-    using geospatial data. It is designed to help decision-makers optimally
-    allocate resources and facilities in various contexts, such as public
-    health, emergency response, and urban planning.
+Description: Tools to solve Maximal Coverage Location-Allocation problems
+    with geospatial data, i.e., to place new facilities so that as much
+    (optionally weighted) demand as possible can reach a facility within a
+    given travel time. Travel times are computed over the friction surfaces of
+    the Malaria Atlas Project (Weiss et al., 2018 <doi:10.1038/nature25181>),
+    optionally refined with OpenStreetMap road networks. New facilities can be
+    placed anywhere within an area (continuous problem) or selected among
+    candidate locations (discrete problem), using greedy (Church and ReVelle,
+    1974 <doi:10.1007/BF01942293>) and vertex substitution (Teitz and Bart,
+    1968 <doi:10.1287/opre.16.5.955>) heuristics. It is designed to help
+    decision-makers allocate resources and facilities in contexts such as
+    public health, emergency response, climate adaptation, and urban
+    planning.
 License: GPL (>= 3)
 URL: https://giacfalk.github.io/locationallocation/,
     https://github.com/giacfalk/locationallocation/
@@ -31,7 +40,6 @@ Imports:
     checkmate (>= 2.3.3),
     cli (>= 3.6.5),
     curl (>= 7.0.0),
-    dissever (>= 0.2.3),
     dplyr (>= 1.1.4),
     gdistance (>= 1.6.5),
     ggplot2 (>= 4.0.1),

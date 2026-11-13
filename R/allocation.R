@@ -34,7 +34,7 @@
 #' 1. A score of the demand not yet covered proposes a shortlist of promising
 #'    locations: the `shortlist` highest local maxima of the score, at least
 #'    half a catchment radius apart. The catchment radius is the distance that
-#'    can be travelled within `objectiveminutes` at the median friction of the
+#'    can be traveled within `objectiveminutes` at the median friction of the
 #'    study area. The score is:
 #'    - `heur = "kd"`: the uncovered demand smoothed with a quartic kernel
 #'      whose bandwidth is the catchment radius, i.e., an estimate of the
@@ -113,8 +113,8 @@
 #'   function, whose friction surface is reused to avoid downloading and
 #'   downscaling it again. The travel times from `facilities` are recomputed
 #'   on this surface. If `NULL`, the friction surface is computed with
-#'   [`friction()`][friction()] using `mode`, `dowscaling_model_type` and
-#'   `res_output` (default: `NULL`).
+#'   [`friction()`][friction()] using `mode` and `res_output` (default:
+#'   `NULL`).
 #' @param weights (optional) A [`RasterLayer`][raster::raster()] or
 #'   [`SpatRaster`][terra::rast()] object with the weights for the demand
 #'   (e.g., a hazard layer). It is resampled to the grid of `demand` if needed
@@ -242,7 +242,7 @@ allocation <- function(
   facilities,
   traveltime = NULL,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   weights = NULL,
   objectiveminutes = 15,
@@ -260,7 +260,7 @@ allocation <- function(
   assert_facilities(facilities, null_ok = TRUE)
   assert_traveltime(traveltime, null_ok = TRUE)
   checkmate::assert_choice(mode, choices = c("walk", "fastest"))
-  checkmate::assert_choice(dowscaling_model_type, choices = c("lm", "rf"))
+  warn_dowscaling_model_type(dowscaling_model_type)
   checkmate::assert_count(res_output, positive = TRUE)
   weights <- as_raster_layer(weights, null_ok = TRUE)
   checkmate::assert_number(objectiveminutes, lower = 0, finite = TRUE)
@@ -288,7 +288,6 @@ allocation <- function(
     facilities = facilities,
     traveltime = traveltime,
     mode = mode,
-    dowscaling_model_type = dowscaling_model_type,
     res_output = res_output,
     weights = weights,
     approach = approach,
@@ -341,7 +340,7 @@ allocation_discrete <- function(
   n_samples,
   traveltime = NULL,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   weights = NULL,
   objectiveminutes = 15,
@@ -358,7 +357,7 @@ allocation_discrete <- function(
   assert_n_fac(n_fac)
   assert_traveltime(traveltime, null_ok = TRUE)
   checkmate::assert_choice(mode, choices = c("walk", "fastest"))
-  checkmate::assert_choice(dowscaling_model_type, choices = c("lm", "rf"))
+  warn_dowscaling_model_type(dowscaling_model_type)
   checkmate::assert_count(res_output, positive = TRUE)
   weights <- as_raster_layer(weights, null_ok = TRUE)
   checkmate::assert_number(objectiveminutes, lower = 0, finite = TRUE)
@@ -388,7 +387,6 @@ allocation_discrete <- function(
     facilities = facilities,
     traveltime = traveltime,
     mode = mode,
-    dowscaling_model_type = dowscaling_model_type,
     res_output = res_output,
     weights = weights,
     approach = approach,

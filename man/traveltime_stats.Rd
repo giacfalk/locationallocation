@@ -54,7 +54,7 @@ the share of demand which is covered within a given objective travel time
 along with a cumulative coverage curve.
 }
 \details{
-The travel time map is aligned to the grid of \code{demand} (nearest-neighbour
+The travel time map is aligned to the grid of \code{demand} (nearest-neighbor
 resampling). Coverage is computed over the demand cells that fall within
 the travel time map (i.e., within \code{bb_area}). Demand in cells that cannot
 be reached (infinite travel time) counts as not covered.
@@ -65,7 +65,6 @@ be reached (infinite travel time) counts as not covered.
     naples_fountains |>
     traveltime(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
       mode = "walk",
       res_output = 100
     )
@@ -80,6 +79,7 @@ be reached (infinite travel time) counts as not covered.
 }
 \seealso{
 Other travel time functions: 
+\code{\link{default_road_speeds}()},
 \code{\link{friction}()},
 \code{\link{traveltime}()},
 \code{\link{traveltime_plot}()}

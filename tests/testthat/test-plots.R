@@ -45,6 +45,38 @@ test_that("allocation_plot() returns a ggplot", {
   expect_error(allocation_plot(problem$traveltime, problem$bb_area))
 })
 
+test_that("coverage messages use the right plural", {
+  result <- function(n) {
+    structure(
+      list(
+        coverage = 0.995,
+        unmet_demand = 0.005,
+        objective_minutes = 15,
+        objective_share = 0.99,
+        facilities = problem$candidate[seq_len(n), ]
+      ),
+      class = c("allocation", "list")
+    )
+  }
+
+  text <- function(x) {
+    output <- capture.output(coverage_message(x), type = "message")
+
+    paste(cli::ansi_strip(output), collapse = " ")
+  }
+
+  expect_match(text(result(1)), "1 new facility ")
+  expect_match(text(result(3)), "3 new facilities ")
+
+  unattained <- result(2)
+  unattained$coverage <- 0.5
+  expect_match(text(unattained), "2 new facilities ")
+
+  fixed <- result(3)
+  fixed$objective_share <- NULL
+  expect_match(text(fixed), "3 facilities ")
+})
+
 test_that("print methods work", {
   out <- suppressMessages(
     allocation_discrete(

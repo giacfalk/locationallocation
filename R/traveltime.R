@@ -29,7 +29,7 @@
 #'     [`friction()`][friction] function.
 #'
 #' @family travel time functions
-#' @keywords cats
+#' @keywords spatial
 #' @export
 #'
 #' @examples
@@ -40,7 +40,6 @@
 #'     naples_fountains |>
 #'     traveltime(
 #'       bb_area = naples_shape,
-#'       dowscaling_model_type = "lm",
 #'       mode = "walk",
 #'       res_output = 100
 #'     )
@@ -57,15 +56,17 @@ traveltime <- function(
   facilities,
   bb_area,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   cache = FALSE,
-  file = NULL
+  file = NULL,
+  roads = NULL,
+  road_speeds = default_road_speeds()
 ) {
   assert_facilities(facilities)
   assert_bb_area(bb_area)
   checkmate::assert_choice(mode, choices = c("walk", "fastest"))
-  checkmate::assert_choice(dowscaling_model_type, choices = c("lm", "rf"))
+  warn_dowscaling_model_type(dowscaling_model_type)
   checkmate::assert_count(res_output, positive = TRUE)
   checkmate::assert_flag(cache)
   checkmate::assert_string(file, null.ok = TRUE)
@@ -78,9 +79,10 @@ traveltime <- function(
     friction(
       mode = mode,
       res_output = res_output,
-      dowscaling_model_type = dowscaling_model_type,
       cache = cache,
-      file = file
+      file = file,
+      roads = roads,
+      road_speeds = road_speeds
     )
 
   points <- points_xy(facilities, within = friction_data$friction_layer)

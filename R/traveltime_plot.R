@@ -28,7 +28,6 @@
 #'     naples_fountains |>
 #'     traveltime(
 #'       bb_area = naples_shape,
-#'       dowscaling_model_type = "lm",
 #'       mode = "walk",
 #'       res_output = 100
 #'     )

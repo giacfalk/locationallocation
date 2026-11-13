@@ -16,7 +16,6 @@ allocation_setup <- function(
   facilities,
   traveltime,
   mode,
-  dowscaling_model_type,
   res_output,
   weights,
   approach,
@@ -34,7 +33,6 @@ allocation_setup <- function(
     friction_data <- friction(
       bb_area = bb_area,
       mode = mode,
-      dowscaling_model_type = dowscaling_model_type,
       res_output = res_output
     )
   } else {
@@ -469,7 +467,8 @@ allocate_continuous <- function(
       report(
         paste0(
           "Interchange refinement: ",
-          "{.strong {cli::col_yellow(n_selected)}} facilit{?y/ies}, "
+          "{.strong {cli::col_yellow(n_selected)}} ",
+          "{cli::qty(n_selected)}facilit{?y/ies}, "
         )
       )
     }
@@ -495,7 +494,7 @@ allocate_continuous <- function(
 }
 
 # Moving windows sized on the catchment radius: the distance that can be
-# travelled within `objectiveminutes` at the median friction of the study
+# traveled within `objectiveminutes` at the median friction of the study
 # area.
 #
 # - `kernel`: quartic kernel with a bandwidth equal to the catchment radius.

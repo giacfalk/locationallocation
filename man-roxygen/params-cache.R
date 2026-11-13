@@ -1,5 +1,6 @@
-#' @param cache (optional) A [`logical`][base::logical] flag
-#'   indicating whether to download the global friction surface once and cache
-#'   it on disk (see [`tools::R_user_dir()`]) for future use, instead of
-#'   downloading only the area of interest at each call
-#'   (default: `FALSE`).
+#' @param cache (optional) A [`logical`][base::logical] flag indicating
+#'   whether to cache downloaded data (friction surface of the area, road
+#'   network) on disk and reuse it in later calls. It also enables a fallback
+#'   to a one-time download of the global friction surface (~730 MB) when the
+#'   Malaria Atlas Project service is unavailable. See *Details* of
+#'   [`friction()`][friction()] (default: `FALSE`).

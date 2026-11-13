@@ -9,7 +9,7 @@
 #'
 #' @details
 #'
-#' The travel time map is aligned to the grid of `demand` (nearest-neighbour
+#' The travel time map is aligned to the grid of `demand` (nearest-neighbor
 #' resampling). Coverage is computed over the demand cells that fall within
 #' the travel time map (i.e., within `bb_area`). Demand in cells that cannot
 #' be reached (infinite travel time) counts as not covered.
@@ -45,7 +45,6 @@
 #'     naples_fountains |>
 #'     traveltime(
 #'       bb_area = naples_shape,
-#'       dowscaling_model_type = "lm",
 #'       mode = "walk",
 #'       res_output = 100
 #'     )

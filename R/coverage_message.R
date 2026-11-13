@@ -9,7 +9,7 @@ coverage_message <- function(allocation) {
   if (is.null(objective_share)) {
     cli::cli_alert_info(
       paste0(
-        "{.strong {cli::col_red(n_fac)}} facilit{?y/ies} ",
+        "{.strong {cli::col_red(n_fac)}} {cli::qty(n_fac)}facilit{?y/ies} ",
         "allocated within the ",
         "{.strong {cli::col_yellow(objective_minutes)}} ",
         "minutes threshold. ",
@@ -24,7 +24,7 @@ coverage_message <- function(allocation) {
         "Target coverage share of ",
         "{.strong {cli::col_blue((objective_share * 100))}}% ",
         "attained with ",
-        "{.strong {cli::col_red(n_fac)}} new facilit{?y/ies} ",
+        "{.strong {cli::col_red(n_fac)}} new {cli::qty(n_fac)}facilit{?y/ies} ",
         "within the ",
         "{.strong {cli::col_yellow(objective_minutes)}} ",
         "minutes threshold. ",
@@ -40,7 +40,7 @@ coverage_message <- function(allocation) {
         "{.strong {cli::col_blue((objective_share * 100))}}% ",
         "could not be attained with ",
         "{.strong {cli::col_red(n_fac)}} new ",
-        "facilit{?y/ies} within the ",
+        "{cli::qty(n_fac)}facilit{?y/ies} within the ",
         "{.strong {cli::col_yellow(objective_minutes)}} ",
         "minutes threshold. ",
         "The maximum coverage share attained was ",

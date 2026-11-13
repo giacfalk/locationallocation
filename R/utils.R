@@ -18,9 +18,9 @@ in_extent <- function(xy, within) {
     xy[, 2] >= e@ymin & xy[, 2] <= e@ymax
 }
 
-# Values of `x` on the grid of `template` (nearest-neighbour resampling).
+# Values of `x` on the grid of `template` (nearest-neighbor resampling).
 #
-# Nearest-neighbour resampling commutes with the pointwise minimum, so the
+# Nearest-neighbor resampling commutes with the pointwise minimum, so the
 # travel time from a set of points is exactly the minimum of the travel times
 # from each point. This keeps the coverage computed by the optimisation
 # routines consistent with the returned travel time maps.
@@ -52,7 +52,7 @@ as_spatraster <- function(x) {
 # and reused for all the travel time computations of a problem.
 #
 # With a `template`, the cell of the transition grid that contains the centre
-# of each cell of `template` is also precomputed (nearest-neighbour
+# of each cell of `template` is also precomputed (nearest-neighbor
 # alignment).
 routing_graph <- function(transition, template = NULL) {
   matrix <- methods::as(
@@ -81,7 +81,7 @@ routing_graph <- function(transition, template = NULL) {
 
 # Travel time (minutes) from the nearest of one or more points, on the grid
 # of `template`. Equivalent to `gdistance::accCost()` followed by
-# nearest-neighbour alignment to `template`. `router` is the output of
+# nearest-neighbor alignment to `template`. `router` is the output of
 # `routing_graph()` (or a `TransitionLayer`).
 travel_time_values <- function(router, xy, template) {
   if (inherits(router, "TransitionLayer")) router <- routing_graph(router)
@@ -197,10 +197,14 @@ crop_to_area <- function(x, bb_area) {
   )
 }
 
-get_cache_directory <- function() {
-  out <- tools::R_user_dir("locationallocation", which = "cache")
+# The cache directory is only created when data are written to it.
+get_cache_directory <- function(create = FALSE) {
+  out <- getOption(
+    "locationallocation.cache_dir",
+    tools::R_user_dir("locationallocation", which = "cache")
+  )
 
-  if (!dir.exists(out)) {
+  if (isTRUE(create) && !dir.exists(out)) {
     dir.create(out, recursive = TRUE)
   }
 
@@ -216,17 +220,7 @@ quietly <- function(expr) {
   out
 }
 
-# Local UTM zone CRS (EPSG code) for an `sf` object in WGS 84.
-utm_epsg <- function(x) {
-  centroid <-
-    x |>
-    sf::st_bbox() |>
-    sf::st_as_sfc() |>
-    sf::st_centroid() |>
-    sf::st_coordinates() |>
-    suppressWarnings()
-
-  zone <- floor((centroid[1] + 180) / 6) %% 60 + 1
-
-  ifelse(centroid[2] >= 0, 32600, 32700) + zone
+# Escape braces so that text is not interpreted by `cli`.
+cli_escape <- function(x) {
+  gsub("}", "}}", gsub("{", "{{", x, fixed = TRUE), fixed = TRUE)
 }

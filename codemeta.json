@@ -2,7 +2,7 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "locationallocation",
-  "description": "Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning.",
+  "description": "Tools to solve Maximal Coverage Location-Allocation problems with geospatial data, i.e., to place new facilities so that as much (optionally weighted) demand as possible can reach a facility within a given travel time. Travel times are computed over the friction surfaces of the Malaria Atlas Project (Weiss et al., 2018 <doi:10.1038/nature25181>), optionally refined with OpenStreetMap road networks. New facilities can be placed anywhere within an area (continuous problem) or selected among candidate locations (discrete problem), using greedy (Church and ReVelle, 1974 <doi:10.1007/BF01942293>) and vertex substitution (Teitz and Bart, 1968 <doi:10.1287/opre.16.5.955>) heuristics. It is designed to help decision-makers allocate resources and facilities in contexts such as public health, emergency response, climate adaptation, and urban planning.",
   "name": "locationallocation: Maximal Coverage Location-Allocation Using Geospatial Data",
   "relatedLink": "https://giacfalk.github.io/locationallocation/",
   "codeRepository": "https://github.com/giacfalk/locationallocation/",
@@ -14,7 +14,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.5.2 (2025-10-31)",
+  "runtimePlatform": "R version 4.5.3 (2026-03-11 ucrt)",
   "author": [
     {
       "@type": "Person",
@@ -106,19 +106,6 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "lwgeom",
-      "name": "lwgeom",
-      "version": ">= 0.2.14",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=lwgeom"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "rmarkdown",
       "name": "rmarkdown",
       "version": ">= 2.30",
@@ -205,19 +192,6 @@
     },
     "5": {
       "@type": "SoftwareApplication",
-      "identifier": "dissever",
-      "name": "dissever",
-      "version": ">= 0.2.3",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=dissever"
-    },
-    "6": {
-      "@type": "SoftwareApplication",
       "identifier": "dplyr",
       "name": "dplyr",
       "version": ">= 1.1.4",
@@ -229,7 +203,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=dplyr"
     },
-    "7": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "gdistance",
       "name": "gdistance",
@@ -242,7 +216,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=gdistance"
     },
-    "8": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "ggplot2",
       "name": "ggplot2",
@@ -255,13 +229,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=ggplot2"
     },
-    "9": {
-      "@type": "SoftwareApplication",
-      "identifier": "graphics",
-      "name": "graphics",
-      "version": ">= 4.4"
-    },
-    "10": {
+    "8": {
       "@type": "SoftwareApplication",
       "identifier": "ggspatial",
       "name": "ggspatial",
@@ -274,7 +242,20 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=ggspatial"
     },
-    "11": {
+    "9": {
+      "@type": "SoftwareApplication",
+      "identifier": "igraph",
+      "name": "igraph",
+      "version": ">= 2.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=igraph"
+    },
+    "10": {
       "@type": "SoftwareApplication",
       "identifier": "magrittr",
       "name": "magrittr",
@@ -287,7 +268,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=magrittr"
     },
-    "12": {
+    "11": {
       "@type": "SoftwareApplication",
       "identifier": "malariaAtlas",
       "name": "malariaAtlas",
@@ -299,6 +280,12 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=malariaAtlas"
+    },
+    "12": {
+      "@type": "SoftwareApplication",
+      "identifier": "methods",
+      "name": "methods",
+      "version": ">= 4.4"
     },
     "13": {
       "@type": "SoftwareApplication",
@@ -347,24 +334,11 @@
     },
     "17": {
       "@type": "SoftwareApplication",
-      "identifier": "spatialEco",
-      "name": "spatialEco",
-      "version": ">= 2.0.3",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=spatialEco"
-    },
-    "18": {
-      "@type": "SoftwareApplication",
       "identifier": "stats",
       "name": "stats",
       "version": ">= 4.4"
     },
-    "19": {
+    "18": {
       "@type": "SoftwareApplication",
       "identifier": "terra",
       "name": "terra",
@@ -377,10 +351,16 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=terra"
     },
-    "20": {
+    "19": {
       "@type": "SoftwareApplication",
       "identifier": "tools",
       "name": "tools",
+      "version": ">= 4.4"
+    },
+    "20": {
+      "@type": "SoftwareApplication",
+      "identifier": "utils",
+      "name": "utils",
       "version": ">= 4.4"
     },
     "21": {
@@ -398,7 +378,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "3620.701KB",
+  "fileSize": "3715.338KB",
   "citation": [
     {
       "@type": "ScholarlyArticle",

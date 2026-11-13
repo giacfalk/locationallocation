@@ -11,7 +11,7 @@ allocation(
   facilities,
   traveltime = NULL,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   weights = NULL,
   objectiveminutes = 15,
@@ -34,7 +34,7 @@ allocation_discrete(
   n_samples,
   traveltime = NULL,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   weights = NULL,
   objectiveminutes = 15,
@@ -63,32 +63,29 @@ scratch); optional in \code{allocation_discrete()} (default: \code{NULL}).}
 function, whose friction surface is reused to avoid downloading and
 downscaling it again. The travel times from \code{facilities} are recomputed
 on this surface. If \code{NULL}, the friction surface is computed with
-\code{\link[=friction]{friction()}} using \code{mode}, \code{dowscaling_model_type} and
-\code{res_output} (default: \code{NULL}).}
+\code{\link[=friction]{friction()}} using \code{mode} and \code{res_output} (default:
+\code{NULL}).}
 
 \item{mode}{(optional) A \code{\link[base:character]{character}} string indicating
 the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default:
 \code{"walk"}).
 \itemize{
 \item For \code{"fastest"}: The friction layer accounts for multiple modes of
-transport, including walking, cycling, driving, and public transport, and
-is based on the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
+transport, including walking and driving. At the native resolution, it
+is the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
 Surface}.
 \item For \code{"walk"}: The friction layer accounts only for walking speeds and is
 based on the Malaria Atlas Project (2020) \emph{Global Walking Only Friction
 Surface}.
 }}
 
-\item{dowscaling_model_type}{(optional) A \code{\link[base:character]{character}}
-string indicating the type of model used for the spatial downscaling of the
-friction layer. Options are \code{"lm"} (linear model) and \code{"rf"} (random
-forest) (default: \code{"lm"}).}
+\item{dowscaling_model_type}{Deprecated and ignored. The friction surface
+is no longer downscaled with a statistical model (see \emph{Details}).}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
-resolution is less than \code{1000}, a spatial downscaling approach is used
-(default: \code{100}).}
+resolution of the friction raster (and of the analysis), in meters. See
+\emph{Details} (default: \code{100}).}
 
 \item{weights}{(optional) A \code{\link[raster:raster]{RasterLayer}} or
 \code{\link[terra:rast]{SpatRaster}} object with the weights for the demand
@@ -204,7 +201,7 @@ iteration:
 \item A score of the demand not yet covered proposes a shortlist of promising
 locations: the \code{shortlist} highest local maxima of the score, at least
 half a catchment radius apart. The catchment radius is the distance that
-can be travelled within \code{objectiveminutes} at the median friction of the
+can be traveled within \code{objectiveminutes} at the median friction of the
 study area. The score is:
 \itemize{
 \item \code{heur = "kd"}: the uncovered demand smoothed with a quartic kernel

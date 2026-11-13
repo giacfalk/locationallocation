@@ -56,7 +56,6 @@ of interest.
     naples_fountains |>
     traveltime(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
       mode = "walk",
       res_output = 100
     )
@@ -70,6 +69,7 @@ of interest.
 }
 \seealso{
 Other travel time functions: 
+\code{\link{default_road_speeds}()},
 \code{\link{friction}()},
 \code{\link{traveltime}()},
 \code{\link{traveltime_stats}()}

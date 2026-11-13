@@ -53,6 +53,35 @@ assert_facilities <- function(x, null_ok = FALSE) {
   invisible(TRUE)
 }
 
+assert_roads <- function(x, null_ok = FALSE) {
+  checkmate::assert_flag(null_ok)
+
+  if (is.null(x) && isTRUE(null_ok)) {
+    return(invisible(TRUE))
+  }
+
+  name <- deparse(substitute(x)) #nolint
+
+  if (
+    !inherits(x, c("sf", "sfc")) ||
+      !all(
+        as.character(sf::st_geometry_type(x)) %in%
+          c("LINESTRING", "MULTILINESTRING")
+      ) ||
+      !any(c("speed", "highway") %in% names(x))
+  ) {
+    cli::cli_abort(
+      paste0(
+        "{.strong {cli::col_red(name)}} must be an {.strong sf} object with ",
+        "{.strong LINESTRING} or {.strong MULTILINESTRING} geometries and a ",
+        "{.strong speed} (km/h) or {.strong highway} column."
+      )
+    )
+  }
+
+  invisible(TRUE)
+}
+
 assert_traveltime <- function(x, null_ok = FALSE) {
   checkmate::assert_flag(null_ok)
 
@@ -86,19 +115,6 @@ assert_allocation <- function(x) {
         "must be an output object from either the ",
         "{.strong allocation()} or ",
         "{.strong allocation_discrete()} function."
-      )
-    )
-  }
-
-  invisible(TRUE)
-}
-
-assert_internet <- function() {
-  if (!curl::has_internet()) {
-    cli::cli_abort(
-      paste0(
-        "An {.strong {cli::col_red('internet connection')}} ",
-        "is required to run this function."
       )
     )
   }
