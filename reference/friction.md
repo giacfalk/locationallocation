@@ -238,10 +238,10 @@ friction_data <-
   naples_shape |>
   friction(res_output = 1000, file = friction_file)
 #> ℹ Using user-provided friction data file
-#> ✔ Using user-provided friction data file [557ms]
+#> ✔ Using user-provided friction data file [492ms]
 #> 
 #> ℹ Computing transition matrix and geocorrection
-#> ✔ Computing transition matrix and geocorrection [37ms]
+#> ✔ Computing transition matrix and geocorrection [62ms]
 #> 
 
 friction_data$friction_layer
