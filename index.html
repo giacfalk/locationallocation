@@ -18,12 +18,12 @@
     }
   };
 </script><script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Maximal Coverage Location-Allocation Using Geospatial Data">
-<meta name="description" content="Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning.">
-<meta property="og:description" content="Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning.">
+<meta name="description" content="Tools to solve Maximal Coverage Location-Allocation problems with geospatial data, i.e., to place new facilities so that as much (optionally weighted) demand as possible can reach a facility within a given travel time. Travel times are computed over the friction surfaces of the Malaria Atlas Project (Weiss et al., 2018 &lt;doi:10.1038/nature25181&gt;), optionally refined with OpenStreetMap road networks. New facilities can be placed anywhere within an area (continuous problem) or selected among candidate locations (discrete problem), using greedy (Church and ReVelle, 1974 &lt;doi:10.1007/BF01942293&gt;) and vertex substitution (Teitz and Bart, 1968 &lt;doi:10.1287/opre.16.5.955&gt;) heuristics. It is designed to help decision-makers allocate resources and facilities in contexts such as public health, emergency response, climate adaptation, and urban planning.">
+<meta property="og:description" content="Tools to solve Maximal Coverage Location-Allocation problems with geospatial data, i.e., to place new facilities so that as much (optionally weighted) demand as possible can reach a facility within a given travel time. Travel times are computed over the friction surfaces of the Malaria Atlas Project (Weiss et al., 2018 &lt;doi:10.1038/nature25181&gt;), optionally refined with OpenStreetMap road networks. New facilities can be placed anywhere within an area (continuous problem) or selected among candidate locations (discrete problem), using greedy (Church and ReVelle, 1974 &lt;doi:10.1007/BF01942293&gt;) and vertex substitution (Teitz and Bart, 1968 &lt;doi:10.1287/opre.16.5.955&gt;) heuristics. It is designed to help decision-makers allocate resources and facilities in contexts such as public health, emergency response, climate adaptation, and urban planning.">
 <meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png">
 <meta property="og:image:alt" content="locationallocation">
 </head>
@@ -83,9 +83,21 @@
 <p>Assessing and planning infrastructure and service networks, given a dispersed demand, limited capacity, accessibility targets, and concerns about spatial justice, is a central policy challenge. Problems of this type are commonly referred to as <em>Maximal Coverage Location-Allocation</em> (MCLA) spatial optimization problems.</p>
 <p><code>locationallocation</code> is an R package that provides tools for solving MCLA problems with geospatial data. It builds on widely used spatial libraries in R, follows <a href="https://tidyverse.tidyverse.org/articles/manifesto.html" class="external-link">tidyverse principles</a>, and integrates seamlessly with the broader <a href="https://tidyverse.org/" class="external-link">tidyverse ecosystem</a>. The package can generate travel-time maps and optimize the placement of facilities or infrastructure according to accessibility criteria, which can be weighted by one or more variables or by a user-defined function.</p>
 <p>Potential applications of the package extend to the domains of public infrastructure assessment and planning (public services provision, e.g. transport, social services, healthcare, parks), urban environmental and climate risk reduction interventions, logistics and hubs allocation, commercial and strategic decisions.</p>
+<div class="section level3">
+<h3 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+</h3>
+<ul>
+<li>
+<strong>Travel time.</strong> Travel times are least-cost paths over the global friction surfaces of the <a href="https://malariaatlas.org/" class="external-link">Malaria Atlas Project</a> (MAP), for walking or for the fastest mode of transport. At resolutions finer than their native ~1 km, the surfaces are produced with the same rule used to build them (the fastest mode available in a cell takes precedence), using road speeds from <a href="https://www.openstreetmap.org/" class="external-link">OpenStreetMap</a> for the fastest mode.</li>
+<li>
+<strong>Allocation.</strong> New facilities are added so as to maximize the share of (optionally weighted) demand that can reach a facility within a travel time threshold, until a target share is covered or a maximum number of facilities is reached. Facilities can be placed anywhere within the study area (continuous problem, <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html"><code>allocation()</code></a>) or chosen among candidate locations (discrete problem, <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html"><code>allocation_discrete()</code></a>). Both problems are solved with a greedy heuristic, which adds at each step the location covering the most demand not yet covered (<a href="https://doi.org/10.1007/BF01942293" class="external-link">Church &amp; ReVelle, 1974</a>), refined by swapping locations as long as coverage improves (<a href="https://doi.org/10.1287/opre.16.5.955" class="external-link">Teitz &amp; Bart, 1968</a>).</li>
+<li>
+<strong>Online data.</strong> Friction surfaces and road networks are downloaded on demand, with fallbacks (retries, mirrors, and a fallback surface) when online services are unavailable. Set <code>cache = TRUE</code> to store the downloaded data and reuse it in later calls.</li>
+</ul>
 <blockquote>
 <p>If you find this project useful, please consider giving it a star!   <a href="https://github.com/giacfalk/locationallocation/" class="external-link"><img src="https://img.shields.io/github/stars/giacfalk/locationallocation" alt="GitHub Repository Stars"></a></p>
 </blockquote>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -105,18 +117,27 @@
 <p>As an example, we demonstrate how the package can address urban-scale climate risk through infrastructure assessment and geospatial planning. For this demonstration, we use the demo datasets included with the package.</p>
 <p>These datasets include the coordinates of public drinking water fountains (blue dots) in Naples, Italy (<a href="https://giacfalk.github.io/locationallocation/reference/naples_fountains.html"><code>naples_fountains</code></a>); a gridded population raster from the Global Human Settlement Layer (<a href="https://human-settlement.emergency.copernicus.eu" class="external-link">GHSL</a>) Population Grid (<a href="https://human-settlement.emergency.copernicus.eu/download.php?ds=pop" class="external-link">GHS-POP</a>) (<a href="https://giacfalk.github.io/locationallocation/reference/naples_population.html"><code>naples_population</code></a>); a 100-meter resolution heat hazard map, representing the number of days with <a href="https://en.wikipedia.org/wiki/Wet-bulb_globe_temperature" class="external-link">Wet-Bulb Globe Temperature</a> above 25°C during 2008–2017, obtained from the <a href="https://www.urban-climate.eu/model" class="external-link">UrbClim</a> model (<a href="https://giacfalk.github.io/locationallocation/reference/naples_hot_days.html"><code>naples_hot_days</code></a>); and the city’s administrative boundaries (<a href="https://giacfalk.github.io/locationallocation/reference/naples_shape.html"><code>naples_shape</code></a>).</p>
 <p><img src="reference/figures/existing-facilities-1.png"></p>
-<p>We can use the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime.html"><code>traveltime()</code></a> function to create a map of current accessibility to the facility points (represented by the <a href="https://r-spatial.github.io/sf/" class="external-link"><code>sf</code></a> object <a href="https://giacfalk.github.io/locationallocation/reference/naples_fountains.html"><code>naples_fountains</code></a>) within the specified geographical boundaries. The function allows the user to select a travel mode (walking or fastest route) and an output spatial resolution in meters, achieved through <a href="https://doi.org/10.1016/j.cageo.2011.08.021" class="external-link">dissevering spatial downscaling techniques</a>.</p>
+<p>We can use the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime.html"><code>traveltime()</code></a> function to create a map of current accessibility to the facility points (represented by the <a href="https://r-spatial.github.io/sf/" class="external-link"><code>sf</code></a> object <a href="https://giacfalk.github.io/locationallocation/reference/naples_fountains.html"><code>naples_fountains</code></a>) within the specified geographical boundaries. The function allows the user to select a travel mode (walking or fastest route) and an output spatial resolution in meters. At resolutions finer than the ~1 km friction surfaces of the Malaria Atlas Project, the surface is produced following the rules used by the Malaria Atlas Project, with road speeds from <a href="https://www.openstreetmap.org/" class="external-link">OpenStreetMap</a> for the fastest mode (see the <a href="https://giacfalk.github.io/locationallocation/reference/friction.html"><code>friction()</code></a> documentation).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traveltime_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/traveltime.html">traveltime</a></span><span class="op">(</span></span>
 <span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span>
-<span>    dowscaling_model_type <span class="op">=</span> <span class="st">"lm"</span>,</span>
 <span>    mode <span class="op">=</span> <span class="st">"walk"</span>,</span>
 <span>    res_output <span class="op">=</span> <span class="fl">100</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p>Once <a href="https://giacfalk.github.io/locationallocation/reference/traveltime.html"><code>traveltime()</code></a> has completed, the resulting layer can be visualized using the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime_plot.html"><code>traveltime_plot()</code></a> function.</p>
+<p>For the fastest mode of transport (walking, cycling, and driving), set <code>mode = "fastest"</code>. Speeds of the OpenStreetMap road classes can be changed with the <code>road_speeds</code> argument (see <a href="https://giacfalk.github.io/locationallocation/reference/default_road_speeds.html"><code>default_road_speeds()</code></a>), and <code>cache = TRUE</code> stores the downloaded data for later calls:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">traveltime_data_fastest</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/traveltime.html">traveltime</a></span><span class="op">(</span></span>
+<span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span>
+<span>    mode <span class="op">=</span> <span class="st">"fastest"</span>,</span>
+<span>    res_output <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>    cache <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>Once <a href="https://giacfalk.github.io/locationallocation/reference/traveltime.html"><code>traveltime()</code></a> has completed, the resulting layer can be visualized using the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime_plot.html"><code>traveltime_plot()</code></a> function.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traveltime_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/traveltime_plot.html">traveltime_plot</a></span><span class="op">(</span></span>
 <span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span>
@@ -124,18 +145,18 @@
 <span>    contour_traveltime <span class="op">=</span> <span class="fl">15</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/traveltime-plot-1.png"></p>
-<p>We can also generate a summary plot and compute statistics using the output of the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime.html"><code>traveltime()</code></a> function, together with a demand raster (e.g., population density) and a specified time threshold, using the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime_stats.html"><code>traveltime_stats</code></a> function:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>We can also generate a summary plot and compute statistics using the output of the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime.html"><code>traveltime()</code></a> function, together with a demand raster (e.g., population counts) and a specified time threshold, using the <a href="https://giacfalk.github.io/locationallocation/reference/traveltime_stats.html"><code>traveltime_stats</code></a> function:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traveltime_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/traveltime_stats.html">traveltime_stats</a></span><span class="op">(</span></span>
 <span>    demand <span class="op">=</span> <span class="va">naples_population</span>,</span>
 <span>    breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ 85.45148% of coverage within the 15 minutes threshold.</span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ 90.14038% of coverage within the 15 minutes threshold.</span></span></code></pre></div>
 <p><img src="reference/figures/traveltime-stats-1.png"></p>
-<p>We can now use the <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html"><code>allocation()</code></a> function to optimize the placement of new water fountains, ensuring that (virtually) everyone (i.e., the full extent of the raster layer specified by the <code>demand</code> parameter) can reach one within 15 minutes, as defined by the <code>objectiveminutes</code> parameter:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>We can now use the <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html"><code>allocation()</code></a> function to optimize the placement of new water fountains, ensuring that (virtually) everyone (i.e., the full extent of the raster layer specified by the <code>demand</code> parameter) can reach one within 15 minutes, as defined by the <code>objectiveminutes</code> parameter. At each step, the function evaluates the actual catchment of a shortlist of promising locations and adds the one that covers the most demand not yet covered; the solution is then refined by moving facilities while coverage improves (see the <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html">function documentation</a> for details):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_population</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/allocation.html">allocation</a></span><span class="op">(</span></span>
@@ -145,18 +166,20 @@
 <span>    weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
 <span>    objectiveshare <span class="op">=</span> <span class="fl">0.99</span>,</span>
-<span>    heur <span class="op">=</span> <span class="st">"max"</span>,</span>
+<span>    heur <span class="op">=</span> <span class="st">"kd"</span>,</span>
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 99% attained with 28 facilities within the 15</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 99.03953%.</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/allocation-plot-1-1.png"></p>
-<p>Note that it is also possible to solve an allocation problem using the <code>weights</code> parameter, which assigns greater relative importance or priority to areas where demand overlaps with weighting factors defined by another raster layer, such as exposure to hot days, as shown in the following example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 99% attained with 9 new facilities within the 15</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 99.11092%.</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span>, facilities <span class="op">=</span> <span class="va">naples_fountains</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/allocation-plot-1-1.png"></p>
+<p>The new facilities are shown as filled dots and the existing ones as hollow dots. To allocate a fixed number of new facilities instead, set <code>objectiveshare = NULL</code> and use the <code>n_fac</code> parameter.</p>
+<p>Note that it is also possible to solve an allocation problem using the <code>weights</code> parameter, which assigns greater relative importance or priority to areas where demand overlaps with weighting factors defined by another raster layer, such as exposure to hot days, as shown in the following example:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_population</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/allocation.html">allocation</a></span><span class="op">(</span></span>
@@ -166,18 +189,19 @@
 <span>    weights <span class="op">=</span> <span class="va">naples_hot_days</span>, <span class="co"># &lt;--- Changed</span></span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
 <span>    objectiveshare <span class="op">=</span> <span class="fl">0.99</span>,</span>
-<span>    heur <span class="op">=</span> <span class="st">"max"</span>,</span>
+<span>    heur <span class="op">=</span> <span class="st">"kd"</span>,</span>
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 99% attained with 25 facilities within the 15</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 99.16903%.</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 99% attained with 9 new facilities within the 15</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 99.16364%.</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span>, facilities <span class="op">=</span> <span class="va">naples_fountains</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/allocation-plot-2-1.png"></p>
 <p>It is also possible to apply normalization and exponentiation to different demand and weighting layers, enhancing their relative influence on the allocation, using the <code>approach</code>, <code>exp_demand</code>, and <code>exp_weights</code> parameters (see the <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html">function documentation</a> for details):</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_population</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/allocation.html">allocation</a></span><span class="op">(</span></span>
@@ -187,29 +211,29 @@
 <span>    weights <span class="op">=</span> <span class="va">naples_hot_days</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
 <span>    objectiveshare <span class="op">=</span> <span class="fl">0.99</span>,</span>
-<span>    heur <span class="op">=</span> <span class="st">"max"</span>,</span>
+<span>    heur <span class="op">=</span> <span class="st">"kd"</span>,</span>
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">2</span>, <span class="co"># &lt;--- Changed</span></span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 99% attained with 9 facilities within the 15</span></span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 99.15597%.</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 99% attained with 6 new facilities within the 15</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 99.06013%.</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span>, facilities <span class="op">=</span> <span class="va">naples_fountains</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/allocation-plot-3-1.png"></p>
 <p>A variant of the allocation problem arises when the set of candidate locations for new facilities is <strong>discrete</strong>, rather than <strong>continuous</strong> across the study area as in the previous example.</p>
-<p>In this case, the user must provide a set of candidate points via the <code>candidate</code> parameter of the <a href="https://giacfalk.github.io/locationallocation/reference/allocation_discrete.html"><code>allocation_discrete()</code></a> function, along with the maximum number of facilities that can be selected (<code>n_fac</code> parameter). The function applies a quasi-optimality heuristic based on a randomization approach, where the number of replications (<code>n_samples</code> parameter) gradually approaches the global optimum, although computational time increases linearly. As with the continuous allocation problem, a weight layer and normalization and exponentiation parameters can also be specified.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>In this case, the user must provide a set of candidate points via the <code>candidate</code> parameter of the <a href="https://giacfalk.github.io/locationallocation/reference/allocation.html"><code>allocation_discrete()</code></a> function, along with the maximum number of facilities that can be selected (<code>n_fac</code> parameter). The function computes the travel time from each candidate location once, and then selects the candidates with a greedy heuristic (adding, at each step, the candidate that covers the most demand not yet covered), refined by swapping selected and non-selected candidates as long as coverage improves. The solution is deterministic and usually optimal or near-optimal. As with the continuous allocation problem, a weight layer and normalization and exponentiation parameters can also be specified.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_population</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/allocation.html">allocation_discrete</a></span><span class="op">(</span></span>
 <span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span>
 <span>    candidate <span class="op">=</span> <span class="va">naples_shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span>
 <span>    facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span>
 <span>    n_fac <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>    n_samples <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>    traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span>
 <span>    weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
@@ -219,61 +243,61 @@
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    par <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co">#&gt; ℹ 5 facilities allocated within the 15 minutes threshold. The maximum</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; coverage share attained was 88.76062%.</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/allocation-plot-4-1.png"></p>
-<p>Now consider a scenario where the user wants to choose up to <code>n_fac</code> facilities to meet a target <code>objectiveshare</code> of the total demand, assuming that level of coverage is actually attainable.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co">#&gt; ℹ 5 facilities allocated within the 15 minutes threshold. The coverage share</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; attained is 94.67013%.</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span>, facilities <span class="op">=</span> <span class="va">naples_fountains</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/allocation-plot-4-1.png"></p>
+<p>Now consider a scenario where the user wants to choose as few facilities as possible, up to <code>n_fac</code>, to meet a target <code>objectiveshare</code> of the total demand. If the target cannot be attained with the candidate locations, the function reports the maximum coverage reached.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_population</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/allocation.html">allocation_discrete</a></span><span class="op">(</span></span>
 <span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span>
 <span>    candidate <span class="op">=</span> <span class="va">naples_shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span>
 <span>    facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span>
-<span>    n_fac <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>    n_samples <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>    n_fac <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>    traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span>
 <span>    weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>    objectiveshare <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>    objectiveshare <span class="op">=</span> <span class="fl">0.92</span>,</span>
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    par <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 90% attained with 2 facilities within the 15</span></span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 90.20134%.</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/allocation-plot-5-1.png"></p>
-<p>Finally, consider a case with no preexisting facilities. The discrete location-allocation problem must then identify where to place new facilities to cover as much demand as possible, given the limited set of spatial options and the cap on how many facilities can be allocated.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 92% attained with 3 new facilities within the 15</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 92.65155%.</span></span></code></pre></div>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span>, facilities <span class="op">=</span> <span class="va">naples_fountains</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/allocation-plot-5-1.png"></p>
+<p>Finally, consider a case with no preexisting facilities. The discrete location-allocation problem must then identify where to place new facilities to cover as much demand as possible, given the limited set of spatial options and the cap on how many facilities can be allocated. Since no travel time layer is supplied, the friction surface is computed first.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">naples_population</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/allocation.html">allocation_discrete</a></span><span class="op">(</span></span>
 <span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span>
 <span>    candidate <span class="op">=</span> <span class="va">naples_shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span>
 <span>    facilities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    n_fac <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>    n_samples <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>    traveltime <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>    objectiveshare <span class="op">=</span> <span class="fl">0.45</span>,</span>
+<span>    objectiveshare <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    par <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co">#&gt; ✔ Target coverage share of 45% attained with 2 facilities within the 15</span></span>
-<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="co">#&gt; minutes threshold. The achieved coverage share is 46.40227%.</span></span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="co">#&gt; ℹ 5 facilities allocated within the 15 minutes threshold. The coverage share</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="co">#&gt; attained is 37.41124%.</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/allocation-plot-6-1.png"></p>
 </div>
@@ -281,7 +305,7 @@
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>If you use this package in your research, please cite it to acknowledge the effort put into its development and maintenance. Your citation helps support its continued improvement.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"locationallocation"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; To cite locationallocation in publications use:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -290,20 +314,23 @@
 <span><span class="co">#&gt;   planning problems [Preprint, manuscript submitted for</span></span>
 <span><span class="co">#&gt;   publication]. EarthArXiv. https://doi.org/10.31223/X5XQ69</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Una voce BibTeX per gli utenti LaTeX è</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; @misc{falchetta_locationallocation_2025,</span></span>
-<span><span class="co">#&gt;   author       = {Falchetta, Giacomo and Vartanian, Daniel},</span></span>
-<span><span class="co">#&gt;   title        = {locationallocation: an R package to solve Maximal Coverage Location-Allocation problems},</span></span>
-<span><span class="co">#&gt;   year         = {2025},</span></span>
-<span><span class="co">#&gt;   howpublished = {\url{https://github.com/giacfalk/locationallocation}},</span></span>
-<span><span class="co">#&gt;   note         = {GitHub repository},</span></span>
-<span><span class="co">#&gt; }</span></span></code></pre></div>
+<span><span class="co">#&gt;   @Article{falchetta2025,</span></span>
+<span><span class="co">#&gt;     title = {locationallocation: Solving Maximal Coverage Location-Allocation geospatial infrastructure assessment and planning problems},</span></span>
+<span><span class="co">#&gt;     author = {Giacomo Falchetta},</span></span>
+<span><span class="co">#&gt;     year = {2025},</span></span>
+<span><span class="co">#&gt;     journal = {EarthArXiv},</span></span>
+<span><span class="co">#&gt;     doi = {10.31223/X5XQ69},</span></span>
+<span><span class="co">#&gt;     langid = {en},</span></span>
+<span><span class="co">#&gt;     note = {Preprint, manuscript submitted for publication},</span></span>
+<span><span class="co">#&gt;   }</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
 <p><a href="https://www.gnu.org/licenses/gpl-3.0" class="external-link"><img src="https://img.shields.io/badge/license-GPLv3-bd0000.svg"></a></p>
-<pre class="text"><code>Copyright (C) 2025 Giacomo Falchetta, Daniel Vartanian
+<pre class="text"><code>Copyright (C) 2025 Giacomo Falchetta
 
 locationallocation is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -367,7 +394,7 @@ this program. If not, see &lt;https://www.gnu.org/licenses/&gt;.</code></pre>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

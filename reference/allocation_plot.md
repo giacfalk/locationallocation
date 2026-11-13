@@ -1,11 +1,11 @@
 # Plot results of the `allocation()` and `allocation_discrete()` functions
 
-`allocation_plot()` plot the results of the
-[`allocation`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
+`allocation_plot()` plots the results of the
+[`allocation()`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
 and
-[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation_discrete.md)
-functions, showing the potential locations for new facilities and the
-coverage attained.
+[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
+functions, showing the travel time to the nearest facility after the
+allocation and the location of the new facilities.
 
 ## Usage
 
@@ -13,6 +13,7 @@ coverage attained.
 allocation_plot(
   allocation,
   bb_area,
+  facilities = NULL,
   annotation_location = "br",
   annotation_scale = TRUE,
   annotation_north_arrow = TRUE
@@ -24,15 +25,22 @@ allocation_plot(
 - allocation:
 
   The output of the
-  [`allocation`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
+  [`allocation()`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
   or
-  [`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation_discrete.md)
+  [`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
   function.
 
 - bb_area:
 
   A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
-  boundary box object with the area of interest.
+  object with the polygon(s) of the area of interest.
+
+- facilities:
+
+  (optional) A
+  [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) object
+  with the existing facilities, plotted as hollow circles (default:
+  `NULL`).
 
 - annotation_location:
 
@@ -56,72 +64,47 @@ allocation_plot(
 ## Value
 
 A [`ggplot2`](https://ggplot2.tidyverse.org/reference/ggplot.html) plot
-showing the potential locations for new facilities.
+showing the travel time to the nearest facility and the location of the
+new facilities.
 
 ## Examples
 
 ``` r
-## Plotting Results of the `allocation()` Function -----
-
-if (FALSE) { # \dontrun{
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100
-    )
-
-  allocation_data <-
-    naples_population |>
-    allocation(
-      traveltime = traveltime_data,
-      bb_area = naples_shape,
-      facilities = naples_fountains,
-      weights = NULL,
-      objectiveminutes = 15,
-      objectiveshare = 0.99,
-      heur = "max",
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100
-    )
-
-  allocation_data |> allocation_plot(naples_shape)
-} # }
-
-## Plotting Results of the `allocation_discrete()` Function -----
-
 if (FALSE) { # \dontrun{
   library(sf)
 
   traveltime_data <-
     naples_fountains |>
-    traveltime(
+    traveltime(bb_area = naples_shape)
+
+  ## Plotting Results of the `allocation()` Function -----
+
+  allocation_data <-
+    naples_population |>
+    allocation(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100
+      facilities = naples_fountains,
+      traveltime = traveltime_data,
+      objectiveminutes = 15,
+      objectiveshare = 0.99
     )
+
+  allocation_data |> allocation_plot(naples_shape)
+
+  ## Plotting Results of the `allocation_discrete()` Function -----
 
   allocation_data <-
     naples_population |>
     allocation_discrete(
-      traveltime = traveltime_data,
       bb_area = naples_shape,
-      facilities = naples_fountains,
       candidate = naples_shape |> st_sample(20),
+      facilities = naples_fountains,
+      traveltime = traveltime_data,
       n_fac = 2,
-      weights = NULL,
-      objectiveminutes = 15,
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100,
-      n_samples = 1000,
-      par = TRUE
+      objectiveminutes = 15
     )
 
-  allocation_data |> allocation_plot(naples_shape)
+  allocation_data |>
+    allocation_plot(naples_shape, facilities = naples_fountains)
 } # }
 ```

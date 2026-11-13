@@ -5,9 +5,13 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="locationallocation: Maximal Coverage Location-Allocation Using Geospatial Data — locationallocation-package"><meta name="description" content="
-Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning."><meta property="og:description" content="
-Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning."><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="locationallocation: Maximal Coverage Location-Allocation Using Geospatial Data — locationallocation-package"><meta name="description" content="locationallocation solves Maximal Coverage Location-Allocation (MCLA)
+problems with geospatial data: where to place new facilities so that as
+much (optionally weighted) demand as possible can reach a facility within a
+given travel time."><meta property="og:description" content="locationallocation solves Maximal Coverage Location-Allocation (MCLA)
+problems with geospatial data: where to place new facilities so that as
+much (optionally weighted) demand as possible can reach a facility within a
+given travel time."><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -47,11 +51,72 @@ Functions to perform Maximal Coverage Location-Allocation analyses using geospat
     </div>
 
     <div class="ref-description section level2">
-    <p></p>
-<p>Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning.</p>
+    <p><code>locationallocation</code> solves Maximal Coverage Location-Allocation (MCLA)
+problems with geospatial data: where to place new facilities so that as
+much (optionally weighted) demand as possible can reach a facility within a
+given travel time.</p>
     </div>
 
 
+    <div class="section level2">
+    <h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a></h2>
+
+
+<ol><li><p><code><a href="friction.html">friction()</a></code> retrieves a friction surface (time needed to
+cross each cell) from the Malaria Atlas Project, for walking or for the
+fastest mode of transport, at the spatial resolution of the analysis.</p></li>
+<li><p><code><a href="traveltime.html">traveltime()</a></code> computes the travel time from any cell
+to the nearest existing facility.
+<code><a href="traveltime_stats.html">traveltime_stats()</a></code> and
+<code><a href="traveltime_plot.html">traveltime_plot()</a></code> summarize and map it.</p></li>
+<li><p><code><a href="allocation.html">allocation()</a></code> places new facilities anywhere within the
+area of interest (continuous problem), and
+<code><a href="allocation.html">allocation_discrete()</a></code> selects them among
+candidate locations (discrete problem), until a target share of the
+demand is covered or a maximum number of facilities is reached.
+<code><a href="allocation_plot.html">allocation_plot()</a></code> maps the result.</p></li>
+</ol><p>Demand can be weighted by other layers (e.g., population times exposure to
+a hazard). The package includes example data for the city of Naples, Italy
+(<code><a href="naples_shape.html">naples_shape</a></code>, <code><a href="naples_population.html">naples_population</a></code>, <code><a href="naples_fountains.html">naples_fountains</a></code>,
+<code><a href="naples_hot_days.html">naples_hot_days</a></code>).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="algorithms">Algorithms<a class="anchor" aria-label="anchor" href="#algorithms"></a></h2>
+
+
+
+<p>Travel times are least-cost paths over the friction surface. Both
+allocation problems are solved with a greedy heuristic that adds, at each
+step, the location covering the most demand not yet covered (Church &amp;
+ReVelle, 1974), refined by vertex substitution (Teitz &amp; Bart, 1968). See
+<code><a href="allocation.html">allocation()</a></code> for details.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="online-data">Online data<a class="anchor" aria-label="anchor" href="#online-data"></a></h2>
+
+
+
+<p>Friction surfaces are downloaded from the Malaria Atlas Project and, for
+the fastest mode at a fine resolution, road networks from OpenStreetMap.
+Downloads have fallbacks (cache, retries, mirrors) and can be cached on
+disk with <code>cache = TRUE</code>. See <code><a href="friction.html">friction()</a></code> for details and
+for the options that control this behavior.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Church, R., &amp; ReVelle, C. (1974). The maximal covering location problem.
+<em>Papers of the Regional Science Association</em>, <em>32</em>(1), 101–118.
+<a href="https://doi.org/10.1007/BF01942293" class="external-link">doi:10.1007/BF01942293</a></p>
+<p>Teitz, M. B., &amp; Bart, P. (1968). Heuristic methods for estimating the
+generalized vertex median of a weighted graph. <em>Operations Research</em>,
+<em>16</em>(5), 955–961. <a href="https://doi.org/10.1287/opre.16.5.955" class="external-link">doi:10.1287/opre.16.5.955</a></p>
+<p>Weiss, D. J., Nelson, A., Gibson, H. S., Temperley, W., Peedell, S., Lieber,
+A., Hancher, M., Poyart, E., Belchior, S., Fullman, N., Mappin, B.,
+Dalrymple, U., Rozier, J., Lucas, T. C. D., Howes, R. E., Tusting, L. S.,
+Kang, S. Y., Cameron, E., Bisanzio, D., ... Gething, P. W. (2018). A global
+map of travel time to cities to assess inequalities in accessibility in
+2015. <em>Nature</em>, <em>553</em>(7688), 333–336. <a href="https://doi.org/10.1038/nature25181" class="external-link">doi:10.1038/nature25181</a></p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://giacfalk.github.io/locationallocation/">https://giacfalk.github.io/locationallocation/</a></p></li>
@@ -74,7 +139,7 @@ Functions to perform Maximal Coverage Location-Allocation analyses using geospat
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

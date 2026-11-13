@@ -5,11 +5,13 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Plot results of the allocation() and allocation_discrete() functions — allocation_plot"><meta name="description" content="allocation_plot() plot the results of the allocation and
-allocation_discrete() functions, showing the potential locations for new
-facilities and the coverage attained."><meta property="og:description" content="allocation_plot() plot the results of the allocation and
-allocation_discrete() functions, showing the potential locations for new
-facilities and the coverage attained."><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Plot results of the allocation() and allocation_discrete() functions — allocation_plot"><meta name="description" content="allocation_plot() plots the results of the allocation()
+and allocation_discrete() functions, showing the
+travel time to the nearest facility after the allocation and the location
+of the new facilities."><meta property="og:description" content="allocation_plot() plots the results of the allocation()
+and allocation_discrete() functions, showing the
+travel time to the nearest facility after the allocation and the location
+of the new facilities."><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -49,9 +51,10 @@ facilities and the coverage attained."><meta property="og:image" content="https:
     </div>
 
     <div class="ref-description section level2">
-    <p><code>allocation_plot()</code> plot the results of the <code><a href="allocation.html">allocation</a></code> and
-<code><a href="allocation_discrete.html">allocation_discrete()</a></code> functions, showing the potential locations for new
-facilities and the coverage attained.</p>
+    <p><code>allocation_plot()</code> plots the results of the <code><a href="allocation.html">allocation()</a></code>
+and <code><a href="allocation.html">allocation_discrete()</a></code> functions, showing the
+travel time to the nearest facility after the allocation and the location
+of the new facilities.</p>
     </div>
 
     <div class="section level2">
@@ -59,6 +62,7 @@ facilities and the coverage attained.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">allocation_plot</span><span class="op">(</span></span>
 <span>  <span class="va">allocation</span>,</span>
 <span>  <span class="va">bb_area</span>,</span>
+<span>  facilities <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  annotation_location <span class="op">=</span> <span class="st">"br"</span>,</span>
 <span>  annotation_scale <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  annotation_north_arrow <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -70,13 +74,18 @@ facilities and the coverage attained.</p>
 
 
 <dl><dt id="arg-allocation">allocation<a class="anchor" aria-label="anchor" href="#arg-allocation"></a></dt>
-<dd><p>The output of the <code><a href="allocation.html">allocation</a></code> or
-<code><a href="allocation_discrete.html">allocation_discrete()</a></code> function.</p></dd>
+<dd><p>The output of the <code><a href="allocation.html">allocation()</a></code> or
+<code><a href="allocation.html">allocation_discrete()</a></code> function.</p></dd>
 
 
 <dt id="arg-bb-area">bb_area<a class="anchor" aria-label="anchor" href="#arg-bb-area"></a></dt>
-<dd><p>A <code><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">sf</a></code> boundary box object with the area
-of interest.</p></dd>
+<dd><p>A <code><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">sf</a></code> object with the polygon(s) of the
+area of interest.</p></dd>
+
+
+<dt id="arg-facilities">facilities<a class="anchor" aria-label="anchor" href="#arg-facilities"></a></dt>
+<dd><p>(optional) A <code><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">sf</a></code> object with the
+existing facilities, plotted as hollow circles (default: <code>NULL</code>).</p></dd>
 
 
 <dt id="arg-annotation-location">annotation_location<a class="anchor" aria-label="anchor" href="#arg-annotation-location"></a></dt>
@@ -100,75 +109,48 @@ indicating whether to include a north arrow annotation on the plot
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot2</a></code> plot showing the potential locations
-for new facilities.</p>
+    <p>A <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot2</a></code> plot showing the travel time to
+the nearest facility and the location of the new facilities.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Plotting Results of the `allocation()` Function -----</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="traveltime.html">traveltime</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      dowscaling_model_type <span class="op">=</span> <span class="st">"lm"</span>,</span></span>
-<span class="r-in"><span>      mode <span class="op">=</span> <span class="st">"walk"</span>,</span></span>
-<span class="r-in"><span>      res_output <span class="op">=</span> <span class="fl">100</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="va">naples_population</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="allocation.html">allocation</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
-<span class="r-in"><span>      weights <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
-<span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span></span>
-<span class="r-in"><span>      objectiveshare <span class="op">=</span> <span class="fl">0.99</span>,</span></span>
-<span class="r-in"><span>      heur <span class="op">=</span> <span class="st">"max"</span>,</span></span>
-<span class="r-in"><span>      dowscaling_model_type <span class="op">=</span> <span class="st">"lm"</span>,</span></span>
-<span class="r-in"><span>      mode <span class="op">=</span> <span class="st">"walk"</span>,</span></span>
-<span class="r-in"><span>      res_output <span class="op">=</span> <span class="fl">100</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu">allocation_plot</span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Plotting Results of the `allocation_discrete()` Function -----</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>    <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="traveltime.html">traveltime</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      dowscaling_model_type <span class="op">=</span> <span class="st">"lm"</span>,</span></span>
-<span class="r-in"><span>      mode <span class="op">=</span> <span class="st">"walk"</span>,</span></span>
-<span class="r-in"><span>      res_output <span class="op">=</span> <span class="fl">100</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="traveltime.html">traveltime</a></span><span class="op">(</span>bb_area <span class="op">=</span> <span class="va">naples_shape</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## Plotting Results of the `allocation()` Function -----</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>    <span class="va">naples_population</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="allocation.html">allocation</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
 <span class="r-in"><span>      facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
-<span class="r-in"><span>      candidate <span class="op">=</span> <span class="va">naples_shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      n_fac <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>      weights <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>      traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
 <span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span></span>
-<span class="r-in"><span>      dowscaling_model_type <span class="op">=</span> <span class="st">"lm"</span>,</span></span>
-<span class="r-in"><span>      mode <span class="op">=</span> <span class="st">"walk"</span>,</span></span>
-<span class="r-in"><span>      res_output <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>      n_samples <span class="op">=</span> <span class="fl">1000</span>,</span></span>
-<span class="r-in"><span>      par <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>      objectiveshare <span class="op">=</span> <span class="fl">0.99</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu">allocation_plot</span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## Plotting Results of the `allocation_discrete()` Function -----</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>    <span class="va">naples_population</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="allocation.html">allocation_discrete</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
+<span class="r-in"><span>      candidate <span class="op">=</span> <span class="va">naples_shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
+<span class="r-in"><span>      traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
+<span class="r-in"><span>      n_fac <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu">allocation_plot</span><span class="op">(</span><span class="va">naples_shape</span>, facilities <span class="op">=</span> <span class="va">naples_fountains</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -181,7 +163,7 @@ for new facilities.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

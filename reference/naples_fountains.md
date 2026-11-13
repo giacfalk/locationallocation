@@ -1,8 +1,9 @@
 # Water fountains in the city of Naples, Italy
 
-A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) polygon
-geometry object representing the locations of water fountains in the
-city of Naples, Italy.
+A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) point
+geometry object representing the locations of public drinking water
+fountains in and around the city of Naples, Italy, retrieved from
+OpenStreetMap ([OSM](https://www.openstreetmap.org/)).
 
 ## Usage
 
@@ -13,7 +14,12 @@ naples_fountains
 ## Format
 
 A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) `POINT`
-geometry object with 251 feature and 24 fields:
+geometry object with 251 features and 24 fields (OSM tags).
+
+## Source
+
+OpenStreetMap contributors
+([ODbL](https://opendatacommons.org/licenses/odbl/)).
 
 ## See also
 

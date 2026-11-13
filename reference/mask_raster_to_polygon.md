@@ -1,8 +1,9 @@
-# Mask a `RasterLayer` object to a `sf` object
+# Mask a raster to a polygon or to another raster
 
-This function rapidly masks a
-[`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object to a
-[`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) object.
+`mask_raster_to_polygon()` sets to `updatevalue` (default: `NA`) all
+cells of a raster that fall outside a
+[`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) polygon
+(or that are `NA` in another raster).
 
 ## Usage
 
@@ -14,28 +15,31 @@ mask_raster_to_polygon(ras, mask, inverse = FALSE, updatevalue = NA)
 
 - ras:
 
-  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object.
+  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) or
+  [`SpatRaster`](https://rspatial.github.io/terra/reference/rast.html)
+  object.
 
 - mask:
 
-  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) or
-  [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) object.
+  A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
+  object with `POLYGON` or `MULTIPOLYGON` geometries, or a
+  [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) or
+  [`SpatRaster`](https://rspatial.github.io/terra/reference/rast.html)
+  object with the same geometry as `ras`.
 
 - inverse:
 
-  A [`logical`](https://rdrr.io/r/base/logical.html) flag. If `TRUE`,
-  the mask is inverted (default: `FALSE`).
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag. If
+  `TRUE`, the mask is inverted, i.e., cells *inside* the polygon are
+  masked (default: `FALSE`).
 
 - updatevalue:
 
-  The value to update the
-  [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
-  with (default: `NA`).
+  (optional) The value assigned to the masked cells (default: `NA`).
 
 ## Value
 
-A masked [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html)
-object.
+A masked raster of the same class as `ras`.
 
 ## Examples
 

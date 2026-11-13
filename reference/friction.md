@@ -1,14 +1,17 @@
-# Download and downscale a friction surface layer
+# Download a friction surface at the resolution of the analysis
 
 `friction()` retrieves a [friction
 surface](https://en.wikipedia.org/wiki/Friction_of_distance) layer from
 the Malaria Atlas Project ([MAP](https://malariaatlas.org/)) database
-(Hay et al., 2006; Malaria Atlas Project, 2015, 2019) and optionally
-downscale it to the spatial resolution of the analysis using road
-network data from OpenStreetMap (n.d.)
-([OSM](https://www.openstreetmap.org/)).
+(Hay et al., 2006; Weiss et al., 2018, 2020) and produces it at the
+spatial resolution of the analysis, following the rules used to build
+the MAP surfaces.
 
-This function requires an active internet connection.
+Friction values are expressed in minutes required to travel one meter.
+
+An internet connection is required, unless the data are supplied via
+`file` and `roads`, or were cached by a previous call with
+`cache = TRUE`.
 
 ## Usage
 
@@ -16,10 +19,12 @@ This function requires an active internet connection.
 friction(
   bb_area,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   cache = FALSE,
-  file = NULL
+  file = NULL,
+  roads = NULL,
+  road_speeds = default_road_speeds()
 )
 ```
 
@@ -28,50 +33,70 @@ friction(
 - bb_area:
 
   A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
-  boundary box object with the area of interest.
+  object with the polygon(s) of the area of interest.
 
 - mode:
 
   (optional) A [`character`](https://rdrr.io/r/base/character.html)
   string indicating the mode of transport. Options are `"fastest"` and
-  `"walk"` (default = `"walk"`).
+  `"walk"` (default: `"walk"`).
 
   - For `"fastest"`: The friction layer accounts for multiple modes of
-    transport, including walking, cycling, driving, and public
-    transport, and are based on the Malaria Atlas Project (2019) *Global
-    Travel Speed Friction Surface*.
+    transport, including walking and driving. At the native resolution,
+    it is the Malaria Atlas Project (2015) *Global Travel Speed Friction
+    Surface*.
 
   - For `"walk"`: The friction layer accounts only for walking speeds
-    and is based on the Malaria Atlas Project (2015) *Global Walking
+    and is based on the Malaria Atlas Project (2020) *Global Walking
     Only Friction Surface*.
 
 - dowscaling_model_type:
 
-  (optional) A [`character`](https://rdrr.io/r/base/character.html)
-  string indicating the type of model used for the spatial downscaling
-  of the friction layer. Options are `"lm"` (linear model) and `"rf"`
-  (random forest) (default: `"lm"`).
+  Deprecated and ignored. The friction surface is no longer downscaled
+  with a statistical model (see *Details*).
 
 - res_output:
 
   (optional) A positive
   [integerish](https://mllg.github.io/checkmate/reference/checkIntegerish.html)
   number indicating the spatial resolution of the friction raster (and
-  of the analysis), in meters. If the resolution is less than `1000`, a
-  spatial downscaling approach is used (default: `100`).
+  of the analysis), in meters. See *Details* (default: `100`).
 
 - cache:
 
   (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
-  indicating whether to cache the downloaded friction data for future
-  use (default: `TRUE`).
+  indicating whether to cache downloaded data (friction surface of the
+  area, road network) on disk and reuse it in later calls. It also
+  enables a fallback to a one-time download of the global friction
+  surface (~730 MB) when the Malaria Atlas Project service is
+  unavailable. See *Details* of `friction()` (default: `FALSE`).
 
 - file:
 
   (optional) A [`character`](https://rdrr.io/r/base/character.html)
-  string indicating the path to a local friction surface raster file. If
-  provided, the function will use this file instead of downloading the
-  friction data.
+  string indicating the path to a local Malaria Atlas Project friction
+  surface raster file, used instead of downloading it: the walking-only
+  surface, except with `mode = "fastest"` and `res_output >= 1000`,
+  where it is the travel speed surface (default: `NULL`).
+
+- roads:
+
+  (optional) A
+  [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) object
+  with the road network (`LINESTRING` or `MULTILINESTRING` geometries),
+  used when `mode = "fastest"` and `res_output < 1000`. It must have
+  either a `speed` column with speeds in km/h, or a `highway` column
+  with OpenStreetMap road classes, which are converted to speeds with
+  `road_speeds`. If `NULL`, the road network is downloaded from
+  OpenStreetMap (default: `NULL`).
+
+- road_speeds:
+
+  (optional) A named [`numeric`](https://rdrr.io/r/base/numeric.html)
+  vector with the speed (km/h) of each OpenStreetMap road class
+  (`highway` tag). Road classes not in `road_speeds` are ignored
+  (default:
+  [`default_road_speeds()`](https://giacfalk.github.io/locationallocation/reference/default_road_speeds.md)).
 
 ## Value
 
@@ -80,7 +105,7 @@ An [invisible](https://rdrr.io/r/base/invisible.html)
 
 - `friction_layer`: A
   [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
-  with the friction surface layer.
+  with the friction surface layer (minutes per meter).
 
 - `transition_matrix`: A
   [`TransitionLayer`](https://AgrDataSci.github.io/gdistance/reference/transition.html)
@@ -90,16 +115,94 @@ An [invisible](https://rdrr.io/r/base/invisible.html)
   [`TransitionLayer`](https://AgrDataSci.github.io/gdistance/reference/transition.html)
   with the geocorrection matrix for accurate distance calculations.
 
+## Details
+
+### Spatial resolution
+
+The MAP surfaces have a resolution of 30 arc-seconds (~1 km). When
+`res_output >= 1000`, the surface of the chosen `mode` is used at its
+native resolution.
+
+When `res_output < 1000`, the surface is produced on a grid of about
+`res_output` meters following the rule used to build the MAP surfaces:
+within each cell, the fastest mode of transport takes precedence (Weiss
+et al., 2018).
+
+- `mode = "walk"`: MAP assigns the same walking speed (5 km/h) to roads
+  and to urban land, so the road network adds no information at a finer
+  resolution. The walking-only surface is resampled to the finer grid
+  (nearest neighbor) without changing its values.
+
+- `mode = "fastest"`: cells crossed by a road get the speed of the
+  fastest road crossing them (see `road_speeds`). All other cells get
+  the friction of the MAP walking-only surface, which accounts for land
+  cover and slope. Railways, ferries and congestion are not modeled.
+
+The road network is downloaded from OpenStreetMap
+([OSM](https://www.openstreetmap.org/)) through the Overpass API, unless
+it is supplied via `roads`.
+
+### Online data and fallbacks
+
+Online services can be unavailable or overloaded. The friction surface
+is obtained from the first available of these sources:
+
+1.  With `cache = TRUE`, the surface of the area cached by a previous
+    call, or a cached copy of the global surface.
+
+2.  The MAP data service (retried once).
+
+3.  With `cache = TRUE`, a one-time download of the global surface (~730
+    MB) from a mirror on the Open Science Framework
+    ([OSF](https://osf.io/)), which is then cached.
+
+If none is available, the error message suggests downloading the global
+surface manually and supplying it via `file`.
+
+The road network is obtained from the cache (with `cache = TRUE`) or
+from several public Overpass API servers in turn (each with a single
+attempt of at most ~2.5 minutes), skipping those that are unreachable or
+at capacity. If none responds, a warning is issued and the MAP travel
+speed surface (~1 km) is used on the finer grid instead.
+
+Cached data are stored in
+`tools::R_user_dir("locationallocation", "cache")`. The following
+options change the default behavior:
+
+- `locationallocation.cache_dir`: the cache directory.
+
+- `locationallocation.overpass_urls`: the Overpass API servers to try,
+  in order.
+
+- `locationallocation.retry_wait`: the number of seconds to wait before
+  retrying a failed download (default: `30`).
+
 ## References
 
 Hay, S. I., & Snow, R. W. (2006). The Malaria Atlas Project: Developing
 global maps of malaria risk. *PLOS Medicine*, *3*(12), e473.
 [doi:10.1371/journal.pmed.0030473](https://doi.org/10.1371/journal.pmed.0030473)
 
+Weiss, D. J., Nelson, A., Gibson, H. S., Temperley, W., Peedell, S.,
+Lieber, A., Hancher, M., Poyart, E., Belchior, S., Fullman, N., Mappin,
+B., Dalrymple, U., Rozier, J., Lucas, T. C. D., Howes, R. E., Tusting,
+L. S., Kang, S. Y., Cameron, E., Bisanzio, D., ... Gething, P. W.
+(2018). A global map of travel time to cities to assess inequalities in
+accessibility in 2015. *Nature*, *553*(7688), 333–336.
+[doi:10.1038/nature25181](https://doi.org/10.1038/nature25181)
+
+Weiss, D. J., Nelson, A., Vargas-Ruiz, C. A., Gligorić, K., Bavadekar,
+S., Gabrilovich, E., Bertozzi-Villa, A., Rozier, J., Gibson, H. S.,
+Shekel, T., Kamath, C., Lieber, A., Schulman, K., Shao, Y., Qarkaxhija,
+V., Nandi, A. K., Keddie, S. H., Rumisha, S., Amratia, P., ... Gething,
+P. W. (2020). Global maps of travel time to healthcare facilities.
+*Nature Medicine*, *26*(12), 1835–1838.
+[doi:10.1038/s41591-020-1059-1](https://doi.org/10.1038/s41591-020-1059-1)
+
 Malaria Atlas Project. (2015). *Friction surface: Global travel speed
 friction surface* (Version 201501). <https://data.malariaatlas.org/maps>
 
-Malaria Atlas Project. (2019). *Friction surface: Global walking only
+Malaria Atlas Project. (2020). *Friction surface: Global walking only
 friction surface* (Version 202001). <https://data.malariaatlas.org/maps>
 
 OpenStreetMap Foundation. (n.d.). *OpenStreetMap* \[Computer software\].
@@ -108,6 +211,7 @@ OpenStreetMap Foundation. (n.d.). *OpenStreetMap* \[Computer software\].
 ## See also
 
 Other travel time functions:
+[`default_road_speeds()`](https://giacfalk.github.io/locationallocation/reference/default_road_speeds.md),
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md),
 [`traveltime_plot()`](https://giacfalk.github.io/locationallocation/reference/traveltime_plot.md),
 [`traveltime_stats()`](https://giacfalk.github.io/locationallocation/reference/traveltime_stats.md)
@@ -117,5 +221,7 @@ Other travel time functions:
 ``` r
 if (FALSE) { # \dontrun{
   naples_shape |> friction()
+
+  naples_shape |> friction(mode = "fastest")
 } # }
 ```

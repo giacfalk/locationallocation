@@ -1,12 +1,18 @@
-# Compute the maximal coverage location-allocation for continuous problems
+# Maximal coverage location-allocation
 
-`allocation()` allocate facilities in a continuous location problem. It
-uses the accumulated cost algorithm to find the optimal location for the
-facilities based on the share of the demand to be covered.
+`allocation()` and `allocation_discrete()` allocate new facilities so as
+to maximize the share of (optionally weighted) demand that can reach a
+facility within `objectiveminutes` minutes.
 
-See
-[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation_discrete.md)
-for discrete location-allocation problems.
+- `allocation()` solves a **continuous** problem: new facilities can be
+  placed anywhere within `bb_area` (any cell of the `demand` grid).
+
+- `allocation_discrete()` solves a **discrete** problem: new facilities
+  are selected from a user-defined set of `candidate` locations.
+
+Both functions can either add facilities until a target coverage
+(`objectiveshare`) is reached, using as few facilities as possible, or
+allocate a fixed maximum number of facilities (`n_fac`).
 
 ## Usage
 
@@ -17,15 +23,38 @@ allocation(
   facilities,
   traveltime = NULL,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   weights = NULL,
   objectiveminutes = 15,
   objectiveshare = 0.99,
-  heur = "max",
+  heur = "kd",
   approach = "norm",
   exp_demand = 1,
-  exp_weights = 1
+  exp_weights = 1,
+  n_fac = Inf,
+  shortlist = 10,
+  refine = TRUE
+)
+
+allocation_discrete(
+  demand,
+  bb_area,
+  candidate,
+  facilities = NULL,
+  n_fac = Inf,
+  n_samples,
+  traveltime = NULL,
+  mode = "walk",
+  dowscaling_model_type = NULL,
+  res_output = 100,
+  weights = NULL,
+  objectiveminutes = 15,
+  objectiveshare = NULL,
+  approach = "norm",
+  exp_demand = 1,
+  exp_weights = 1,
+  par = FALSE
 )
 ```
 
@@ -33,114 +62,163 @@ allocation(
 
 - demand:
 
-  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
-  with the demand layer (e.g. population density).
+  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) or
+  single-layer
+  [`SpatRaster`](https://rspatial.github.io/terra/reference/rast.html)
+  object with the demand (e.g., number of people per cell), in
+  geographic coordinates (WGS 84). It defines the grid of the analysis.
 
 - bb_area:
 
   A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
-  boundary box object with the area of interest.
+  object with the polygon(s) of the area of interest.
 
 - facilities:
 
   A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
-  object with the existing facilities.
+  object with the existing facilities, or `NULL` if there are no
+  existing facilities. Required by `allocation()` (use
+  `facilities = NULL` explicitly to allocate from scratch); optional in
+  `allocation_discrete()` (default: `NULL`).
 
 - traveltime:
 
-  A [`list`](https://rdrr.io/r/base/list.html) with the output of the
+  (optional) The output of the
   [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md)
-  function. If not provided, the function will run the
-  [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md)
-  function based on the provided parameters.
+  function, whose friction surface is reused to avoid downloading and
+  downscaling it again. The travel times from `facilities` are
+  recomputed on this surface. If `NULL`, the friction surface is
+  computed with
+  [`friction()`](https://giacfalk.github.io/locationallocation/reference/friction.md)
+  using `mode` and `res_output` (default: `NULL`).
 
 - mode:
 
   (optional) A [`character`](https://rdrr.io/r/base/character.html)
   string indicating the mode of transport. Options are `"fastest"` and
-  `"walk"` (default = `"walk"`).
+  `"walk"` (default: `"walk"`).
 
   - For `"fastest"`: The friction layer accounts for multiple modes of
-    transport, including walking, cycling, driving, and public
-    transport, and are based on the Malaria Atlas Project (2019) *Global
-    Travel Speed Friction Surface*.
+    transport, including walking and driving. At the native resolution,
+    it is the Malaria Atlas Project (2015) *Global Travel Speed Friction
+    Surface*.
 
   - For `"walk"`: The friction layer accounts only for walking speeds
-    and is based on the Malaria Atlas Project (2015) *Global Walking
+    and is based on the Malaria Atlas Project (2020) *Global Walking
     Only Friction Surface*.
 
 - dowscaling_model_type:
 
-  (optional) A [`character`](https://rdrr.io/r/base/character.html)
-  string indicating the type of model used for the spatial downscaling
-  of the friction layer. Options are `"lm"` (linear model) and `"rf"`
-  (random forest) (default: `"lm"`).
+  Deprecated and ignored. The friction surface is no longer downscaled
+  with a statistical model (see *Details*).
 
 - res_output:
 
   (optional) A positive
   [integerish](https://mllg.github.io/checkmate/reference/checkIntegerish.html)
   number indicating the spatial resolution of the friction raster (and
-  of the analysis), in meters. If the resolution is less than `1000`, a
-  spatial downscaling approach is used (default: `100`).
+  of the analysis), in meters. See *Details* (default: `100`).
 
 - weights:
 
-  (optional) A raster with the weights for the demand (default: `NULL`).
+  (optional) A
+  [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) or
+  [`SpatRaster`](https://rspatial.github.io/terra/reference/rast.html)
+  object with the weights for the demand (e.g., a hazard layer). It is
+  resampled to the grid of `demand` if needed (default: `NULL`).
 
 - objectiveminutes:
 
-  (optional) A number indicating the target travel time in minutes used
-  to compute the statistics (default: `15`).
+  (optional) A number indicating the travel time threshold, in minutes,
+  within which demand is considered covered (default: `15`).
 
 - objectiveshare:
 
-  (optional) A number indicating the proportion of the demand to be
-  covered (default: `0.99`).
+  (optional) A number between `0` and `1` indicating the share of the
+  (weighted) demand to be covered. In `allocation()` it can only be
+  `NULL` if `n_fac` is finite (default: `0.99` for `allocation()` and
+  `NULL` for `allocation_discrete()`).
 
 - heur:
 
-  (optional) The heuristic approach to be used. Options are `"max"` and
-  `"kd"` (default: `"max"`).
+  (optional) The score used by `allocation()` to shortlist promising
+  locations for each new facility. Options are `"kd"` and `"max"`. See
+  *Details* (default: `"kd"`).
 
 - approach:
 
-  (optional) The approach to be used for the allocation. Options are
-  `"norm"` and `"absweights"`. If "norm", the allocation is based on the
-  normalized demand raster multiplied by the normalized weights raster.
-  If `"absweights"`, the allocation is based on the normalized demand
-  raster multiplied by the raw weights raster (default: `"norm"`).
+  (optional) The approach used to combine the `demand` and `weights`
+  layers. Options are `"norm"` and `"absweights"`. See *Details*
+  (default: `"norm"`).
 
 - exp_demand:
 
-  (optional) The exponent for the demand raster. Default is
-
-  1.  A higher value will give less relative weight to areas with higher
-      demand - with respect to the weights layer. This is useful in
-      cases where the users want to increase the allocation in areas
-      with higher values in the weights layer (default: `1`).
+  (optional) The exponent applied to the demand layer. Values greater
+  than `1` increase the relative priority of high-demand cells, and the
+  influence of `demand` with respect to `weights` (default: `1`).
 
 - exp_weights:
 
-  (optional) The exponent for the weights raster. Default is
+  (optional) The exponent applied to the weights layer. Values greater
+  than `1` increase the relative priority of cells with high weights,
+  and the influence of `weights` with respect to `demand` (default:
+  `1`).
 
-  1.  A higher value will give less relative weight to areas with higher
-      weights - with respect to the demand layer. This is useful in
-      cases where the users want to increase the allocation in areas
-      with higher values in the demand layer (default: `1`).
+- n_fac:
+
+  (optional) A positive
+  [integerish](https://mllg.github.io/checkmate/reference/checkIntegerish.html)
+  number indicating the maximum number of new facilities to allocate. In
+  `allocation_discrete()`, it is capped at the number of candidate
+  locations (default: `Inf`).
+
+- shortlist:
+
+  (optional) A positive
+  [integerish](https://mllg.github.io/checkmate/reference/checkIntegerish.html)
+  number indicating how many new promising locations `allocation()`
+  evaluates exactly at each iteration. See *Details* (default: `10`).
+
+- refine:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether `allocation()` refines the greedy solution by
+  vertex substitution (see *Details*). Refinement usually reduces the
+  number of facilities needed for a given coverage, but takes more time
+  (default: `TRUE`).
+
+- candidate:
+
+  A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
+  object with the candidate locations (`POINT` geometries) for the new
+  facilities (`allocation_discrete()` only).
+
+- n_samples:
+
+  Deprecated and ignored. `allocation_discrete()` no longer relies on
+  random sampling (`allocation_discrete()` only).
+
+- par:
+
+  (optional) A [`logical`](https://rdrr.io/r/base/logical.html) flag
+  indicating whether to compute the travel times from the candidate
+  locations in [parallel](https://rdrr.io/r/parallel/clusterApply.html)
+  (`allocation_discrete()` only; default: `FALSE`).
 
 ## Value
 
 An [invisible](https://rdrr.io/r/base/invisible.html)
-[`list`](https://rdrr.io/r/base/list.html) with the following elements:
+[`list`](https://rdrr.io/r/base/list.html) of class `allocation`
+(continuous problem) or `allocation_discrete` (discrete problem) with
+the following elements:
 
 - `coverage`: A [`numeric`](https://rdrr.io/r/base/numeric.html) value
-  indicating the share of demand covered within the objective travel
-  time after allocating the new facilities.
+  indicating the share of (weighted) demand covered within the objective
+  travel time after allocating the new facilities.
 
 - `unmet_demand`: A [`numeric`](https://rdrr.io/r/base/numeric.html)
-  value indicating the share of demand that remains unmet after
-  allocating the new facilities.
+  value indicating the share of (weighted) demand that remains unmet
+  after allocating the new facilities.
 
 - `objective_minutes`: The value of the `objectiveminutes` parameter
   used.
@@ -149,35 +227,163 @@ An [invisible](https://rdrr.io/r/base/invisible.html)
 
 - `facilities`: A
   [`sf`](https://r-spatial.github.io/sf/reference/sf.html) object with
-  the newly allocated facilities.
+  the newly allocated facilities (for `allocation_discrete()`, the
+  selected rows of `candidate`).
 
 - `travel_time`: A
-  [`raster`](https://rdrr.io/pkg/raster/man/raster.html) RasterLayer
-  object representing the travel time map with the newly allocated
-  facilities.
+  [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object, on
+  the grid of `demand`, with the travel time (in minutes) to the nearest
+  facility after allocating the new facilities.
 
-## See also
+## Details
 
-Other location-allocation functions:
-[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation_discrete.md)
+### Coverage
+
+A demand cell is covered when its travel time to the nearest (existing
+or new) facility is less than or equal to `objectiveminutes`. Coverage
+is the share of the total (weighted) demand within `bb_area` that is
+covered. Travel times are computed with the accumulated cost algorithm
+([`gdistance::accCost()`](https://AgrDataSci.github.io/gdistance/reference/accCost.html))
+over the friction surface and aligned to the grid of `demand`.
+
+### Continuous problem (`allocation()`)
+
+Facilities are added one at a time with a (lazy) greedy heuristic. At
+each iteration:
+
+1.  A score of the demand not yet covered proposes a shortlist of
+    promising locations: the `shortlist` highest local maxima of the
+    score, at least half a catchment radius apart. The catchment radius
+    is the distance that can be traveled within `objectiveminutes` at
+    the median friction of the study area. The score is:
+
+    - `heur = "kd"`: the uncovered demand smoothed with a quartic kernel
+      whose bandwidth is the catchment radius, i.e., an estimate of the
+      uncovered demand within the catchment of a facility placed at each
+      cell.
+
+    - `heur = "max"`: the uncovered demand of each cell.
+
+2.  The catchment of each shortlisted location (the demand cells it can
+    reach within `objectiveminutes`) is computed with the accumulated
+    cost algorithm. Catchments do not change as facilities are added, so
+    the locations evaluated in previous iterations remain candidates at
+    no extra cost.
+
+3.  The new facility is placed at the evaluated location that covers the
+    largest amount of uncovered demand (greedy step of Church & ReVelle,
+    1974).
+
+The greedy phase stops when `objectiveshare` is reached, when `n_fac`
+new facilities have been allocated, or when no further location
+increases the coverage. The solution is then refined (vertex
+substitution heuristic, Teitz & Bart, 1968): each facility is in turn
+moved to the evaluated location that covers the most demand left
+uncovered by the others, if that increases the coverage. New locations
+are evaluated near each facility at every pass: local maxima of the
+score, and eight locations around the facility at a distance that starts
+at half the catchment radius and is halved whenever the facility is not
+moved (pattern search). With `objectiveshare`, the facility covering the
+least demand on its own is then dropped and the solution refined again,
+as long as the target is still met.
+
+Larger `shortlist` values evaluate more locations per iteration, which
+can yield better solutions at the cost of more travel time computations.
+Set `refine = FALSE` to skip the refinement phase for faster,
+greedy-only solutions.
+
+### Discrete problem (`allocation_discrete()`)
+
+Since the travel time from a set of facilities is the minimum of the
+travel times from each of them, the set of demand cells covered by each
+candidate location is computed once (one accumulated cost run per
+candidate). Then:
+
+1.  Candidates are added one at a time, each time selecting the
+    candidate that covers the largest amount of demand not yet covered
+    (greedy heuristic, Church & ReVelle, 1974).
+
+2.  The selection is refined by swapping selected and non-selected
+    candidates as long as a swap increases the coverage (vertex
+    substitution heuristic, Teitz & Bart, 1968).
+
+If `objectiveshare` is `NULL`, up to `n_fac` candidates are selected to
+maximize coverage. Otherwise, candidates are added (and the selection
+refined) until `objectiveshare` is reached or `n_fac` candidates have
+been selected. The solution is deterministic and usually optimal or
+near-optimal.
+
+### Demand weights
+
+When `weights` is provided, the demand to be covered is a combination of
+the `demand` and `weights` layers (e.g., population times exposure to a
+hazard):
+
+- `approach = "norm"`: \\D^{a} \times W^{b}\\, where \\D\\ and \\W\\ are
+  the demand and weights layers rescaled to \\\[0, 1\]\\ (min-max
+  normalization). Note that cells with the lowest weight receive zero
+  priority.
+
+- `approach = "absweights"`: \\D^{a} \times w^{b}\\, where \\w\\ are the
+  raw (non-negative) weights. Priorities are proportional to the
+  weights.
+
+with \\a\\ = `exp_demand` and \\b\\ = `exp_weights`. Without `weights`,
+the demand is \\demand^{a}\\. Coverage and `objectiveshare` then refer
+to this weighted demand.
+
+## References
+
+Church, R., & ReVelle, C. (1974). The maximal covering location problem.
+*Papers of the Regional Science Association*, *32*(1), 101–118.
+[doi:10.1007/BF01942293](https://doi.org/10.1007/BF01942293)
+
+Teitz, M. B., & Bart, P. (1968). Heuristic methods for estimating the
+generalized vertex median of a weighted graph. *Operations Research*,
+*16*(5), 955–961.
+[doi:10.1287/opre.16.5.955](https://doi.org/10.1287/opre.16.5.955)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-  library(dplyr)
+  library(sf)
+
+  traveltime_data <-
+    naples_fountains |>
+    traveltime(bb_area = naples_shape)
+
+  ## Continuous problem -----
 
   allocation_data <-
     naples_population |>
     allocation(
       bb_area = naples_shape,
       facilities = naples_fountains,
+      traveltime = traveltime_data,
       weights = naples_hot_days,
       objectiveminutes = 15,
       objectiveshare = 0.99
     )
 
-  allocation_data |> glimpse()
+  allocation_data
+
+  allocation_data |> allocation_plot(naples_shape)
+
+  ## Discrete problem -----
+
+  allocation_data <-
+    naples_population |>
+    allocation_discrete(
+      bb_area = naples_shape,
+      candidate = naples_shape |> st_sample(20),
+      facilities = naples_fountains,
+      traveltime = traveltime_data,
+      n_fac = 2,
+      objectiveminutes = 15
+    )
+
+  allocation_data
 
   allocation_data |> allocation_plot(naples_shape)
 } # }

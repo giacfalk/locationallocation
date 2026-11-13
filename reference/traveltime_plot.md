@@ -1,9 +1,9 @@
 # Plot results of the `traveltime()` function
 
-`traveltime_plot()` plot the results of the
+`traveltime_plot()` plots the results of the
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md)
-function, showing the travel time from the facilities to the area of
-interest.
+function, showing the travel time to the nearest facility across the
+area of interest.
 
 ## Usage
 
@@ -30,17 +30,19 @@ traveltime_plot(
 - bb_area:
 
   A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
-  boundary box object with the area of interest.
+  object with the polygon(s) of the area of interest.
 
 - facilities:
 
-  A [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
-  object with the existing facilities.
+  (optional) A
+  [`sf`](https://r-spatial.github.io/sf/reference/st_as_sf.html) object
+  with the facilities to plot (default: `NULL`).
 
 - contour_traveltime:
 
-  (optional) A number indicating the contour thresholds for the travel
-  time (default: `15`).
+  (optional) A [`numeric`](https://rdrr.io/r/base/numeric.html) vector
+  indicating the travel time thresholds (in minutes) at which to draw
+  contour lines, or `NULL` for no contours (default: `15`).
 
 - annotation_location:
 
@@ -64,11 +66,12 @@ traveltime_plot(
 ## Value
 
 A [`ggplot2`](https://ggplot2.tidyverse.org/reference/ggplot.html) plot
-showing the travel time from the facilities to the area of interest.
+showing the travel time to the nearest facility.
 
 ## See also
 
 Other travel time functions:
+[`default_road_speeds()`](https://giacfalk.github.io/locationallocation/reference/default_road_speeds.md),
 [`friction()`](https://giacfalk.github.io/locationallocation/reference/friction.md),
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md),
 [`traveltime_stats()`](https://giacfalk.github.io/locationallocation/reference/traveltime_stats.md)
@@ -81,7 +84,6 @@ if (FALSE) { # \dontrun{
     naples_fountains |>
     traveltime(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
       mode = "walk",
       res_output = 100
     )

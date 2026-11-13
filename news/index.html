@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Changelog"><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Changelog"><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -45,35 +45,82 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1.9000" id="locationallocation-0119000-development-version">locationallocation 0.1.1.9000 (development version)<a class="anchor" aria-label="anchor" href="#locationallocation-0119000-development-version"></a></h2>
-<ul><li>Added a <code>cache</code> argument to <code><a href="../reference/friction.html">friction()</a></code> and <code><a href="../reference/traveltime.html">traveltime()</a></code> functions to enable caching of friction surfaces for improved performance on repeated calls.</li>
-<li>Added a <code>file</code> argument to <code><a href="../reference/friction.html">friction()</a></code> and <code><a href="../reference/traveltime.html">traveltime()</a></code> functions to allow loading a friction surface from disk.</li>
-<li>Refactored the codebase for better maintainability.</li>
-<li>Fixed R-CMD-check issues.</li>
-<li>Added <a href="https://mllg.github.io/checkmate/" class="external-link"><code>checkmate</code></a> for defensive programming.</li>
-<li>Added <a href="https://cli.r-lib.org/" class="external-link"><code>cli</code></a> for improved command line interface, including progress bars.</li>
-<li>Added <a href="https://lintr.r-lib.org/" class="external-link"><code>lintr</code></a> and updated the code to follow the <a href="https://tidyverse.tidyverse.org/articles/manifesto.html" class="external-link">tidy tools manifesto</a>, the <a href="https://design.tidyverse.org/" class="external-link">tidyverse design principles</a>, and the <a href="https://style.tidyverse.org/" class="external-link">tidyverse style guide</a>.</li>
-<li>Added <a href="https://docs.ropensci.org/spelling/" class="external-link"><code>spelling</code></a> for spell checking.</li>
-<li>Added <a href="https://testthat.r-lib.org/" class="external-link"><code>testthat</code></a> for unit testing.</li>
-<li>Added the <a href="https://www.contributor-covenant.org/version/3/0/code_of_conduct/" class="external-link">Contributor Code of Conduct v3</a> to incentive contributions.</li>
-<li>Added <code>CITATION.cff</code> and <code>codemeta.json</code> files for better citation and metadata.</li>
-<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
-<li>Added an R-CMD-check GitHub Action workflow.</li>
-<li>Added default values to <code><a href="../reference/allocation.html">allocation()</a></code>, <code><a href="../reference/allocation_discrete.html">allocation_discrete()</a></code> and other functions.</li>
-<li>Added the demo data as documented exports, and changed their names to: <code>naples_shape</code>, <code>naples_population</code>, <code>naples_fountains</code>, and <code>naples_hot_days</code>.</li>
-<li>Added scale and north arrow annotations to maps using the <a href="https://paleolimbot.github.io/ggspatial/" class="external-link"><code>ggspatial</code></a> R package. These are on by default but can be disabled by setting the <code>annotation_scale</code> and <code>annotation_north_arrow</code> arguments to <code>FALSE</code>.</li>
-<li>Changed the theme of <a href="https://ggplot2.tidyverse.org/" class="external-link"><code>ggplot2</code></a> plots to <code>theme_minimal()</code> with customizations.</li>
-<li>Changed <code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> to have <code>0</code> as a lower limit for the color scale.</li>
-<li>Merged <code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> and <code>allocation_plot_discrete()</code> into a single <code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> function.</li>
-<li>Changed <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation_discrete.html">allocation_discrete()</a></code> to raise an error when the initial coverage is greater or equal to the <code>objectiveshare</code> parameter.</li>
-<li>Changed <code><a href="../reference/traveltime_plot.html">traveltime_plot()</a></code> to only show travel time contours up to the maximum travel time in the travel time map.</li>
-<li>Improved code efficiency and performance.</li>
-<li>Improved documentation and examples for all functions.</li>
-<li>Removed <code>demo_data_load()</code>, as it is no longer necessary.</li>
-<li>Removed the <code>fasterize</code> dependency due to compatibility issues with Linux systems.</li>
-<li>Updated <code>_pkgdown.yml</code> for better pkgdown site generation.</li>
-<li>Updated package dependencies to their latest versions.</li>
-<li>Updated README documentation and added badges for R-CMD-check, DOI, license, and Contributor Code of Conduct.</li>
+<div class="section level3">
+<h3 id="bug-fixes-0-1-1-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-1-9000"></a></h3>
+<ul><li>
+<code><a href="../reference/allocation.html">allocation_discrete()</a></code> is exported again (it was dropped from the <code>NAMESPACE</code> when its source was merged into <code>R/allocation.R</code>).</li>
+<li>
+<code><a href="../reference/allocation.html">allocation_discrete()</a></code> no longer fails with its default <code>n_fac = Inf</code>, with <code>n_fac = 1</code>, or when <code>n_fac</code> exceeds the number of candidates; with <code>objectiveshare</code>, it no longer skips the 1-facility solution or loops forever when <code>n_fac = 1</code>.</li>
+<li>
+<code><a href="../reference/allocation.html">allocation_discrete()</a></code> no longer computes the friction surface twice when <code>facilities</code> is supplied without <code>traveltime</code>.</li>
+<li>
+<code>allocation(heur = "kd")</code> works (it previously always failed). The kernel score is reimplemented with <code>terra</code>, which removes the <code>spatialEco</code> dependency.</li>
+<li>
+<code><a href="../reference/allocation.html">allocation()</a></code> no longer adds facilities that do not increase coverage, and it no longer picks up an object called <code>new_facilities</code> from the global environment.</li>
+<li>
+<code><a href="../reference/friction.html">friction()</a></code> no longer downscales the friction surface with <code>dissever</code>. The coarse Malaria Atlas Project (MAP) surfaces assign each ~1 km pixel the speed of the fastest mode of transport within it, whereas the mass-preserving downscaling forced fine cells to average to that value: it produced impossible speeds on road cells (faster than walking in <code>"walk"</code> mode) and slowed most other cells to ~2.6 km/h in the Naples example. The results were also not reproducible (random training sample, no seed).</li>
+<li>Online downloads now have fallbacks. Friction surfaces come from the first available of: the cache (surface of the area, or a cached global surface), the Malaria Atlas Project data service (retried), and, with <code>cache = TRUE</code>, a one-time download of the global surface (~730 MB) from the OSF mirror. The OpenStreetMap road network is retrieved from the cache or from several public Overpass API servers in turn, skipping servers that are unreachable or at capacity; if none responds, <code><a href="../reference/friction.html">friction()</a></code> warns and uses the Malaria Atlas Project travel speed surface instead. When all sources fail, the error lists what was tried and how to proceed (e.g., supplying <code>file</code> or <code>roads</code>). New options: <code>locationallocation.cache_dir</code>, <code>locationallocation.overpass_urls</code>, and <code>locationallocation.retry_wait</code>.</li>
+<li>
+<code>cache = TRUE</code> now caches the friction surface of the area and the road network, instead of always downloading the global friction surface (~730 MB), which is only downloaded as a fallback. Global surfaces cached by previous versions are still used.</li>
+<li>
+<code>friction(cache = TRUE)</code> no longer recurses indefinitely if the downloaded archive does not contain the expected file.</li>
+<li>
+<code><a href="../reference/traveltime_plot.html">traveltime_plot()</a></code> works with <code>facilities = NULL</code> (the default) and with several <code>contour_traveltime</code> values.</li>
+<li>
+<code><a href="../reference/traveltime_stats.html">traveltime_stats()</a></code> no longer overwrites the CRS of <code>demand</code>.</li>
+<li>
+<code><a href="../reference/mask_raster_to_polygon.html">mask_raster_to_polygon()</a></code> now honors <code>updatevalue</code>, accepts raster masks, and transforms polygons to the CRS of the raster.</li>
+<li>Cropping the friction surface no longer adds a spurious row or column of cells when the boundary of <code>bb_area</code> coincides with cell edges.</li>
+<li>Coverage messages use the correct plural for the number of facilities.</li>
+<li>Documentation: the effect of <code>exp_demand</code> and <code>exp_weights</code> was described backwards; the years of the MAP friction surfaces were swapped; the default of <code>cache</code> was wrong; <code>naples_population</code> holds people per cell, not density.</li>
 </ul></div>
+<div class="section level3">
+<h3 id="changes-0-1-1-9000">Changes<a class="anchor" aria-label="anchor" href="#changes-0-1-1-9000"></a></h3>
+<ul><li><p><code><a href="../reference/allocation.html">allocation_discrete()</a></code> now uses the deterministic greedy algorithm described in the package paper, refined with vertex substitution (Teitz &amp; Bart, 1968), instead of random sampling. The travel time from each candidate is computed once, so the solver is much faster and returns optimal or near-optimal solutions. <code>n_samples</code> is deprecated and ignored; <code>par</code> now parallelizes the travel time computations.</p></li>
+<li><p><code><a href="../reference/allocation.html">allocation()</a></code> now implements the greedy step of the package paper (a lazy greedy heuristic): at each iteration, the heuristic score only shortlists promising locations, their actual catchments are computed, and the new facility goes to the evaluated location that covers the most uncovered demand. Previously, the facility was placed directly at the highest-scoring cell. The greedy solution is then refined by vertex substitution (Teitz &amp; Bart, 1968) with a pattern search for new locations around each facility, and, with <code>objectiveshare</code>, by dropping facilities as long as the target is still met. New arguments: <code>shortlist</code> (locations evaluated per iteration) and <code>refine</code> (set to <code>FALSE</code> for faster, greedy-only solutions). The default <code>heur</code> is now <code>"kd"</code>. In the Naples example (with the downscaled friction surface of the previous version), 99% coverage was reached with 25 new facilities instead of 37, matching a near-optimal reference solution computed over a dense grid of candidate locations.</p></li>
+<li><p>Travel times in <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code> are computed on a routing graph built once per problem, instead of rebuilding it at each <code><a href="https://AgrDataSci.github.io/gdistance/reference/accCost.html" class="external-link">gdistance::accCost()</a></code> call. Results are identical, and each computation is about 8 times faster on the Naples example. Travel times are aligned to the <code>demand</code> grid in double precision (<code><a href="https://rspatial.github.io/terra/reference/resample.html" class="external-link">terra::resample()</a></code> rounds values to single precision).</p></li>
+<li><p>At resolutions finer than 1 km (<code>res_output &lt; 1000</code>), <code><a href="../reference/friction.html">friction()</a></code> now follows the rules used to build the MAP surfaces, where the fastest mode of transport within a cell takes precedence. In <code>"walk"</code> mode, MAP assigns 5 km/h to both roads and urban land, so the walking surface is resampled to the finer grid without changing its values (no OpenStreetMap download is needed). In <code>"fastest"</code> mode, cells crossed by an OpenStreetMap road get the speed of the fastest road class crossing them (new <code>road_speeds</code> argument; defaults from <code><a href="../reference/default_road_speeds.html">default_road_speeds()</a></code>, the free-flow speeds of the OSRM car profile), and all other cells the MAP walking surface. New <code>roads</code> argument to supply the road network instead of downloading it; with <code>cache = TRUE</code>, the downloaded road network is cached on disk, and failed downloads are retried. <code>dowscaling_model_type</code> is deprecated and ignored, and the <code>dissever</code> dependency is removed.</p></li>
+<li><p><code><a href="../reference/allocation.html">allocation()</a></code> gains <code>n_fac</code>, the maximum number of new facilities. With a finite <code>n_fac</code>, <code>objectiveshare</code> can be <code>NULL</code> to allocate exactly <code>n_fac</code> facilities.</p></li>
+<li><p><code><a href="../reference/allocation.html">allocation()</a></code> accepts <code>facilities = NULL</code> to allocate facilities from scratch.</p></li>
+<li><p>In <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code>, <code>traveltime</code> is only used for its friction surface: the travel times from <code>facilities</code> are recomputed on the unmasked surface, exactly as for new facilities. Previously, demand cells near the boundary of <code>bb_area</code> could be counted as uncovered even next to an existing facility. When <code>traveltime</code> is <code>NULL</code>, only <code><a href="../reference/friction.html">friction()</a></code> is run.</p></li>
+<li><p><code><a href="../reference/traveltime.html">traveltime()</a></code> uses all facilities within the bounding box of <code>bb_area</code> as sources (previously only those inside the polygon), since facilities just outside the boundary still serve demand inside it.</p></li>
+<li><p>Travel times are aligned to the <code>demand</code> grid with nearest-neighbor resampling, so that the coverage reported by the allocation functions exactly matches their <code>travel_time</code> map. Coverage checks against <code>objectiveshare</code> now use the weighted demand.</p></li>
+<li><p><code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> gains a <code>facilities</code> argument to plot the existing facilities, and both plot functions draw the boundary of <code>bb_area</code> and show unreachable cells in gray.</p></li>
+<li><p>Inputs in any CRS are accepted for <code>sf</code> objects (they are transformed to WGS 84), and <code>demand</code>/<code>weights</code> can be <code>SpatRaster</code> objects. <code>weights</code> on a different grid are resampled to the grid of <code>demand</code>.</p></li>
+<li><p>New <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> methods for the outputs of <code><a href="../reference/traveltime.html">traveltime()</a></code>, <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code>.</p></li>
+<li><p>The <code>P15_cumsum</code> column of the <code><a href="../reference/traveltime_stats.html">traveltime_stats()</a></code> data is renamed to <code>cumulative_coverage</code>.</p></li>
+<li><p>Updated the README, the package documentation (see <code><a href="../reference/locationallocation-package.html">?locationallocation</a></code>), the package description, the citation metadata, and the package paper (methods, use case, and figures) to the current methods.</p></li>
+<li><p>Added an offline test suite based on a synthetic problem, including a brute-force check of <code><a href="../reference/allocation.html">allocation_discrete()</a></code>.</p></li>
+<li><p>Added a <code>cache</code> argument to <code><a href="../reference/friction.html">friction()</a></code> and <code><a href="../reference/traveltime.html">traveltime()</a></code> functions to enable caching of friction surfaces for improved performance on repeated calls.</p></li>
+<li><p>Added a <code>file</code> argument to <code><a href="../reference/friction.html">friction()</a></code> and <code><a href="../reference/traveltime.html">traveltime()</a></code> functions to allow loading a friction surface from disk.</p></li>
+<li><p>Refactored the codebase for better maintainability.</p></li>
+<li><p>Fixed R-CMD-check issues.</p></li>
+<li><p>Added <a href="https://mllg.github.io/checkmate/" class="external-link"><code>checkmate</code></a> for defensive programming.</p></li>
+<li><p>Added <a href="https://cli.r-lib.org/" class="external-link"><code>cli</code></a> for improved command line interface, including progress bars.</p></li>
+<li><p>Added <a href="https://lintr.r-lib.org/" class="external-link"><code>lintr</code></a> and updated the code to follow the <a href="https://tidyverse.tidyverse.org/articles/manifesto.html" class="external-link">tidy tools manifesto</a>, the <a href="https://design.tidyverse.org/" class="external-link">tidyverse design principles</a>, and the <a href="https://style.tidyverse.org/" class="external-link">tidyverse style guide</a>.</p></li>
+<li><p>Added <a href="https://docs.ropensci.org/spelling/" class="external-link"><code>spelling</code></a> for spell checking.</p></li>
+<li><p>Added <a href="https://testthat.r-lib.org/" class="external-link"><code>testthat</code></a> for unit testing.</p></li>
+<li><p>Added the <a href="https://www.contributor-covenant.org/version/3/0/code_of_conduct/" class="external-link">Contributor Code of Conduct v3</a> to incentive contributions.</p></li>
+<li><p>Added <code>CITATION.cff</code> and <code>codemeta.json</code> files for better citation and metadata.</p></li>
+<li><p>Added a <code>NEWS.md</code> file to track changes to the package.</p></li>
+<li><p>Added an R-CMD-check GitHub Action workflow.</p></li>
+<li><p>Added default values to <code><a href="../reference/allocation.html">allocation()</a></code>, <code><a href="../reference/allocation.html">allocation_discrete()</a></code> and other functions.</p></li>
+<li><p>Added the demo data as documented exports, and changed their names to: <code>naples_shape</code>, <code>naples_population</code>, <code>naples_fountains</code>, and <code>naples_hot_days</code>.</p></li>
+<li><p>Added scale and north arrow annotations to maps using the <a href="https://paleolimbot.github.io/ggspatial/" class="external-link"><code>ggspatial</code></a> R package. These are on by default but can be disabled by setting the <code>annotation_scale</code> and <code>annotation_north_arrow</code> arguments to <code>FALSE</code>.</p></li>
+<li><p>Changed the theme of <a href="https://ggplot2.tidyverse.org/" class="external-link"><code>ggplot2</code></a> plots to <code>theme_minimal()</code> with customizations.</p></li>
+<li><p>Changed <code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> to have <code>0</code> as a lower limit for the color scale.</p></li>
+<li><p>Merged <code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> and <code>allocation_plot_discrete()</code> into a single <code><a href="../reference/allocation_plot.html">allocation_plot()</a></code> function.</p></li>
+<li><p>Changed <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code> to raise an error when the initial coverage is greater or equal to the <code>objectiveshare</code> parameter.</p></li>
+<li><p>Changed <code><a href="../reference/traveltime_plot.html">traveltime_plot()</a></code> to only show travel time contours up to the maximum travel time in the travel time map.</p></li>
+<li><p>Improved code efficiency and performance.</p></li>
+<li><p>Improved documentation and examples for all functions.</p></li>
+<li><p>Removed <code>demo_data_load()</code>, as it is no longer necessary.</p></li>
+<li><p>Removed the <code>fasterize</code> dependency due to compatibility issues with Linux systems.</p></li>
+<li><p>Updated <code>_pkgdown.yml</code> for better pkgdown site generation.</p></li>
+<li><p>Updated package dependencies to their latest versions.</p></li>
+<li><p>Updated README documentation and added badges for R-CMD-check, DOI, license, and Contributor Code of Conduct.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="locationallocation-011">locationallocation 0.1.1<a class="anchor" aria-label="anchor" href="#locationallocation-011"></a></h2>
 <ul><li>Updated weighting approach and added weights normalization and exponentiation arguments.</li>
@@ -98,7 +145,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

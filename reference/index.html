@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Package index"><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Package index"><meta property="og:image" content="https://giacfalk.github.io/locationallocation/reference/figures/og-image.png"><meta property="og:image:alt" content="locationallocation"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -57,7 +57,7 @@
           <code><a href="friction.html">friction()</a></code>
 
         </dt>
-        <dd>Download and downscale a friction surface layer</dd>
+        <dd>Download a friction surface at the resolution of the analysis</dd>
 
         <dt>
 
@@ -65,6 +65,13 @@
 
         </dt>
         <dd>Generate a travel time map</dd>
+
+        <dt>
+
+          <code><a href="default_road_speeds.html">default_road_speeds()</a></code>
+
+        </dt>
+        <dd>Default speeds of OpenStreetMap road classes</dd>
       </dl></div><div class="section level2">
       <h2 id="maximal-coverage-location-allocation-mcla-">Maximal Coverage Location-Allocation (MCLA)<a class="anchor" aria-label="anchor" href="#maximal-coverage-location-allocation-mcla-"></a></h2>
 
@@ -77,17 +84,10 @@
 
       <dl><dt>
 
-          <code><a href="allocation.html">allocation()</a></code>
+          <code><a href="allocation.html">allocation()</a></code> <code><a href="allocation.html">allocation_discrete()</a></code>
 
         </dt>
-        <dd>Compute the maximal coverage location-allocation for continuous problems</dd>
-
-        <dt>
-
-          <code><a href="allocation_discrete.html">allocation_discrete()</a></code>
-
-        </dt>
-        <dd>Compute the maximal coverage location-allocation for discrete problems</dd>
+        <dd>Maximal coverage location-allocation</dd>
       </dl></div><div class="section level2">
       <h2 id="statistics">Statistics<a class="anchor" aria-label="anchor" href="#statistics"></a></h2>
 
@@ -119,7 +119,7 @@
           <code><a href="allocation_plot.html">allocation_plot()</a></code>
 
         </dt>
-        <dd>Plot results of the <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation_discrete.html">allocation_discrete()</a></code> functions</dd>
+        <dd>Plot results of the <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code> functions</dd>
 
         <dt>
 
@@ -156,7 +156,7 @@
           <code><a href="naples_population.html">naples_population</a></code>
 
         </dt>
-        <dd>Population density in the city of Naples, Italy</dd>
+        <dd>Population in the city of Naples, Italy</dd>
 
         <dt>
 
@@ -179,7 +179,7 @@
           <code><a href="mask_raster_to_polygon.html">mask_raster_to_polygon()</a></code>
 
         </dt>
-        <dd>Mask a <code>RasterLayer</code> object to a <code>sf</code> object</dd>
+        <dd>Mask a raster to a polygon or to another raster</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -190,7 +190,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

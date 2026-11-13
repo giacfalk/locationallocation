@@ -2,9 +2,9 @@
 
 `traveltime_stats()` generates a summary of the
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md)
-function results, producing a statistic for the percent of demand which
-is covered within a given objective travel time along with a cumulative
-curve plot.
+function results, producing a statistic for the share of demand which is
+covered within a given objective travel time along with a cumulative
+coverage curve.
 
 ## Usage
 
@@ -28,17 +28,20 @@ traveltime_stats(
 
 - demand:
 
-  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
-  with the demand layer (e.g. population density).
+  A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) or
+  single-layer
+  [`SpatRaster`](https://rspatial.github.io/terra/reference/rast.html)
+  object with the demand (e.g., number of people per cell), in
+  geographic coordinates (WGS 84). It defines the grid of the analysis.
 
 - objectiveminutes:
 
-  (optional) A number indicating the target travel time in minutes used
-  to compute the statistics (default: `15`).
+  (optional) A number indicating the travel time threshold, in minutes,
+  within which demand is considered covered (default: `15`).
 
 - breaks:
 
-  (optional) A [`numeric`](https://rdrr.io/r/base/numeric.html) object
+  (optional) A [`numeric`](https://rdrr.io/r/base/numeric.html) vector
   indicating the breaks (in minutes) for the cumulative curve plot
   (default: `c(5, 10, 15, 30)`).
 
@@ -62,15 +65,24 @@ An [invisible](https://rdrr.io/r/base/invisible.html)
 
 - `data`: A
   [`tibble`](https://dplyr.tidyverse.org/reference/reexports.html)
-  object with the data used to generate the cumulative curve plot.
+  object with the travel time and demand of each cell, sorted by travel
+  time, and the cumulative share of demand covered (in %).
 
 - `plot`: A
   [`ggplot`](https://ggplot2.tidyverse.org/reference/ggplot.html) object
   with the cumulative curve plot.
 
+## Details
+
+The travel time map is aligned to the grid of `demand` (nearest-neighbor
+resampling). Coverage is computed over the demand cells that fall within
+the travel time map (i.e., within `bb_area`). Demand in cells that
+cannot be reached (infinite travel time) counts as not covered.
+
 ## See also
 
 Other travel time functions:
+[`default_road_speeds()`](https://giacfalk.github.io/locationallocation/reference/default_road_speeds.md),
 [`friction()`](https://giacfalk.github.io/locationallocation/reference/friction.md),
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.md),
 [`traveltime_plot()`](https://giacfalk.github.io/locationallocation/reference/traveltime_plot.md)
@@ -83,7 +95,6 @@ if (FALSE) { # \dontrun{
     naples_fountains |>
     traveltime(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
       mode = "walk",
       res_output = 100
     )

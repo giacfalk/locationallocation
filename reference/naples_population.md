@@ -1,7 +1,8 @@
-# Population density in the city of Naples, Italy
+# Population in the city of Naples, Italy
 
 A [`RasterLayer`](https://rdrr.io/pkg/raster/man/raster.html) object
-representing the population density in the city of Naples, Italy.
+with the number of people per grid cell (3 arc-seconds, ~90 meters) in
+the city of Naples, Italy.
 
 The dataset is based on the Global Human Settlement Layer
 ([GHSL](https://human-settlement.emergency.copernicus.eu)) population
