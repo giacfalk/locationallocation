@@ -10,8 +10,8 @@
 ## Test environments
 
 * Local: Windows 11, R 4.5.3.
-* GitHub Actions: macOS (R release), Windows (R release), Ubuntu (R devel,
-  release, and oldrel-1).
+* GitHub Actions: macOS (R release), Windows (R release), Ubuntu (R release
+  and oldrel-1).
 
 ## Comments
 
