@@ -18,14 +18,15 @@ traveltime_plot(
 \item{traveltime}{A \code{\link[base:list]{list}} with the output of the
 \code{\link[=traveltime]{traveltime()}} function.}
 
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
 
-\item{facilities}{A \code{\link[sf:st_as_sf]{sf}} object with the existing
-facilities.}
+\item{facilities}{(optional) A \code{\link[sf:st_as_sf]{sf}} object with the
+facilities to plot (default: \code{NULL}).}
 
-\item{contour_traveltime}{(optional) A number indicating the contour
-thresholds for the travel time (default: \code{15}).}
+\item{contour_traveltime}{(optional) A \code{\link[base:numeric]{numeric}} vector
+indicating the travel time thresholds (in minutes) at which to draw
+contour lines, or \code{NULL} for no contours (default: \code{15}).}
 
 \item{annotation_location}{(optional) A \code{\link[base:character]{character}} string
 specifying the location of the annotation on the plot. See
@@ -41,13 +42,13 @@ indicating whether to include a north arrow annotation on the plot
 (default: \code{TRUE}).}
 }
 \value{
-A \code{\link[ggplot2:ggplot]{ggplot2}} plot showing the travel time from
-the  facilities to the area of interest.
+A \code{\link[ggplot2:ggplot]{ggplot2}} plot showing the travel time to
+the nearest facility.
 }
 \description{
-\code{traveltime_plot()} plot the results of the \code{\link[=traveltime]{traveltime()}}
-function, showing the travel time from the facilities to the area of
-interest.
+\code{traveltime_plot()} plots the results of the \code{\link[=traveltime]{traveltime()}}
+function, showing the travel time to the nearest facility across the area
+of interest.
 }
 \examples{
 \dontrun{
@@ -55,7 +56,6 @@ interest.
     naples_fountains |>
     traveltime(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
       mode = "walk",
       res_output = 100
     )
@@ -69,6 +69,7 @@ interest.
 }
 \seealso{
 Other travel time functions: 
+\code{\link{default_road_speeds}()},
 \code{\link{friction}()},
 \code{\link{traveltime}()},
 \code{\link{traveltime_stats}()}

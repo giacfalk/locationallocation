@@ -2,28 +2,32 @@
 % Please edit documentation in R/mask_raster_to_polygon.R
 \name{mask_raster_to_polygon}
 \alias{mask_raster_to_polygon}
-\title{Mask a \code{RasterLayer} object to a \code{sf} object}
+\title{Mask a raster to a polygon or to another raster}
 \usage{
 mask_raster_to_polygon(ras, mask, inverse = FALSE, updatevalue = NA)
 }
 \arguments{
-\item{ras}{A \code{\link[raster:raster]{RasterLayer}} object.}
+\item{ras}{A \code{\link[raster:raster]{RasterLayer}} or
+\code{\link[terra:rast]{SpatRaster}} object.}
 
-\item{mask}{A \code{\link[raster:raster]{RasterLayer}} or \code{\link[sf:st_as_sf]{sf}}
-object.}
+\item{mask}{A \code{\link[sf:st_as_sf]{sf}} object with \code{POLYGON} or
+\code{MULTIPOLYGON} geometries, or a \code{\link[raster:raster]{RasterLayer}} or
+\code{\link[terra:rast]{SpatRaster}} object with the same geometry as \code{ras}.}
 
-\item{inverse}{A \code{\link[base:logical]{logical}} flag. If \code{TRUE}, the mask
-is inverted (default: \code{FALSE}).}
+\item{inverse}{(optional) A \code{\link[base:logical]{logical}} flag. If \code{TRUE},
+the mask is inverted, i.e., cells \emph{inside} the polygon are masked
+(default: \code{FALSE}).}
 
-\item{updatevalue}{The value to update the \code{\link[raster:raster]{RasterLayer}}
-object with (default: \code{NA}).}
+\item{updatevalue}{(optional) The value assigned to the masked cells
+(default: \code{NA}).}
 }
 \value{
-A masked \code{\link[raster:raster]{RasterLayer}} object.
+A masked raster of the same class as \code{ras}.
 }
 \description{
-This function rapidly masks a \code{\link[raster:raster]{RasterLayer}} object to
-a \code{\link[sf:st_as_sf]{sf}} object.
+\code{mask_raster_to_polygon()} sets to \code{updatevalue} (default: \code{NA}) all cells
+of a raster that fall outside a \code{\link[sf:st_as_sf]{sf}} polygon (or that are
+\code{NA} in another raster).
 }
 \examples{
 naples_population |> mask_raster_to_polygon(naples_shape)

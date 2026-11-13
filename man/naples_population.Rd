@@ -3,7 +3,7 @@
 \docType{data}
 \name{naples_population}
 \alias{naples_population}
-\title{Population density in the city of Naples, Italy}
+\title{Population in the city of Naples, Italy}
 \format{
 A \code{\link[raster:raster]{RasterLayer}} object with 1 layer.
 }
@@ -15,8 +15,8 @@ Global Human Settlement Layer
 naples_population
 }
 \description{
-A \code{\link[raster:raster]{RasterLayer}} object representing the population
-density in the city of Naples, Italy.
+A \code{\link[raster:raster]{RasterLayer}} object with the number of people per
+grid cell (3 arc-seconds, ~90 meters) in the city of Naples, Italy.
 
 The dataset is based on the Global Human
 Settlement Layer

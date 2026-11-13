@@ -1,19 +1,23 @@
-#' Mask a `RasterLayer` object to a `sf` object
+#' Mask a raster to a polygon or to another raster
 #'
 #' @description
 #'
-#' This function rapidly masks a [`RasterLayer`][raster::raster()] object to
-#' a [`sf`][sf::st_as_sf()] object.
+#' `mask_raster_to_polygon()` sets to `updatevalue` (default: `NA`) all cells
+#' of a raster that fall outside a [`sf`][sf::st_as_sf()] polygon (or that are
+#' `NA` in another raster).
 #'
-#' @param ras A [`RasterLayer`][raster::raster()] object.
-#' @param mask A [`RasterLayer`][raster::raster()] or [`sf`][sf::st_as_sf()]
-#' object.
-#' @param inverse A [`logical`][base::logical()] flag. If `TRUE`, the mask
-#'   is inverted (default: `FALSE`).
-#' @param updatevalue The value to update the [`RasterLayer`][raster::raster()]
-#'   object with (default: `NA`).
+#' @param ras A [`RasterLayer`][raster::raster()] or
+#'   [`SpatRaster`][terra::rast()] object.
+#' @param mask A [`sf`][sf::st_as_sf()] object with `POLYGON` or
+#'   `MULTIPOLYGON` geometries, or a [`RasterLayer`][raster::raster()] or
+#'   [`SpatRaster`][terra::rast()] object with the same geometry as `ras`.
+#' @param inverse (optional) A [`logical`][base::logical()] flag. If `TRUE`,
+#'   the mask is inverted, i.e., cells *inside* the polygon are masked
+#'   (default: `FALSE`).
+#' @param updatevalue (optional) The value assigned to the masked cells
+#'   (default: `NA`).
 #'
-#' @return A masked [`RasterLayer`][raster::raster()] object.
+#' @return A masked raster of the same class as `ras`.
 #'
 #' @family utility functions
 #' @keywords masking
@@ -27,45 +31,34 @@ mask_raster_to_polygon <- function(
   inverse = FALSE,
   updatevalue = NA
 ) {
-  checkmate::assert_class(ras, "RasterLayer")
-  checkmate::assert_multi_class(mask, c("Raster", "sf"))
+  checkmate::assert_multi_class(ras, c("RasterLayer", "SpatRaster"))
+  checkmate::assert_multi_class(mask, c("Raster", "SpatRaster", "sf", "sfc"))
   checkmate::assert_flag(inverse)
   checkmate::assert_atomic(updatevalue, len = 1)
 
-  if (inherits(mask, "sf")) {
-    test <-
-      mask |>
-      sf::st_geometry_type() |>
-      as.character() |>
-      magrittr::is_in(c("POLYGON", "MULTIPOLYGON"))
+  out <- as_spatraster(ras)
 
-    if (isFALSE(test)) {
-      cli::cli_abort(
-        paste0(
-          "The {.strong {cli::col_red('mask')}} parameter ",
-          "must be a {.strong sf} object of type ",
-          "{.strong POLYGON} or {.strong MULTIPOLYGON}."
-        )
-      )
+  if (inherits(mask, c("sf", "sfc"))) {
+    assert_bb_area(mask)
+
+    if (!is.na(sf::st_crs(mask)) && terra::crs(out) != "") {
+      mask <- sf::st_transform(mask, terra::crs(out))
     }
 
-    mask <-
-      mask |>
-      sf::st_crop(
-        c(
-          xmin = raster::xmin(ras),
-          ymin = raster::ymin(ras),
-          xmax = raster::xmax(ras),
-          ymax = raster::ymax(ras)
-        )
-      ) |>
-      sf::st_cast() |>
-      terra::vect() |>
-      suppressWarnings()
+    mask <- terra::vect(mask)
+    terra::crs(mask) <- terra::crs(out)
+    mask <- terra::crop(mask, terra::ext(out))
+  } else {
+    mask <- as_spatraster(mask)
+    terra::crs(mask) <- terra::crs(out)
   }
 
-  ras |>
-    terra::rast() |>
-    terra::mask(mask, inverse = inverse) |>
-    raster::raster()
+  out <- terra::mask(
+    out,
+    mask,
+    inverse = inverse,
+    updatevalue = updatevalue
+  )
+
+  if (inherits(ras, "RasterLayer")) raster::raster(out) else out
 }

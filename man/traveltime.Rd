@@ -8,67 +8,93 @@ traveltime(
   facilities,
   bb_area,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   cache = FALSE,
-  file = NULL
+  file = NULL,
+  roads = NULL,
+  road_speeds = default_road_speeds()
 )
 }
 \arguments{
 \item{facilities}{A \code{\link[sf:st_as_sf]{sf}} object with the existing
-facilities.}
+facilities (\code{POINT} geometries).}
 
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
 
 \item{mode}{(optional) A \code{\link[base:character]{character}} string indicating
-the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default =
+the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default:
 \code{"walk"}).
 \itemize{
 \item For \code{"fastest"}: The friction layer accounts for multiple modes of
-transport, including walking, cycling, driving, and public transport, and are
-based on the Malaria Atlas Project (2019) \emph{Global Travel Speed Friction
+transport, including walking and driving. At the native resolution, it
+is the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
 Surface}.
 \item For \code{"walk"}: The friction layer accounts only for walking speeds and is
-based on the Malaria Atlas Project (2015) \emph{Global Walking Only Friction
+based on the Malaria Atlas Project (2020) \emph{Global Walking Only Friction
 Surface}.
 }}
 
-\item{dowscaling_model_type}{(optional) A \code{\link[base:character]{character}}
-string indicating the type of model used for the spatial downscaling of the
-friction layer. Options are \code{"lm"} (linear model) and \code{"rf"} (random
-forest) (default: \code{"lm"}).}
+\item{dowscaling_model_type}{Deprecated and ignored. The friction surface
+is no longer downscaled with a statistical model (see \emph{Details}).}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
-resolution is less than \code{1000}, a spatial downscaling approach is used
-(default: \code{100}).}
+resolution of the friction raster (and of the analysis), in meters. See
+\emph{Details} (default: \code{100}).}
 
-\item{cache}{(optional) A \code{\link[base:logical]{logical}} flag
-indicating whether to cache the downloaded friction data for future use
-(default: \code{TRUE}).}
+\item{cache}{(optional) A \code{\link[base:logical]{logical}} flag indicating
+whether to cache downloaded data (friction surface of the area, road
+network) on disk and reuse it in later calls. It also enables a fallback
+to a one-time download of the global friction surface (~730 MB) when the
+Malaria Atlas Project service is unavailable. See \emph{Details} of
+\code{\link[=friction]{friction()}} (default: \code{FALSE}).}
 
 \item{file}{(optional) A \code{\link[base:character]{character}} string indicating
-the path to a local friction surface raster file. If provided, the
-function will use this file instead of downloading the friction data.}
+the path to a local Malaria Atlas Project friction surface raster file,
+used instead of downloading it: the walking-only surface, except with
+\code{mode = "fastest"} and \code{res_output >= 1000}, where it is the travel speed
+surface (default: \code{NULL}).}
+
+\item{roads}{(optional) A \code{\link[sf:st_as_sf]{sf}} object with the road
+network (\code{LINESTRING} or \code{MULTILINESTRING} geometries), used when
+\code{mode = "fastest"} and \code{res_output < 1000}. It must have either a
+\code{speed} column with speeds in km/h, or a \code{highway} column with
+OpenStreetMap road classes, which are converted to speeds with
+\code{road_speeds}. If \code{NULL}, the road network is downloaded from
+OpenStreetMap (default: \code{NULL}).}
+
+\item{road_speeds}{(optional) A named \code{\link[base:numeric]{numeric}} vector
+with the speed (km/h) of each OpenStreetMap road class (\code{highway} tag).
+Road classes not in \code{road_speeds} are ignored (default:
+\code{\link[=default_road_speeds]{default_road_speeds()}}).}
 }
 \value{
-An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
-following elements:
+An \link[base:invisible]{invisible} \code{\link[base:list]{list}} of class
+\code{traveltime} with the following elements:
 \itemize{
 \item \code{travel_time}: A \code{\link[raster:raster]{RasterLayer}} object with the travel
-time map.
+time (in minutes) to the nearest facility.
 \item \code{friction}: A \code{\link[base:list]{list}} with the outputs of the
 \code{\link[=friction]{friction()}} function.
 }
 }
 \description{
-\code{traveltime()} generates a travel time map based on the input facilities,
-bounding box area, and travel mode.
+\code{traveltime()} generates a map of the travel time (in minutes) to the
+nearest facility, based on the input facilities, area of interest, and
+travel mode.
 
 See the \code{\link[=friction]{friction()}} function for details on how the friction
 layer is generated.
+}
+\details{
+All facilities within the extent of the friction surface (i.e., the
+bounding box of \code{bb_area}) are used as sources, including those located
+just outside the boundary of \code{bb_area}, since they can still serve demand
+within it. The resulting travel time map is masked to \code{bb_area}. Cells that
+cannot be reached from any facility (e.g., cells with no friction data, such
+as open water) have an infinite travel time.
 }
 \examples{
 \dontrun{
@@ -78,12 +104,11 @@ layer is generated.
     naples_fountains |>
     traveltime(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
       mode = "walk",
       res_output = 100
     )
 
-  traveltime_data |> glimpse()
+  traveltime_data
 
   traveltime_data |>
     traveltime_plot(
@@ -94,9 +119,10 @@ layer is generated.
 }
 \seealso{
 Other travel time functions: 
+\code{\link{default_road_speeds}()},
 \code{\link{friction}()},
 \code{\link{traveltime_plot}()},
 \code{\link{traveltime_stats}()}
 }
 \concept{travel time functions}
-\keyword{cats}
+\keyword{spatial}

@@ -1,3 +1,5 @@
+
+
 # locationallocation <a href = "https://giacfalk.github.io/locationallocation/"><img src = "man/figures/logo.png" align="right" width="120" /></a>
 
 <!-- quarto render -->
@@ -5,6 +7,7 @@
 <!-- Install the package before rendering this file: `devtools::install()` -->
 
 <!-- badges: start -->
+
 [![Project Status: Active - The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -40,6 +43,34 @@ infrastructure assessment and planning (public services provision,
 e.g. transport, social services, healthcare, parks), urban environmental
 and climate risk reduction interventions, logistics and hubs allocation,
 commercial and strategic decisions.
+
+### How it works
+
+- **Travel time.** Travel times are least-cost paths over the global
+  friction surfaces of the [Malaria Atlas
+  Project](https://malariaatlas.org/) (MAP), for walking or for the
+  fastest mode of transport. At resolutions finer than their native ~1
+  km, the surfaces are produced with the same rule used to build them
+  (the fastest mode available in a cell takes precedence), using road
+  speeds from [OpenStreetMap](https://www.openstreetmap.org/) for the
+  fastest mode.
+- **Allocation.** New facilities are added so as to maximize the share
+  of (optionally weighted) demand that can reach a facility within a
+  travel time threshold, until a target share is covered or a maximum
+  number of facilities is reached. Facilities can be placed anywhere
+  within the study area (continuous problem,
+  [`allocation()`](https://giacfalk.github.io/locationallocation/reference/allocation.html))
+  or chosen among candidate locations (discrete problem,
+  [`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation.html)).
+  Both problems are solved with a greedy heuristic, which adds at each
+  step the location covering the most demand not yet covered ([Church &
+  ReVelle, 1974](https://doi.org/10.1007/BF01942293)), refined by
+  swapping locations as long as coverage improves ([Teitz & Bart,
+  1968](https://doi.org/10.1287/opre.16.5.955)).
+- **Online data.** Friction surfaces and road networks are downloaded on
+  demand, with fallbacks (retries, mirrors, and a fallback surface) when
+  online services are unavailable. Set `cache = TRUE` to store the
+  downloaded data and reuse it in later calls.
 
 > If you find this project useful, please consider giving it a star!  
 > [![GitHub Repository
@@ -98,17 +129,38 @@ function to create a map of current accessibility to the facility points
 [`naples_fountains`](https://giacfalk.github.io/locationallocation/reference/naples_fountains.html))
 within the specified geographical boundaries. The function allows the
 user to select a travel mode (walking or fastest route) and an output
-spatial resolution in meters, achieved through [dissevering spatial
-downscaling techniques](https://doi.org/10.1016/j.cageo.2011.08.021).
+spatial resolution in meters. At resolutions finer than the ~1 km
+friction surfaces of the Malaria Atlas Project, the surface is produced
+following the rules used by the Malaria Atlas Project, with road speeds
+from [OpenStreetMap](https://www.openstreetmap.org/) for the fastest
+mode (see the
+[`friction()`](https://giacfalk.github.io/locationallocation/reference/friction.html)
+documentation).
 
 ``` r
 traveltime_data <-
   naples_fountains |>
   traveltime(
     bb_area = naples_shape,
-    dowscaling_model_type = "lm",
     mode = "walk",
     res_output = 100
+  )
+```
+
+For the fastest mode of transport (walking, cycling, and driving), set
+`mode = "fastest"`. Speeds of the OpenStreetMap road classes can be
+changed with the `road_speeds` argument (see
+[`default_road_speeds()`](https://giacfalk.github.io/locationallocation/reference/default_road_speeds.html)),
+and `cache = TRUE` stores the downloaded data for later calls:
+
+``` r
+traveltime_data_fastest <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    mode = "fastest",
+    res_output = 100,
+    cache = TRUE
   )
 ```
 
@@ -132,7 +184,7 @@ traveltime_data |>
 We can also generate a summary plot and compute statistics using the
 output of the
 [`traveltime()`](https://giacfalk.github.io/locationallocation/reference/traveltime.html)
-function, together with a demand raster (e.g., population density) and a
+function, together with a demand raster (e.g., population counts) and a
 specified time threshold, using the
 [`traveltime_stats`](https://giacfalk.github.io/locationallocation/reference/traveltime_stats.html)
 function:
@@ -144,7 +196,7 @@ traveltime_data |>
     breaks = c(5, 10, 15, 30),
     objectiveminutes = 15
   )
-#> ℹ 85.45148% of coverage within the 15 minutes threshold.
+#> ℹ 90.14038% of coverage within the 15 minutes threshold.
 ```
 
 ![](man/figures/traveltime-stats-1.png)
@@ -154,7 +206,13 @@ We can now use the
 function to optimize the placement of new water fountains, ensuring that
 (virtually) everyone (i.e., the full extent of the raster layer
 specified by the `demand` parameter) can reach one within 15 minutes, as
-defined by the `objectiveminutes` parameter:
+defined by the `objectiveminutes` parameter. At each step, the function
+evaluates the actual catchment of a shortlist of promising locations and
+adds the one that covers the most demand not yet covered; the solution
+is then refined by moving facilities while coverage improves (see the
+[function
+documentation](https://giacfalk.github.io/locationallocation/reference/allocation.html)
+for details):
 
 ``` r
 allocation_data <-
@@ -166,21 +224,26 @@ allocation_data <-
     weights = NULL,
     objectiveminutes = 15,
     objectiveshare = 0.99,
-    heur = "max",
+    heur = "kd",
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1
   )
 ```
 
-    #> ✔ Target coverage share of 99% attained with 28 facilities within the 15
-    #> minutes threshold. The achieved coverage share is 99.03953%.
+    #> ✔ Target coverage share of 99% attained with 9 new facilities within the 15
+    #> minutes threshold. The achieved coverage share is 99.11092%.
 
 ``` r
-allocation_data |> allocation_plot(naples_shape)
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 ```
 
 ![](man/figures/allocation-plot-1-1.png)
+
+The new facilities are shown as filled dots and the existing ones as
+hollow dots. To allocate a fixed number of new facilities instead, set
+`objectiveshare = NULL` and use the `n_fac` parameter.
 
 Note that it is also possible to solve an allocation problem using the
 `weights` parameter, which assigns greater relative importance or
@@ -198,18 +261,19 @@ allocation_data <-
     weights = naples_hot_days, # <--- Changed
     objectiveminutes = 15,
     objectiveshare = 0.99,
-    heur = "max",
+    heur = "kd",
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1
   )
 ```
 
-    #> ✔ Target coverage share of 99% attained with 25 facilities within the 15
-    #> minutes threshold. The achieved coverage share is 99.16903%.
+    #> ✔ Target coverage share of 99% attained with 9 new facilities within the 15
+    #> minutes threshold. The achieved coverage share is 99.16364%.
 
 ``` r
-allocation_data |> allocation_plot(naples_shape)
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 ```
 
 ![](man/figures/allocation-plot-2-1.png)
@@ -231,18 +295,19 @@ allocation_data <-
     weights = naples_hot_days,
     objectiveminutes = 15,
     objectiveshare = 0.99,
-    heur = "max",
+    heur = "kd",
     approach = "norm",
     exp_demand = 2, # <--- Changed
     exp_weights = 1
   )
 ```
 
-    #> ✔ Target coverage share of 99% attained with 9 facilities within the 15
-    #> minutes threshold. The achieved coverage share is 99.15597%.
+    #> ✔ Target coverage share of 99% attained with 6 new facilities within the 15
+    #> minutes threshold. The achieved coverage share is 99.06013%.
 
 ``` r
-allocation_data |> allocation_plot(naples_shape)
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 ```
 
 ![](man/figures/allocation-plot-3-1.png)
@@ -253,12 +318,14 @@ across the study area as in the previous example.
 
 In this case, the user must provide a set of candidate points via the
 `candidate` parameter of the
-[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation_discrete.html)
+[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation.html)
 function, along with the maximum number of facilities that can be
-selected (`n_fac` parameter). The function applies a quasi-optimality
-heuristic based on a randomization approach, where the number of
-replications (`n_samples` parameter) gradually approaches the global
-optimum, although computational time increases linearly. As with the
+selected (`n_fac` parameter). The function computes the travel time from
+each candidate location once, and then selects the candidates with a
+greedy heuristic (adding, at each step, the candidate that covers the
+most demand not yet covered), refined by swapping selected and
+non-selected candidates as long as coverage improves. The solution is
+deterministic and usually optimal or near-optimal. As with the
 continuous allocation problem, a weight layer and normalization and
 exponentiation parameters can also be specified.
 
@@ -272,7 +339,6 @@ allocation_data <-
     candidate = naples_shape |> st_sample(20),
     facilities = naples_fountains,
     n_fac = 5,
-    n_samples = 100,
     traveltime = traveltime_data,
     weights = NULL,
     objectiveminutes = 15,
@@ -284,18 +350,20 @@ allocation_data <-
   )
 ```
 
-    #> ℹ 5 facilities allocated within the 15 minutes threshold. The maximum
-    #> coverage share attained was 88.76062%.
+    #> ℹ 5 facilities allocated within the 15 minutes threshold. The coverage share
+    #> attained is 94.67013%.
 
 ``` r
-allocation_data |> allocation_plot(naples_shape)
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 ```
 
 ![](man/figures/allocation-plot-4-1.png)
 
-Now consider a scenario where the user wants to choose up to `n_fac`
-facilities to meet a target `objectiveshare` of the total demand,
-assuming that level of coverage is actually attainable.
+Now consider a scenario where the user wants to choose as few facilities
+as possible, up to `n_fac`, to meet a target `objectiveshare` of the
+total demand. If the target cannot be attained with the candidate
+locations, the function reports the maximum coverage reached.
 
 ``` r
 library(sf)
@@ -306,12 +374,11 @@ allocation_data <-
     bb_area = naples_shape,
     candidate = naples_shape |> st_sample(20),
     facilities = naples_fountains,
-    n_fac = 5,
-    n_samples = 100,
+    n_fac = 10,
     traveltime = traveltime_data,
     weights = NULL,
     objectiveminutes = 15,
-    objectiveshare = 0.9,
+    objectiveshare = 0.92,
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1,
@@ -319,11 +386,12 @@ allocation_data <-
   )
 ```
 
-    #> ✔ Target coverage share of 90% attained with 2 facilities within the 15
-    #> minutes threshold. The achieved coverage share is 90.20134%.
+    #> ✔ Target coverage share of 92% attained with 3 new facilities within the 15
+    #> minutes threshold. The achieved coverage share is 92.65155%.
 
 ``` r
-allocation_data |> allocation_plot(naples_shape)
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 ```
 
 ![](man/figures/allocation-plot-5-1.png)
@@ -332,6 +400,8 @@ Finally, consider a case with no preexisting facilities. The discrete
 location-allocation problem must then identify where to place new
 facilities to cover as much demand as possible, given the limited set of
 spatial options and the cap on how many facilities can be allocated.
+Since no travel time layer is supplied, the friction surface is computed
+first.
 
 ``` r
 library(sf)
@@ -343,11 +413,10 @@ allocation_data <-
     candidate = naples_shape |> st_sample(20),
     facilities = NULL,
     n_fac = 5,
-    n_samples = 100,
     traveltime = NULL,
     weights = NULL,
     objectiveminutes = 15,
-    objectiveshare = 0.45,
+    objectiveshare = NULL,
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1,
@@ -355,8 +424,8 @@ allocation_data <-
   )
 ```
 
-    #> ✔ Target coverage share of 45% attained with 2 facilities within the 15
-    #> minutes threshold. The achieved coverage share is 46.40227%.
+    #> ℹ 5 facilities allocated within the 15 minutes threshold. The coverage share
+    #> attained is 37.41124%.
 
 ``` r
 allocation_data |> allocation_plot(naples_shape)
@@ -379,14 +448,17 @@ citation("locationallocation")
 #>   planning problems [Preprint, manuscript submitted for
 #>   publication]. EarthArXiv. https://doi.org/10.31223/X5XQ69
 #> 
+#> Una voce BibTeX per gli utenti LaTeX è
 #> 
-#> @misc{falchetta_locationallocation_2025,
-#>   author       = {Falchetta, Giacomo and Vartanian, Daniel},
-#>   title        = {locationallocation: an R package to solve Maximal Coverage Location-Allocation problems},
-#>   year         = {2025},
-#>   howpublished = {\url{https://github.com/giacfalk/locationallocation}},
-#>   note         = {GitHub repository},
-#> }
+#>   @Article{falchetta2025,
+#>     title = {locationallocation: Solving Maximal Coverage Location-Allocation geospatial infrastructure assessment and planning problems},
+#>     author = {Giacomo Falchetta},
+#>     year = {2025},
+#>     journal = {EarthArXiv},
+#>     doi = {10.31223/X5XQ69},
+#>     langid = {en},
+#>     note = {Preprint, manuscript submitted for publication},
+#>   }
 ```
 
 ## License
@@ -394,7 +466,7 @@ citation("locationallocation")
 [![](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ``` text
-Copyright (C) 2025 Giacomo Falchetta, Daniel Vartanian
+Copyright (C) 2025 Giacomo Falchetta
 
 locationallocation is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any

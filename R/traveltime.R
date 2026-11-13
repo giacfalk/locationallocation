@@ -2,24 +2,34 @@
 #'
 #' @description
 #'
-#' `traveltime()` generates a travel time map based on the input facilities,
-#' bounding box area, and travel mode.
+#' `traveltime()` generates a map of the travel time (in minutes) to the
+#' nearest facility, based on the input facilities, area of interest, and
+#' travel mode.
 #'
 #' See the [`friction()`][friction] function for details on how the friction
 #' layer is generated.
 #'
+#' @details
+#'
+#' All facilities within the extent of the friction surface (i.e., the
+#' bounding box of `bb_area`) are used as sources, including those located
+#' just outside the boundary of `bb_area`, since they can still serve demand
+#' within it. The resulting travel time map is masked to `bb_area`. Cells that
+#' cannot be reached from any facility (e.g., cells with no friction data, such
+#' as open water) have an infinite travel time.
+#'
 #' @template params-facilities
 #' @inheritParams friction
 #'
-#' @return An [invisible][base::invisible] [`list`][base::list] with the
-#'   following elements:
+#' @return An [invisible][base::invisible] [`list`][base::list] of class
+#'   `traveltime` with the following elements:
 #'   - `travel_time`: A [`RasterLayer`][raster::raster()] object with the travel
-#'     time map.
+#'     time (in minutes) to the nearest facility.
 #'   - `friction`: A [`list`][base::list] with the outputs of the
 #'     [`friction()`][friction] function.
 #'
 #' @family travel time functions
-#' @keywords cats
+#' @keywords spatial
 #' @export
 #'
 #' @examples
@@ -30,12 +40,11 @@
 #'     naples_fountains |>
 #'     traveltime(
 #'       bb_area = naples_shape,
-#'       dowscaling_model_type = "lm",
 #'       mode = "walk",
 #'       res_output = 100
 #'     )
 #'
-#'   traveltime_data |> glimpse()
+#'   traveltime_data
 #'
 #'   traveltime_data |>
 #'     traveltime_plot(
@@ -47,44 +56,58 @@ traveltime <- function(
   facilities,
   bb_area,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   cache = FALSE,
-  file = NULL
+  file = NULL,
+  roads = NULL,
+  road_speeds = default_road_speeds()
 ) {
   assert_facilities(facilities)
   assert_bb_area(bb_area)
-  checkmate::assert_choice(dowscaling_model_type, choices = c("lm", "rf"))
   checkmate::assert_choice(mode, choices = c("walk", "fastest"))
-  checkmate::assert_count(res_output)
+  warn_dowscaling_model_type(dowscaling_model_type)
+  checkmate::assert_count(res_output, positive = TRUE)
+  checkmate::assert_flag(cache)
   checkmate::assert_string(file, null.ok = TRUE)
 
-  sf::sf_use_s2(TRUE)
+  facilities <- as_wgs84(facilities)
+  bb_area <- as_wgs84(bb_area)
 
   friction_data <-
     bb_area |>
     friction(
       mode = mode,
       res_output = res_output,
-      dowscaling_model_type = dowscaling_model_type,
       cache = cache,
-      file = file
+      file = file,
+      roads = roads,
+      road_speeds = road_speeds
     )
 
-  points <-
-    facilities |>
-    facilities_coordinates(bb_area) |>
-    as.matrix()
+  points <- points_xy(facilities, within = friction_data$friction_layer)
+
+  if (nrow(points) == 0) {
+    cli::cli_abort(
+      paste0(
+        "None of the {.strong facilities} fall within the extent of ",
+        "{.strong bb_area}."
+      )
+    )
+  }
 
   cli::cli_progress_step("Computing travel time map")
 
   # Run the accumulated cost algorithm to make the final output map.
-  # This can be quite slow (potentially hours).
+  # This can be quite slow (potentially hours) for large areas.
   travel_time <-
-    friction_data[[3]] |>
+    friction_data$geocorrection_matrix |>
     gdistance::accCost(points) |>
-    mask_raster_to_polygon(bb_area) |>
-    raster::`crs<-`(value = "+proj=longlat +datum=WGS84 +no_defs +type=crs")
+    mask_raster_to_polygon(bb_area)
+
+  names(travel_time) <- "travel_time"
+
+  cli::cli_progress_done()
 
   list(
     travel_time = travel_time,

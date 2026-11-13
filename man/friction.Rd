@@ -2,59 +2,76 @@
 % Please edit documentation in R/friction.R
 \name{friction}
 \alias{friction}
-\title{Download and downscale a friction surface layer}
+\title{Download a friction surface at the resolution of the analysis}
 \usage{
 friction(
   bb_area,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   cache = FALSE,
-  file = NULL
+  file = NULL,
+  roads = NULL,
+  road_speeds = default_road_speeds()
 )
 }
 \arguments{
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
 
 \item{mode}{(optional) A \code{\link[base:character]{character}} string indicating
-the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default =
+the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default:
 \code{"walk"}).
 \itemize{
 \item For \code{"fastest"}: The friction layer accounts for multiple modes of
-transport, including walking, cycling, driving, and public transport, and are
-based on the Malaria Atlas Project (2019) \emph{Global Travel Speed Friction
+transport, including walking and driving. At the native resolution, it
+is the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
 Surface}.
 \item For \code{"walk"}: The friction layer accounts only for walking speeds and is
-based on the Malaria Atlas Project (2015) \emph{Global Walking Only Friction
+based on the Malaria Atlas Project (2020) \emph{Global Walking Only Friction
 Surface}.
 }}
 
-\item{dowscaling_model_type}{(optional) A \code{\link[base:character]{character}}
-string indicating the type of model used for the spatial downscaling of the
-friction layer. Options are \code{"lm"} (linear model) and \code{"rf"} (random
-forest) (default: \code{"lm"}).}
+\item{dowscaling_model_type}{Deprecated and ignored. The friction surface
+is no longer downscaled with a statistical model (see \emph{Details}).}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
-resolution is less than \code{1000}, a spatial downscaling approach is used
-(default: \code{100}).}
+resolution of the friction raster (and of the analysis), in meters. See
+\emph{Details} (default: \code{100}).}
 
-\item{cache}{(optional) A \code{\link[base:logical]{logical}} flag
-indicating whether to cache the downloaded friction data for future use
-(default: \code{TRUE}).}
+\item{cache}{(optional) A \code{\link[base:logical]{logical}} flag indicating
+whether to cache downloaded data (friction surface of the area, road
+network) on disk and reuse it in later calls. It also enables a fallback
+to a one-time download of the global friction surface (~730 MB) when the
+Malaria Atlas Project service is unavailable. See \emph{Details} of
+\code{\link[=friction]{friction()}} (default: \code{FALSE}).}
 
 \item{file}{(optional) A \code{\link[base:character]{character}} string indicating
-the path to a local friction surface raster file. If provided, the
-function will use this file instead of downloading the friction data.}
+the path to a local Malaria Atlas Project friction surface raster file,
+used instead of downloading it: the walking-only surface, except with
+\code{mode = "fastest"} and \code{res_output >= 1000}, where it is the travel speed
+surface (default: \code{NULL}).}
+
+\item{roads}{(optional) A \code{\link[sf:st_as_sf]{sf}} object with the road
+network (\code{LINESTRING} or \code{MULTILINESTRING} geometries), used when
+\code{mode = "fastest"} and \code{res_output < 1000}. It must have either a
+\code{speed} column with speeds in km/h, or a \code{highway} column with
+OpenStreetMap road classes, which are converted to speeds with
+\code{road_speeds}. If \code{NULL}, the road network is downloaded from
+OpenStreetMap (default: \code{NULL}).}
+
+\item{road_speeds}{(optional) A named \code{\link[base:numeric]{numeric}} vector
+with the speed (km/h) of each OpenStreetMap road class (\code{highway} tag).
+Road classes not in \code{road_speeds} are ignored (default:
+\code{\link[=default_road_speeds]{default_road_speeds()}}).}
 }
 \value{
 An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
 following elements:
 \itemize{
 \item \code{friction_layer}: A \code{\link[raster:raster]{RasterLayer}} object with the
-friction surface layer.
+friction surface layer (minutes per meter).
 \item \code{transition_matrix}: A \code{\link[gdistance:transition]{TransitionLayer}} with
 the transition matrix for cost-distance calculations.
 \item \code{geocorrection_matrix}: A \code{\link[gdistance:transition]{TransitionLayer}}
@@ -65,15 +82,80 @@ with the geocorrection matrix for accurate distance calculations.
 \code{friction()} retrieves a
 \href{https://en.wikipedia.org/wiki/Friction_of_distance}{friction surface} layer
 from the Malaria Atlas Project (\href{https://malariaatlas.org/}{MAP}) database
-(Hay et al., 2006; Malaria Atlas Project, 2015, 2019) and optionally
-downscale it to the spatial resolution of the analysis using road network
-data from OpenStreetMap (n.d.) (\href{https://www.openstreetmap.org/}{OSM}).
+(Hay et al., 2006; Weiss et al., 2018, 2020) and produces it at the spatial
+resolution of the analysis, following the rules used to build the MAP
+surfaces.
 
-This function requires an active internet connection.
+Friction values are expressed in minutes required to travel one meter.
+
+An internet connection is required, unless the data are supplied via
+\code{file} and \code{roads}, or were cached by a previous call with \code{cache = TRUE}.
+}
+\details{
+\subsection{Spatial resolution}{
+
+The MAP surfaces have a resolution of 30 arc-seconds (~1 km). When
+\code{res_output >= 1000}, the surface of the chosen \code{mode} is used at its
+native resolution.
+
+When \code{res_output < 1000}, the surface is produced on a grid of about
+\code{res_output} meters following the rule used to build the MAP surfaces:
+within each cell, the fastest mode of transport takes precedence (Weiss et
+al., 2018).
+\itemize{
+\item \code{mode = "walk"}: MAP assigns the same walking speed (5 km/h) to roads and
+to urban land, so the road network adds no information at a finer
+resolution. The walking-only surface is resampled to the finer grid
+(nearest neighbor) without changing its values.
+\item \code{mode = "fastest"}: cells crossed by a road get the speed of the fastest
+road crossing them (see \code{road_speeds}). All other cells get the friction
+of the MAP walking-only surface, which accounts for land cover and slope.
+Railways, ferries and congestion are not modeled.
+}
+
+The road network is downloaded from OpenStreetMap
+(\href{https://www.openstreetmap.org/}{OSM}) through the Overpass API, unless it
+is supplied via \code{roads}.
+}
+
+\subsection{Online data and fallbacks}{
+
+Online services can be unavailable or overloaded. The friction surface is
+obtained from the first available of these sources:
+\enumerate{
+\item With \code{cache = TRUE}, the surface of the area cached by a previous call,
+or a cached copy of the global surface.
+\item The MAP data service (retried once).
+\item With \code{cache = TRUE}, a one-time download of the global surface (~730 MB)
+from a mirror on the Open Science Framework (\href{https://osf.io/}{OSF}),
+which is then cached.
+}
+
+If none is available, the error message suggests downloading the global
+surface manually and supplying it via \code{file}.
+
+The road network is obtained from the cache (with \code{cache = TRUE}) or from
+several public Overpass API servers in turn (each with a single attempt of
+at most ~2.5 minutes), skipping those that are unreachable or at capacity.
+If none responds, a warning is issued and the MAP travel speed surface
+(~1 km) is used on the finer grid instead.
+
+Cached data are stored in \code{\link[tools:userdir]{tools::R_user_dir("locationallocation", "cache")}}. The following options change the default
+behavior:
+\itemize{
+\item \code{locationallocation.cache_dir}: the cache directory.
+\item \code{locationallocation.overpass_urls}: the Overpass API servers to try, in
+order.
+\item \code{locationallocation.retry_wait}: the number of seconds to wait before
+retrying a failed download (default: \code{30}).
+}
+}
 }
 \examples{
 \dontrun{
   naples_shape |> friction()
+
+  naples_shape |> friction(mode = "fastest")
 }
 }
 \references{
@@ -81,11 +163,25 @@ Hay, S. I., & Snow, R. W. (2006). The Malaria Atlas Project: Developing
 global maps of malaria risk. \emph{PLOS Medicine}, \emph{3}(12), e473.
 \doi{10.1371/journal.pmed.0030473}
 
+Weiss, D. J., Nelson, A., Gibson, H. S., Temperley, W., Peedell, S., Lieber,
+A., Hancher, M., Poyart, E., Belchior, S., Fullman, N., Mappin, B.,
+Dalrymple, U., Rozier, J., Lucas, T. C. D., Howes, R. E., Tusting, L. S.,
+Kang, S. Y., Cameron, E., Bisanzio, D., ... Gething, P. W. (2018). A global
+map of travel time to cities to assess inequalities in accessibility in
+2015. \emph{Nature}, \emph{553}(7688), 333–336. \doi{10.1038/nature25181}
+
+Weiss, D. J., Nelson, A., Vargas-Ruiz, C. A., Gligorić, K., Bavadekar, S.,
+Gabrilovich, E., Bertozzi-Villa, A., Rozier, J., Gibson, H. S., Shekel, T.,
+Kamath, C., Lieber, A., Schulman, K., Shao, Y., Qarkaxhija, V., Nandi, A.
+K., Keddie, S. H., Rumisha, S., Amratia, P., ... Gething, P. W. (2020).
+Global maps of travel time to healthcare facilities. \emph{Nature Medicine},
+\emph{26}(12), 1835–1838. \doi{10.1038/s41591-020-1059-1}
+
 Malaria Atlas Project. (2015). \emph{Friction surface: Global travel speed
 friction surface} (Version 201501).
 \url{https://data.malariaatlas.org/maps}
 
-Malaria Atlas Project. (2019). \emph{Friction surface: Global walking only
+Malaria Atlas Project. (2020). \emph{Friction surface: Global walking only
 friction surface} (Version 202001).
 \url{https://data.malariaatlas.org/maps}
 
@@ -94,9 +190,10 @@ OpenStreetMap Foundation. (n.d.). \emph{OpenStreetMap} [Computer software].
 }
 \seealso{
 Other travel time functions: 
+\code{\link{default_road_speeds}()},
 \code{\link{traveltime}()},
 \code{\link{traveltime_plot}()},
 \code{\link{traveltime_stats}()}
 }
 \concept{travel time functions}
-\keyword{cats}
+\keyword{spatial}

@@ -205,38 +205,63 @@ $$J_{\text{unmet}} \gets J_{\text{unmet}} \setminus \{ j \mid d_{i^* j} \leq T \
 7: end for \
 8: return S \
 
-In the heuristics, to choose the location of the next facility
-allocation, two approaches are implemented:
+Since the travel time from a set of facilities is the minimum of the
+travel times from each of them, the demand covered by a set of
+facilities is the union of the catchments
+$\{ j \mid d_{ij} \leq T \}$ of its members. The package exploits this
+property in both versions of the problem:
 
-- Allocation based on maximum demand weight location at each iteration
-  $k$
+- **Discrete problem.** $I$ is a user-defined set of candidate
+  locations. The catchment of each candidate is computed once, so that
+  step 4 is evaluated exactly over all candidates.
 
-- Allocation based on maximum value of spatial kernel density map (using
-  a kernel function to fit a smoothly tapered surface to each point) of
-  demand weights location at each iteration $k$
+- **Continuous problem.** Any cell of the demand grid is a potential
+  location, and computing the catchment of each of them would be
+  prohibitive. At each iteration, a score of the uncovered demand
+  proposes a shortlist of promising locations (the local maxima of the
+  score): either the uncovered demand of each cell, or the uncovered
+  demand smoothed with a kernel whose bandwidth is the distance that can
+  be traveled within $T$, i.e., an estimate of the uncovered demand
+  within the catchment of each cell. The catchments of the shortlisted
+  locations are then computed, and step 4 is evaluated over all the
+  locations evaluated so far (lazy greedy heuristic).
 
-In the case of a discrete set of potential allocation sites, a random
-sampling approach is adopted, where the accessibility algorithm is
-implemented $r$ times, in each of which a set of $P*$ locations is drawn
-and the global demand coverage based on such facilities is calculated at
-the end of each iteration to gauge the best performing set of facilities
-in the discrete number of sets drawn from the discrete set of all the
-combinations of size $P*$ among the $P$ global set of candidate
-facilities.\
+The greedy solution is then refined by vertex substitution
+[@Teitz1968]: each selected facility is in turn replaced by the
+location that covers the most demand left uncovered by the other
+facilities, as long as such swaps increase the covered demand. In the
+continuous problem, new locations around each facility are evaluated at
+each pass (pattern search). When the objective is a target share of
+covered demand rather than a fixed number of facilities $P^{\star}$,
+facilities are added until the target is met and, in the continuous
+problem, then dropped as long as the refined solution still meets the
+target. The solutions are deterministic but, as with any heuristic, not
+guaranteed to be globally optimal.
 
 ## Software and data implementation {#software-and-data-implementation .unnumbered}
 
 The approach includes consideration of different travel modes and can be
-applied to any location in the world. A spatial statistical downscaling
-of \"disseving\" (based on the *dissever* R package [@Roudier2017])
-approach for the underlying friction surface data based on street
-network data from Open Street Map API is embedded in the package to
-perform location-allocation spatial optimization at a high
-spatial-resolution (particularly useful in urban-scale applications). A
-set of reporting functions and graphical outputs are pre-calculated as
-part of the package. The package further relies on *malariaAtlas* and
-*gdistance* functions, as well as on *raster*, *terra*, and *sf* object
-classes.\
+applied to any location in the world. The Malaria Atlas Project friction
+surfaces have a resolution of 30 arc-seconds (~1 km), and each of their
+pixels takes the speed of the fastest mode of transport available within
+it [@Weiss2018]. To perform location-allocation at a higher spatial
+resolution (particularly useful in urban-scale applications), the
+package produces the friction surface on a finer grid following the same
+rule. For walking, for which the Malaria Atlas Project assigns the same
+speed to roads and to urban land, the walking surface is resampled to
+the finer grid. For the fastest mode, cells crossed by an OpenStreetMap
+road are assigned the speed of the fastest road class crossing them (by
+default, the free-flow speeds of the car profile of the Open Source
+Routing Machine [@Luxen2011]), and all other cells the walking speed.
+Since these data are downloaded from online services, the package can
+cache them, and falls back to alternative sources (retries, mirrors, and
+a coarser surface) when a service is unavailable. Travel times are
+computed with the accumulated cost algorithm of the *gdistance* package
+[@gdistancepackage], on a routing graph built once per problem. A set of
+reporting functions and graphical outputs are included in the package.
+The package further relies on *malariaAtlas* [@malariaAtlaspackage],
+*osmdata*, and *igraph* functions, as well as on *raster*, *terra*, and
+*sf* object classes.\
 
 - **Friction layers:** Malaria Atlas friction surfaces: walking or
   fastest mode. These datasets provide 1-km resolution global gridded
@@ -260,112 +285,85 @@ The package core functions are the following:
 
 ``` {.r language="R"}
 
-traveltime(facilities, bb_area, dowscaling_model_type, mode, res_output = 100)
+traveltime(facilities, bb_area, mode = "walk", res_output = 100,
+cache = FALSE)
 ```
 
-The $traveltime$ function generates a travel time map based on the input
-facilities, bounding box area, and travel mode, having the following
-arguments:
+The $traveltime$ function generates a map of the travel time to the
+nearest facility based on the input facilities, area of interest, and
+travel mode, having the following arguments:
 
 - $facilities$: An sf object with the existing facilities.
 
-- $bb\_area$: A boundary box object with the area of interest.
+- $bb\_area$: An sf polygon with the area of interest.
 
-- dowscaling_model_type: The type of model used for the spatial
-  statistical downscaling of the travel time layer.
-
-- $mode$: The mode of transport.
+- $mode$: The mode of transport (walking or fastest).
 
 - $res\_output$: The spatial resolution of the friction raster (and of
-  the analysis), in meters. If \<1000, a spatial statistical downscaling
-  approach is used.
+  the analysis), in meters.
+
+- $cache$: Whether to cache the downloaded data for later use.
 
 ``` {.r language="R"}
 
-allocation(demand, traveltime = NULL, bb_area,
-facilities = facilities, weights = NULL,
-objectiveminutes = 10, objectiveshare = 0.99, heur = "max",
-dowscaling_model_type, mode, res_output)
+allocation(demand, bb_area, facilities, traveltime = NULL,
+weights = NULL, objectiveminutes = 15, objectiveshare = 0.99,
+heur = "kd", n_fac = Inf)
 ```
 
-The $allocation$ function is used to allocate facilities in a continuous
-location problem. It uses the accumulated cost algorithm to find the
-optimal location for the facilities based on the demand, travel time,
-and weights for the demand, and target travel time threshold and share
-of the demand to be covered, having the following arguments:
+The $allocation$ function allocates facilities in a continuous location
+problem, based on the demand, travel time, and weights for the demand,
+and on a target travel time threshold and either a target share of the
+demand to be covered or a maximum number of facilities, having the
+following arguments:
 
-- $demand\_raster$: A raster object with the demand for the service.
+- $demand$: A raster with the demand for the service (e.g.,
+  population).
 
-- $traveltime\_raster$: The output of the traveltime function. If not
-  provided, the function will run the traveltime function first.
+- $bb\_area$: An sf polygon with the area of interest.
 
-- $bb\_area$: A boundary box object with the area of interest.
+- $facilities$: An sf object with the existing facilities, or $NULL$.
 
-- $facilities$: An sf object with the existing facilities.
+- $traveltime$: The output of the $traveltime$ function, whose friction
+  surface is reused. If not provided, the friction surface is computed
+  first.
 
-- $weights$: A raster with the weights for the demand.
+- $weights$: A raster with weights for the demand (e.g., a hazard
+  layer).
 
-- $objectiveminutes$: The objective travel time in minutes.
+- $objectiveminutes$: The travel time threshold, in minutes.
 
 - $objectiveshare$: The share of the demand to be covered.
 
-- $heur$: The heuristic approach to be used. Options are \"max\"
-  (default) and \"kd\" (kernel density).
+- $heur$: The score used to shortlist promising locations: \"kd\"
+  (kernel-smoothed uncovered demand, default) or \"max\" (uncovered
+  demand of each cell).
 
-- $dowscaling\_model\_type$: The type of model used for the spatial
-  statistical downscaling of the travel time layer.
-
-- $mode$: The mode of transport.
-
-- $res\_output$: The spatial resolution of the friction raster (and of
-  the analysis), in meters. If \<1000, a spatial statistical downscaling
-  approach is used.
+- $n\_fac$: The maximum number of new facilities.
 
 ``` {.r language="R"}
 
-allocation_discrete(demand, traveltime = NULL, bb_area,
-facilities = NULL, candidate, n_fac = Inf, weights = NULL,
-objectiveminutes = 10, dowscaling_model_type, mode,
-res_output, n_samples)
+allocation_discrete(demand, bb_area, candidate, facilities = NULL,
+n_fac = Inf, traveltime = NULL, weights = NULL, objectiveminutes = 15,
+objectiveshare = NULL)
 ```
 
-The $allocation_discrete$ function, having the following arguments:
-
-- $demand\_raster$: A raster object with the demand for the service.
-
-- $traveltime\_raster$; The output of the traveltime function. If not
-  provided, the function will run the traveltime function first.
-
-- $bb\_area$: A boundary box object with the area of interest.
-
-- $facilities$: An sf object with the existing facilities.
+The $allocation\_discrete$ function solves the discrete location
+problem, with the same arguments as $allocation$, plus:
 
 - $candidate$: An sf object with the candidate locations for the new
   facilities.
 
-- $n\_fac$: The number of facilities that can be allocated.
+- $n\_fac$: The maximum number of new facilities.
 
-- $weights$: A raster with the weights for the demand.
+- $objectiveshare$: If $NULL$ (default), up to $n\_fac$ candidates are
+  selected to maximize the covered demand; otherwise, as few candidates
+  as possible are selected to reach the target share.
 
-- $objectiveminutes$: The objective travel time in minutes.
-
-- $dowscaling\_model\_type$: The type of model used for the spatial
-  statistical downscaling of the travel time layer.
-
-- $mode$: The mode of transport.
-
-- $res\_output$: The spatial resolution of the friction raster (and of
-  the analysis), in meters. If \<1000, a spatial statistical downscaling
-  approach is used.
-
-- $n\_samples$: The number of samples to generate in the heuristic
-  approach for identifying the best set of facilities to be allocated.
-
-Ancillary functions include $allocation\_plot()$, $demo\_data\_load()$,
-$friction()$,\
-$mask\_raster\_to\_polygon()$, $traveltime\_plot()$, and
-$traveltime\_stats()$, and they are documented in the package repository
-and vignette website.
+Ancillary functions include $friction()$, $traveltime\_stats()$,
+$traveltime\_plot()$, $allocation\_plot()$, $default\_road\_speeds()$,
+and $mask\_raster\_to\_polygon()$, and they are documented in the
+package website (<https://giacfalk.github.io/locationallocation/>).
 
 # Use case: optimal allocation of public water fountains with consideration of heat hazard and exposure {#use-case-optimal-allocation-of-public-water-fountains-with-consideration-of-heat-hazard-and-exposure .unnumbered}
 
@@ -405,8 +403,8 @@ accessibility to public drinking water sources as follows:
 
 ``` {.r language="R"}
 
-out_tt <- traveltime(facilities=naples_fountains, bb_area=naples_shape,
-dowscaling_model_type="lm", mode="walk", res_output=100)
+out_tt <- traveltime(facilities = naples_fountains, bb_area = naples_shape,
+mode = "walk", res_output = 100)
 ```
 
 The function yields a raster output which - for each pixel - shows the
@@ -435,9 +433,10 @@ objectiveminutes=5)
 
 yielding:
 
-        [1] "38.54 % of demand layer within the objectiveminutes threshold."
+        43.46% of coverage within the 5 minutes threshold.
 
-We then can proceed and optimize allocation of new water naples_fountains to
+Within 15 minutes, 90.14% of the population can reach a fountain. We
+then can proceed and optimize allocation of new water fountains to
 cover maximum share of (unweighted) population. Location-allocation
 can be either solved discretely or continuously over space, and either
 with a facility constraint or with a policy goal for demand (population)
@@ -447,17 +446,19 @@ population (exposure), we can use:
 
 ``` {.r language="R"}
 
-output_allocation <- allocation(demand = naples_population, traveltime=out_tt,
-bb_area = naples_shape, facilities=naples_fountains, weights=NULL, objectiveminutes=15,
-objectiveshare=0.99, heur="max", dowscaling_model_type="lm",
-mode="walk", res_output=100)
+output_allocation <- allocation(demand = naples_population,
+traveltime = out_tt, bb_area = naples_shape,
+facilities = naples_fountains, weights = NULL, objectiveminutes = 15,
+objectiveshare = 0.99)
 
-allocation_plot(output_allocation, bb_area = naples_shape)
+allocation_plot(output_allocation, bb_area = naples_shape,
+facilities = naples_fountains)
 ```
 
 This yields an output object containing both the coordinate location of
-the allocated facility to meet the accessibility objectives, and the
-updated travel time map:
+the allocated facilities to meet the accessibility objectives, and the
+updated travel time map. In this example, 9 new fountains raise the
+share of the population within a 15-minute walk from 90.14% to 99.11%:
 
 ![Map of the continuous location-allocation problem solution for a
 15-minute walk and a 99% demand coverage objective for the nearest
@@ -468,17 +469,20 @@ If we use demand weights (e.g. maximum temperature), we can use:
 
 ``` {.r language="R"}
 
-output_allocation_weighted <- allocation(demand = naples_population, traveltime=out_tt,
-bb_area = naples_shape, facilities=naples_fountains, weights=naples_hot_days,
-objectiveminutes=15, objectiveshare=0.99, heur="max",
-dowscaling_model_type="lm", mode="walk", res_output=100)
+output_allocation_weighted <- allocation(demand = naples_population,
+traveltime = out_tt, bb_area = naples_shape,
+facilities = naples_fountains, weights = naples_hot_days,
+objectiveminutes = 15, objectiveshare = 0.99)
 
-allocation_plot(output_allocation_weighted, bb_area = naples_shape)
+allocation_plot(output_allocation_weighted, bb_area = naples_shape,
+facilities = naples_fountains)
 ```
 
-where $tmax$ is a raster layer matching the extent, spatial resolution
-of the $naples_population$ demand raster. We can notice how results change when using
-such weighted approach:
+where $naples\_hot\_days$ is a raster layer with the number of hot days
+per year (resampled to the grid of the demand raster if needed). The
+objective now refers to the heat-weighted population, of which 99.16% is
+covered with 9 new fountains. We can notice how results change when
+using such weighted approach:
 
 ![Map of the continuous location-allocation weighted problem solution
 for a 15-minute walk, a 99% demand coverage objective, and a demand
@@ -491,24 +495,27 @@ potential sites (e.g. sites along the water pipes network), we can use:
 
 ``` {.r language="R"}
 
+set.seed(333)
+
 candidates <- st_sample(naples_shape, 30)
 
 output_allocation_discrete <- allocation_discrete(demand = naples_population,
-traveltime=NULL, bb_area = naples_shape, facilities=naples_fountains,
-candidate=candidates, n_fac = 10, weights=NULL, objectiveminutes=15,
-dowscaling_model_type="lm", mode="walk", res_output=100, n_samples=100)
+traveltime = out_tt, bb_area = naples_shape,
+facilities = naples_fountains, candidate = candidates, n_fac = 10,
+weights = NULL, objectiveminutes = 15)
 
-allocation_plot(output_allocation_discrete, bb_area = naples_shape)
+allocation_plot(output_allocation_discrete, bb_area = naples_shape,
+facilities = naples_fountains)
 ```
 
 The resulting map shows the coordinate location of the selected
 facilities among the candidate set (subject to the number of facilities
-constraint), with the title of the plot reporting the demand coverage
-rate attained:
+constraint). The 10 selected candidates raise the share of the
+population within a 15-minute walk to 94.29%:
 
 ![Map of the discrete location-allocation problem solution for a
-15-minute walk and a 99% demand coverage objective for the nearest
-public drinking water fountain in Naples,
+15-minute walk and up to 10 new public drinking water fountains selected
+among 30 candidate locations in Naples,
 Italy.\label{fig:sol_disc}](figures_paper/allocation_discrete_fountains.png)
 
 Note that it is also possible to solve location-allocation problems from
@@ -516,26 +523,26 @@ scratch, i.e. in the absence of pre-existing facilities:
 
 ``` {.r language="R"}
 
-set.seed(333)
+output_allocation_discrete_from_scratch <- allocation_discrete(
+demand = naples_population, traveltime = out_tt, bb_area = naples_shape,
+facilities = NULL, candidate = candidates, n_fac = 10, weights = NULL,
+objectiveminutes = 15)
 
-output_allocation_discrete_from_scratch <- allocation_discrete(demand = naples_population,
-traveltime=NULL, bb_area = naples_shape, facilities=NULL, candidate=candidates,
-n_fac = 10, weights=NULL, objectiveminutes=15, dowscaling_model_type="lm",
-mode="walk", res_output=100, n_samples=100)
-
-allocation_plot(output_allocation_discrete_from_scratch, bb_area = naples_shape)
+allocation_plot(output_allocation_discrete_from_scratch,
+bb_area = naples_shape)
 ```
 
 Also in this case, the resulting map shows the coordinate location of
 the selected facilities among the candidate set (subject to the number
-of facilities constraint, with the title of the plot reporting the
-demand coverage rate attained). We can note that in this case the travel
-time layer is computed from scratch, rather than updated:
+of facilities constraint). Only the friction surface of $out\_tt$ is
+reused, and the coverage is computed from the new facilities alone: 10
+facilities cover 56.77% of the population within a 15-minute walk:
 
 ![Map of the discrete location-allocation problem solution for a
-15-minute walk and a 99% demand coverage objective and in a case of
-absence of pre-existing facilities in Naples,
-Italy.\label{fig:sol_disc}](figures_paper/allocation_discrete_fromscratch_fountains.png)
+15-minute walk and up to 10 public drinking water fountains selected
+among 30 candidate locations, in the absence of pre-existing facilities
+in Naples,
+Italy.\label{fig:sol_disc_scratch}](figures_paper/allocation_discrete_fromscratch_fountains.png)
 
 # Discussion and conclusion {#discussion-and-conclusion .unnumbered}
 
@@ -559,20 +566,19 @@ currently, the package does not support facility-level attributes that
 can affect the location allocation or local density or size of the
 facility to be allocated (e.g. supply constraints such as beds per
 hospital or users per facilities), as all facilities are equally
-defined. Moreover, the approach to establish the location of the next
-facility to be allocated in the lattice space (in the continuous
-allocation problem) or the exact set of facilities optimizing the
-objective (in the discrete allocation problem) is currently based on
-heuristics which might not necessarily coincide with the single (if
-uniquely identified) globally optimal solution. Such heuristics are
-based on the selection of the highest demand or spatial kernel density
-of demand pixel where accessibility objectives are not yet satisfied at
-each iteration $i$, or - in the discrete problem case - on the number of
-random sets of facilities of size $n$ that are sampled and evaluated
-among the global set of candidate facilities of size $N$. The
-identification of a truly global optimal solution would however require
-the development of a constrained optimization framework requiring the
-use of computationally intensive professional solvers. Future software
+defined. Moreover, the location-allocation problems are solved with greedy and
+vertex substitution heuristics, whose solutions are not guaranteed to
+coincide with the (possibly non-unique) globally optimal solution,
+although in our tests they matched exhaustive or dense-grid reference
+solutions. In the continuous problem, the locations evaluated at each
+iteration are proposed by a score of the uncovered demand that does not
+account for the road network. The identification of a provably optimal
+solution would require formulating the problem as a mixed-integer
+program and using dedicated solvers, which is computationally intensive
+for large study areas. Finally, the friction surfaces at a fine
+resolution do not model congestion, public transport, or barriers such
+as motorways and railways, and the default road speeds are free-flow
+speeds. Future software
 work might implement such features and expand the package capabilities.\
 
 # Acknowledgements

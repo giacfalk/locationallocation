@@ -2,7 +2,8 @@
 % Please edit documentation in R/allocation.R
 \name{allocation}
 \alias{allocation}
-\title{Compute the maximal coverage location-allocation for continuous problems}
+\alias{allocation_discrete}
+\title{Maximal coverage location-allocation}
 \usage{
 allocation(
   demand,
@@ -10,137 +11,324 @@ allocation(
   facilities,
   traveltime = NULL,
   mode = "walk",
-  dowscaling_model_type = "lm",
+  dowscaling_model_type = NULL,
   res_output = 100,
   weights = NULL,
   objectiveminutes = 15,
   objectiveshare = 0.99,
-  heur = "max",
+  heur = "kd",
   approach = "norm",
   exp_demand = 1,
-  exp_weights = 1
+  exp_weights = 1,
+  n_fac = Inf,
+  shortlist = 10,
+  refine = TRUE
+)
+
+allocation_discrete(
+  demand,
+  bb_area,
+  candidate,
+  facilities = NULL,
+  n_fac = Inf,
+  n_samples,
+  traveltime = NULL,
+  mode = "walk",
+  dowscaling_model_type = NULL,
+  res_output = 100,
+  weights = NULL,
+  objectiveminutes = 15,
+  objectiveshare = NULL,
+  approach = "norm",
+  exp_demand = 1,
+  exp_weights = 1,
+  par = FALSE
 )
 }
 \arguments{
-\item{demand}{A \code{\link[raster:raster]{RasterLayer}} object with the
-demand layer (e.g. population density).}
+\item{demand}{A \code{\link[raster:raster]{RasterLayer}} or single-layer
+\code{\link[terra:rast]{SpatRaster}} object with the demand (e.g., number of
+people per cell), in geographic coordinates (WGS 84). It defines the grid
+of the analysis.}
 
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
 
 \item{facilities}{A \code{\link[sf:st_as_sf]{sf}} object with the existing
-facilities.}
+facilities, or \code{NULL} if there are no existing facilities. Required by
+\code{allocation()} (use \code{facilities = NULL} explicitly to allocate from
+scratch); optional in \code{allocation_discrete()} (default: \code{NULL}).}
 
-\item{traveltime}{A \code{\link[base:list]{list}} with the output of the
-\code{\link[=traveltime]{traveltime()}} function. If not provided, the function will
-run the \code{\link[=traveltime]{traveltime()}} function based on the provided
-parameters.}
+\item{traveltime}{(optional) The output of the \code{\link[=traveltime]{traveltime()}}
+function, whose friction surface is reused to avoid downloading and
+downscaling it again. The travel times from \code{facilities} are recomputed
+on this surface. If \code{NULL}, the friction surface is computed with
+\code{\link[=friction]{friction()}} using \code{mode} and \code{res_output} (default:
+\code{NULL}).}
 
 \item{mode}{(optional) A \code{\link[base:character]{character}} string indicating
-the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default =
+the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default:
 \code{"walk"}).
 \itemize{
 \item For \code{"fastest"}: The friction layer accounts for multiple modes of
-transport, including walking, cycling, driving, and public transport, and are
-based on the Malaria Atlas Project (2019) \emph{Global Travel Speed Friction
+transport, including walking and driving. At the native resolution, it
+is the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
 Surface}.
 \item For \code{"walk"}: The friction layer accounts only for walking speeds and is
-based on the Malaria Atlas Project (2015) \emph{Global Walking Only Friction
+based on the Malaria Atlas Project (2020) \emph{Global Walking Only Friction
 Surface}.
 }}
 
-\item{dowscaling_model_type}{(optional) A \code{\link[base:character]{character}}
-string indicating the type of model used for the spatial downscaling of the
-friction layer. Options are \code{"lm"} (linear model) and \code{"rf"} (random
-forest) (default: \code{"lm"}).}
+\item{dowscaling_model_type}{Deprecated and ignored. The friction surface
+is no longer downscaled with a statistical model (see \emph{Details}).}
 
 \item{res_output}{(optional) A positive
 \link[checkmate:checkIntegerish]{integerish} number indicating the spatial
-resolution of the friction raster (and of the analysis), in meters. If the
-resolution is less than \code{1000}, a spatial downscaling approach is used
-(default: \code{100}).}
+resolution of the friction raster (and of the analysis), in meters. See
+\emph{Details} (default: \code{100}).}
 
-\item{weights}{(optional) A raster with the weights for the demand (default:
-\code{NULL}).}
+\item{weights}{(optional) A \code{\link[raster:raster]{RasterLayer}} or
+\code{\link[terra:rast]{SpatRaster}} object with the weights for the demand
+(e.g., a hazard layer). It is resampled to the grid of \code{demand} if needed
+(default: \code{NULL}).}
 
-\item{objectiveminutes}{(optional) A number indicating the target travel time
-in minutes used to compute the statistics (default: \code{15}).}
+\item{objectiveminutes}{(optional) A number indicating the travel time
+threshold, in minutes, within which demand is considered covered
+(default: \code{15}).}
 
-\item{objectiveshare}{(optional) A number indicating the proportion of the
-demand to be covered (default: \code{0.99}).}
+\item{objectiveshare}{(optional) A number between \code{0} and \code{1} indicating
+the share of the (weighted) demand to be covered. In \code{allocation()} it can
+only be \code{NULL} if \code{n_fac} is finite (default: \code{0.99} for \code{allocation()}
+and \code{NULL} for \code{allocation_discrete()}).}
 
-\item{heur}{(optional) The heuristic approach to be used. Options are \code{"max"}
-and \code{"kd"} (default: \code{"max"}).}
+\item{heur}{(optional) The score used by \code{allocation()} to shortlist
+promising locations for each new facility. Options are \code{"kd"} and
+\code{"max"}. See \emph{Details} (default: \code{"kd"}).}
 
-\item{approach}{(optional) The approach to be used for the allocation.
-Options are \code{"norm"} and \code{"absweights"}. If "norm", the allocation is based
-on the normalized demand raster multiplied by the normalized weights
-raster. If \code{"absweights"}, the allocation is based on the normalized demand
-raster multiplied by the raw weights raster (default: \code{"norm"}).}
+\item{approach}{(optional) The approach used to combine the \code{demand} and
+\code{weights} layers. Options are \code{"norm"} and \code{"absweights"}. See \emph{Details}
+(default: \code{"norm"}).}
 
-\item{exp_demand}{(optional) The exponent for the demand raster. Default is
-\enumerate{
-\item A higher value will give less relative weight to areas with higher
-demand - with respect to the weights layer. This is useful in cases where
-the users want to increase the allocation in areas with higher values in
-the weights layer (default: \code{1}).
-}}
+\item{exp_demand}{(optional) The exponent applied to the demand layer.
+Values greater than \code{1} increase the relative priority of high-demand
+cells, and the influence of \code{demand} with respect to \code{weights}
+(default: \code{1}).}
 
-\item{exp_weights}{(optional) The exponent for the weights raster. Default is
-\enumerate{
-\item A higher value will give less relative weight to areas with higher
-weights - with respect to the demand layer. This is useful in cases where
-the users want to increase the allocation in areas with higher values in
-the demand layer (default: \code{1}).
-}}
+\item{exp_weights}{(optional) The exponent applied to the weights layer.
+Values greater than \code{1} increase the relative priority of cells with high
+weights, and the influence of \code{weights} with respect to \code{demand}
+(default: \code{1}).}
+
+\item{n_fac}{(optional) A positive \link[checkmate:checkIntegerish]{integerish}
+number indicating the maximum number of new facilities to allocate. In
+\code{allocation_discrete()}, it is capped at the number of candidate
+locations (default: \code{Inf}).}
+
+\item{shortlist}{(optional) A positive
+\link[checkmate:checkIntegerish]{integerish} number indicating how many
+new promising locations \code{allocation()} evaluates exactly at each
+iteration. See \emph{Details} (default: \code{10}).}
+
+\item{refine}{(optional) A \code{\link[base:logical]{logical}} flag indicating
+whether \code{allocation()} refines the greedy solution by vertex substitution
+(see \emph{Details}). Refinement usually reduces the number of facilities
+needed for a given coverage, but takes more time (default: \code{TRUE}).}
+
+\item{candidate}{A \code{\link[sf:st_as_sf]{sf}} object with the candidate
+locations (\code{POINT} geometries) for the new facilities
+(\code{allocation_discrete()} only).}
+
+\item{n_samples}{Deprecated and ignored. \code{allocation_discrete()} no longer
+relies on random sampling (\code{allocation_discrete()} only).}
+
+\item{par}{(optional) A \code{\link[base:logical]{logical}} flag indicating whether
+to compute the travel times from the candidate locations in
+\link[parallel:clusterApply]{parallel} (\code{allocation_discrete()} only; default:
+\code{FALSE}).}
 }
 \value{
-An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
-following elements:
+An \link[base:invisible]{invisible} \code{\link[base:list]{list}} of class
+\code{allocation} (continuous problem) or \code{allocation_discrete} (discrete
+problem) with the following elements:
 \itemize{
 \item \code{coverage}: A \code{\link[base:numeric]{numeric}} value indicating the share of
-demand covered within the objective travel time after allocating the new
-facilities.
+(weighted) demand covered within the objective travel time after
+allocating the new facilities.
 \item \code{unmet_demand}: A \code{\link[base:numeric]{numeric}} value indicating the share
-of demand that remains unmet after allocating the new facilities.
+of (weighted) demand that remains unmet after allocating the new
+facilities.
 \item \code{objective_minutes}: The value of the \code{objectiveminutes} parameter used.
 \item \code{objective_share}: The value of the \code{objectiveshare} parameter used.
 \item \code{facilities}: A \code{\link[sf:sf]{sf}} object with the newly allocated
-facilities.
-\item \code{travel_time}: A \code{\link[raster:raster]{raster}} RasterLayer object
-representing the travel time map with the newly allocated facilities.
+facilities (for \code{allocation_discrete()}, the selected rows of
+\code{candidate}).
+\item \code{travel_time}: A \code{\link[raster:raster]{RasterLayer}} object, on the grid
+of \code{demand}, with the travel time (in minutes) to the nearest facility
+after allocating the new facilities.
 }
 }
 \description{
-\code{allocation()} allocate facilities in a continuous location problem. It uses
-the accumulated cost algorithm to find the optimal location for the
-facilities based on the share of the demand to be covered.
+\code{allocation()} and \code{allocation_discrete()} allocate new facilities so as to
+maximize the share of (optionally weighted) demand that can reach a facility
+within \code{objectiveminutes} minutes.
+\itemize{
+\item \code{allocation()} solves a \strong{continuous} problem: new facilities can be
+placed anywhere within \code{bb_area} (any cell of the \code{demand} grid).
+\item \code{allocation_discrete()} solves a \strong{discrete} problem: new facilities
+are selected from a user-defined set of \code{candidate} locations.
+}
 
-See \code{\link[=allocation_discrete]{allocation_discrete()}} for discrete
-location-allocation problems.
+Both functions can either add facilities until a target coverage
+(\code{objectiveshare}) is reached, using as few facilities as possible, or
+allocate a fixed maximum number of facilities (\code{n_fac}).
+}
+\details{
+\subsection{Coverage}{
+
+A demand cell is covered when its travel time to the nearest (existing or
+new) facility is less than or equal to \code{objectiveminutes}. Coverage is the
+share of the total (weighted) demand within \code{bb_area} that is covered.
+Travel times are computed with the accumulated cost algorithm
+(\code{\link[gdistance:accCost]{gdistance::accCost()}}) over the friction surface
+and aligned to the grid of \code{demand}.
+}
+
+\subsection{Continuous problem (\code{allocation()})}{
+
+Facilities are added one at a time with a (lazy) greedy heuristic. At each
+iteration:
+\enumerate{
+\item A score of the demand not yet covered proposes a shortlist of promising
+locations: the \code{shortlist} highest local maxima of the score, at least
+half a catchment radius apart. The catchment radius is the distance that
+can be traveled within \code{objectiveminutes} at the median friction of the
+study area. The score is:
+\itemize{
+\item \code{heur = "kd"}: the uncovered demand smoothed with a quartic kernel
+whose bandwidth is the catchment radius, i.e., an estimate of the
+uncovered demand within the catchment of a facility placed at each
+cell.
+\item \code{heur = "max"}: the uncovered demand of each cell.
+}
+\item The catchment of each shortlisted location (the demand cells it can
+reach within \code{objectiveminutes}) is computed with the accumulated cost
+algorithm. Catchments do not change as facilities are added, so the
+locations evaluated in previous iterations remain candidates at no
+extra cost.
+\item The new facility is placed at the evaluated location that covers the
+largest amount of uncovered demand (greedy step of Church & ReVelle,
+1974).
+}
+
+The greedy phase stops when \code{objectiveshare} is reached, when \code{n_fac} new
+facilities have been allocated, or when no further location increases the
+coverage. The solution is then refined (vertex substitution heuristic,
+Teitz & Bart, 1968): each facility is in turn moved to the evaluated
+location that covers the most demand left uncovered by the others, if that
+increases the coverage. New locations are evaluated near each facility at
+every pass: local maxima of the score, and eight locations around the
+facility at a distance that starts at half the catchment radius and is
+halved whenever the facility is not moved (pattern search). With
+\code{objectiveshare}, the facility covering the least demand on its own is
+then dropped and the solution refined again, as long as the target is
+still met.
+
+Larger \code{shortlist} values evaluate more locations per iteration, which can
+yield better solutions at the cost of more travel time computations. Set
+\code{refine = FALSE} to skip the refinement phase for faster, greedy-only
+solutions.
+}
+
+\subsection{Discrete problem (\code{allocation_discrete()})}{
+
+Since the travel time from a set of facilities is the minimum of the travel
+times from each of them, the set of demand cells covered by each candidate
+location is computed once (one accumulated cost run per candidate). Then:
+\enumerate{
+\item Candidates are added one at a time, each time selecting the candidate
+that covers the largest amount of demand not yet covered (greedy
+heuristic, Church & ReVelle, 1974).
+\item The selection is refined by swapping selected and non-selected candidates
+as long as a swap increases the coverage (vertex substitution heuristic,
+Teitz & Bart, 1968).
+}
+
+If \code{objectiveshare} is \code{NULL}, up to \code{n_fac} candidates are selected to
+maximize coverage. Otherwise, candidates are added (and the selection
+refined) until \code{objectiveshare} is reached or \code{n_fac} candidates have been
+selected. The solution is deterministic and usually optimal or near-optimal.
+}
+
+\subsection{Demand weights}{
+
+When \code{weights} is provided, the demand to be covered is a combination of
+the \code{demand} and \code{weights} layers (e.g., population times exposure to a
+hazard):
+\itemize{
+\item \code{approach = "norm"}: \eqn{D^{a} \times W^{b}}, where \eqn{D} and \eqn{W}
+are the demand and weights layers rescaled to \eqn{[0, 1]} (min-max
+normalization). Note that cells with the lowest weight receive zero
+priority.
+\item \code{approach = "absweights"}: \eqn{D^{a} \times w^{b}}, where \eqn{w} are the
+raw (non-negative) weights. Priorities are proportional to the weights.
+}
+
+with \eqn{a} = \code{exp_demand} and \eqn{b} = \code{exp_weights}. Without \code{weights},
+the demand is \eqn{demand^{a}}. Coverage and \code{objectiveshare} then refer to
+this weighted demand.
+}
 }
 \examples{
 \dontrun{
-  library(dplyr)
+  library(sf)
+
+  traveltime_data <-
+    naples_fountains |>
+    traveltime(bb_area = naples_shape)
+
+  ## Continuous problem -----
 
   allocation_data <-
     naples_population |>
     allocation(
       bb_area = naples_shape,
       facilities = naples_fountains,
+      traveltime = traveltime_data,
       weights = naples_hot_days,
       objectiveminutes = 15,
       objectiveshare = 0.99
     )
 
-  allocation_data |> glimpse()
+  allocation_data
+
+  allocation_data |> allocation_plot(naples_shape)
+
+  ## Discrete problem -----
+
+  allocation_data <-
+    naples_population |>
+    allocation_discrete(
+      bb_area = naples_shape,
+      candidate = naples_shape |> st_sample(20),
+      facilities = naples_fountains,
+      traveltime = traveltime_data,
+      n_fac = 2,
+      objectiveminutes = 15
+    )
+
+  allocation_data
 
   allocation_data |> allocation_plot(naples_shape)
 }
 }
-\seealso{
-Other location-allocation functions: 
-\code{\link{allocation_discrete}()}
+\references{
+Church, R., & ReVelle, C. (1974). The maximal covering location problem.
+\emph{Papers of the Regional Science Association}, \emph{32}(1), 101–118.
+\doi{10.1007/BF01942293}
+
+Teitz, M. B., & Bart, P. (1968). Heuristic methods for estimating the
+generalized vertex median of a weighted graph. \emph{Operations Research},
+\emph{16}(5), 955–961. \doi{10.1287/opre.16.5.955}
 }
 \concept{location-allocation functions}
 \keyword{location-allocation}

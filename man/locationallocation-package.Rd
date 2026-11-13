@@ -4,11 +4,73 @@
 \name{locationallocation-package}
 \alias{locationallocation}
 \alias{locationallocation-package}
-\title{locationallocation: Maximal Coverage Location-Allocation Using Geospatial Data}
+\title{locationallocation: Maximal Coverage Location-Allocation Using Geospatial
+Data}
 \description{
-\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+\code{locationallocation} solves Maximal Coverage Location-Allocation (MCLA)
+problems with geospatial data: where to place new facilities so that as
+much (optionally weighted) demand as possible can reach a facility within a
+given travel time.
+}
+\section{Workflow}{
 
-Functions to perform Maximal Coverage Location-Allocation analyses using geospatial data. It is designed to help decision-makers optimally allocate resources and facilities in various contexts, such as public health, emergency response, and urban planning.
+\enumerate{
+\item \code{\link[=friction]{friction()}} retrieves a friction surface (time needed to
+cross each cell) from the Malaria Atlas Project, for walking or for the
+fastest mode of transport, at the spatial resolution of the analysis.
+\item \code{\link[=traveltime]{traveltime()}} computes the travel time from any cell
+to the nearest existing facility.
+\code{\link[=traveltime_stats]{traveltime_stats()}} and
+\code{\link[=traveltime_plot]{traveltime_plot()}} summarize and map it.
+\item \code{\link[=allocation]{allocation()}} places new facilities anywhere within the
+area of interest (continuous problem), and
+\code{\link[=allocation_discrete]{allocation_discrete()}} selects them among
+candidate locations (discrete problem), until a target share of the
+demand is covered or a maximum number of facilities is reached.
+\code{\link[=allocation_plot]{allocation_plot()}} maps the result.
+}
+
+Demand can be weighted by other layers (e.g., population times exposure to
+a hazard). The package includes example data for the city of Naples, Italy
+(\code{\link{naples_shape}}, \code{\link{naples_population}}, \code{\link{naples_fountains}},
+\code{\link{naples_hot_days}}).
+}
+
+\section{Algorithms}{
+
+
+Travel times are least-cost paths over the friction surface. Both
+allocation problems are solved with a greedy heuristic that adds, at each
+step, the location covering the most demand not yet covered (Church &
+ReVelle, 1974), refined by vertex substitution (Teitz & Bart, 1968). See
+\code{\link[=allocation]{allocation()}} for details.
+}
+
+\section{Online data}{
+
+
+Friction surfaces are downloaded from the Malaria Atlas Project and, for
+the fastest mode at a fine resolution, road networks from OpenStreetMap.
+Downloads have fallbacks (cache, retries, mirrors) and can be cached on
+disk with \code{cache = TRUE}. See \code{\link[=friction]{friction()}} for details and
+for the options that control this behavior.
+}
+
+\references{
+Church, R., & ReVelle, C. (1974). The maximal covering location problem.
+\emph{Papers of the Regional Science Association}, \emph{32}(1), 101–118.
+\doi{10.1007/BF01942293}
+
+Teitz, M. B., & Bart, P. (1968). Heuristic methods for estimating the
+generalized vertex median of a weighted graph. \emph{Operations Research},
+\emph{16}(5), 955–961. \doi{10.1287/opre.16.5.955}
+
+Weiss, D. J., Nelson, A., Gibson, H. S., Temperley, W., Peedell, S., Lieber,
+A., Hancher, M., Poyart, E., Belchior, S., Fullman, N., Mappin, B.,
+Dalrymple, U., Rozier, J., Lucas, T. C. D., Howes, R. E., Tusting, L. S.,
+Kang, S. Y., Cameron, E., Bisanzio, D., ... Gething, P. W. (2018). A global
+map of travel time to cities to assess inequalities in accessibility in
+2015. \emph{Nature}, \emph{553}(7688), 333–336. \doi{10.1038/nature25181}
 }
 \seealso{
 Useful links:

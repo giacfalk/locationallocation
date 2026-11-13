@@ -37,6 +37,7 @@ reference:
   contents:
   - friction
   - traveltime
+  - default_road_speeds
 
 - title: Maximal Coverage Location-Allocation (MCLA)
   desc: >
@@ -44,7 +45,6 @@ reference:
     geospatial data.
   contents:
   - allocation
-  - allocation_discrete
 
 - title: Statistics
   desc: >

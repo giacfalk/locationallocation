@@ -2,180 +2,186 @@ assert_bb_area <- function(x, null_ok = FALSE) {
   checkmate::assert_flag(null_ok)
 
   if (is.null(x) && isTRUE(null_ok)) {
-    TRUE
-  } else {
-    name <- deparse(substitute(x)) #nolint
-
-    if (!inherits(x, "sf") || nrow(x) == 0) {
-      cli::cli_abort(
-        paste0(
-          "{.strong {cli::col_red(name)}} ",
-          "must be a non-empty {.strong sf} polygon."
-        )
-      )
-    } else {
-      TRUE
-    }
+    return(invisible(TRUE))
   }
+
+  name <- deparse(substitute(x)) #nolint
+
+  if (
+    !inherits(x, c("sf", "sfc")) ||
+      length(sf::st_geometry(x)) == 0 ||
+      !all(
+        as.character(sf::st_geometry_type(x)) %in%
+          c("POLYGON", "MULTIPOLYGON")
+      )
+  ) {
+    cli::cli_abort(
+      paste0(
+        "{.strong {cli::col_red(name)}} ",
+        "must be a non-empty {.strong sf} object with ",
+        "{.strong POLYGON} or {.strong MULTIPOLYGON} geometries."
+      )
+    )
+  }
+
+  invisible(TRUE)
 }
 
 assert_facilities <- function(x, null_ok = FALSE) {
   checkmate::assert_flag(null_ok)
 
   if (is.null(x) && isTRUE(null_ok)) {
-    TRUE
-  } else {
-    name <- deparse(substitute(x)) #nolint
-
-    if (!inherits(x, "sf") || nrow(x) == 0) {
-      cli::cli_abort(
-        paste0(
-          "{.strong {cli::col_red(name)}} ",
-          "must be a non-empty {.strong sf} point geometry data frame."
-        )
-      )
-    } else {
-      TRUE
-    }
+    return(invisible(TRUE))
   }
+
+  name <- deparse(substitute(x)) #nolint
+
+  if (
+    !inherits(x, c("sf", "sfc")) ||
+      length(sf::st_geometry(x)) == 0 ||
+      !all(as.character(sf::st_geometry_type(x)) == "POINT")
+  ) {
+    cli::cli_abort(
+      paste0(
+        "{.strong {cli::col_red(name)}} ",
+        "must be a non-empty {.strong sf} object with ",
+        "{.strong POINT} geometries."
+      )
+    )
+  }
+
+  invisible(TRUE)
+}
+
+assert_roads <- function(x, null_ok = FALSE) {
+  checkmate::assert_flag(null_ok)
+
+  if (is.null(x) && isTRUE(null_ok)) {
+    return(invisible(TRUE))
+  }
+
+  name <- deparse(substitute(x)) #nolint
+
+  if (
+    !inherits(x, c("sf", "sfc")) ||
+      !all(
+        as.character(sf::st_geometry_type(x)) %in%
+          c("LINESTRING", "MULTILINESTRING")
+      ) ||
+      !any(c("speed", "highway") %in% names(x))
+  ) {
+    cli::cli_abort(
+      paste0(
+        "{.strong {cli::col_red(name)}} must be an {.strong sf} object with ",
+        "{.strong LINESTRING} or {.strong MULTILINESTRING} geometries and a ",
+        "{.strong speed} (km/h) or {.strong highway} column."
+      )
+    )
+  }
+
+  invisible(TRUE)
 }
 
 assert_traveltime <- function(x, null_ok = FALSE) {
   checkmate::assert_flag(null_ok)
 
   if (is.null(x) && isTRUE(null_ok)) {
-    TRUE
-  } else {
-    name <- deparse(substitute(x)) #nolint
-
-    if (!inherits(x, "traveltime")) {
-      cli::cli_abort(
-        paste0(
-          "{.strong {cli::col_red(name)}} ",
-          "must be an output object from the ",
-          "{.strong {cli::col_blue('traveltime()')}} ",
-          "function."
-        )
-      )
-    } else {
-      TRUE
-    }
+    return(invisible(TRUE))
   }
+
+  name <- deparse(substitute(x)) #nolint
+
+  if (!inherits(x, "traveltime")) {
+    cli::cli_abort(
+      paste0(
+        "{.strong {cli::col_red(name)}} ",
+        "must be an output object from the ",
+        "{.strong {cli::col_blue('traveltime()')}} ",
+        "function."
+      )
+    )
+  }
+
+  invisible(TRUE)
 }
 
-assert_allocation <- function(
-  x,
-  null_ok = FALSE,
-  continuous = TRUE,
-  discrete = TRUE
-) {
-  checkmate::assert_flag(null_ok)
-  checkmate::assert_flag(continuous)
-  checkmate::assert_flag(discrete)
+assert_allocation <- function(x) {
+  name <- deparse(substitute(x)) #nolint
 
-  if (is.null(x) && isTRUE(null_ok)) {
-    TRUE
-  } else {
-    name <- deparse(substitute(x)) #nolint
-
-    if (isTRUE(continuous) && isTRUE(discrete)) {
-      class_check <- c("allocation", "allocation_discrete")
-
-      error_message <- paste0(
+  if (!inherits(x, c("allocation", "allocation_discrete"))) {
+    cli::cli_abort(
+      paste0(
         "{.strong {cli::col_red(name)}} ",
         "must be an output object from either the ",
         "{.strong allocation()} or ",
         "{.strong allocation_discrete()} function."
       )
-    } else if (isTRUE(continuous) && isFALSE(discrete)) {
-      class_check <- "allocation"
-
-      error_message <- paste0(
-        "{.strong {cli::col_red(name)}} ",
-        "must be an output object from the ",
-        "{.strong allocation()} function."
-      )
-    } else if (isFALSE(continuous) && isTRUE(discrete)) {
-      class_check <- "allocation_discrete"
-
-      error_message <- paste0(
-        "{.strong {cli::col_red(name)}} ",
-        "must be an output object from the ",
-        "{.strong allocation_discrete()} function."
-      )
-    } else {
-      cli::cli_abort(
-        paste0(
-          "At least one of {.strong continuous} or ",
-          "{.strong discrete} must be set to {.strong TRUE}."
-        )
-      )
-    }
-
-    if (!inherits(x, class_check)) {
-      cli::cli_abort(error_message)
-    } else {
-      TRUE
-    }
+    )
   }
+
+  invisible(TRUE)
 }
 
-assert_minimal_coverage <- function(
-  traveltime,
-  demand,
-  objectiveminutes,
-  objectiveshare,
-  null_ok = FALSE
-) {
-  assert_traveltime(traveltime)
-  checkmate::assert_class(demand, "RasterLayer")
-  checkmate::assert_number(objectiveminutes, lower = 0)
-  checkmate::assert_number(objectiveshare, lower = 0, upper = 1, null.ok = TRUE)
-  checkmate::assert_flag(null_ok)
-
-  if (is.null(objectiveshare) && isTRUE(null_ok)) {
-    TRUE
-  } else {
-    coverage <-
-      traveltime |>
-      traveltime_stats(
-        demand = demand,
-        objectiveminutes = objectiveminutes,
-        print = FALSE
-      ) |>
-      magrittr::extract2("coverage")
-
-
-    if (coverage >= objectiveshare) {
-      cli::cli_abort(
-        paste0(
-          "The initial coverage within ",
-          "{.strong {cli::col_yellow(objectiveminutes)}} minutes is ",
-          "{.strong ",
-          "{cli::col_red(round(coverage * 100, 5))}}%, ",
-          "which meets the ",
-          "{.strong {cli::col_blue(objectiveshare * 100)}}% objective share. ",
-          "No additional facilities are required. ",
-          "Use {.strong traveltime_stats()} ",
-          "to review travel time statistics."
-        ),
-        wrap = TRUE
-      )
-    } else {
-      TRUE
-    }
+# Coerce a `RasterLayer` or single-layer `SpatRaster` to a `RasterLayer` in
+# geographic coordinates (the CRS of the friction surfaces).
+as_raster_layer <- function(x, name = deparse(substitute(x)), null_ok = FALSE) {
+  if (is.null(x) && isTRUE(null_ok)) {
+    return(NULL)
   }
-}
 
-assert_internet <- function() {
-  if (!curl::has_internet()) {
+  if (inherits(x, "SpatRaster")) {
+    if (terra::nlyr(x) != 1) {
+      cli::cli_abort(
+        "{.strong {cli::col_red(name)}} must have a single layer."
+      )
+    }
+
+    x <- raster::raster(x)
+  }
+
+  if (!inherits(x, "RasterLayer")) {
     cli::cli_abort(
       paste0(
-        "An {.strong {cli::col_red('internet connection')}} ",
-        "is required to run this function."
+        "{.strong {cli::col_red(name)}} must be a ",
+        "{.strong RasterLayer} or a single-layer {.strong SpatRaster}."
       )
     )
-  } else {
-    TRUE
   }
+
+  if (!is.na(raster::crs(x)) && !raster::isLonLat(x)) {
+    cli::cli_abort(
+      paste0(
+        "{.strong {cli::col_red(name)}} must be in geographic ",
+        "coordinates (longitude/latitude, WGS 84 / EPSG:4326), the CRS ",
+        "of the friction surfaces. Reproject it first, e.g. with ",
+        "{.code terra::project(x, \"EPSG:4326\", method = \"sum\")} ",
+        "for counts."
+      ),
+      wrap = TRUE
+    )
+  }
+
+  x
+}
+
+# Transform `sf`/`sfc` objects to WGS 84 (EPSG:4326), the CRS of the friction
+# surfaces, and return an `sf` object.
+as_wgs84 <- function(x, name = deparse(substitute(x))) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+
+  if (is.na(sf::st_crs(x))) {
+    cli::cli_abort(
+      "{.strong {cli::col_red(name)}} must have a defined CRS."
+    )
+  }
+
+  if (inherits(x, "sfc")) x <- sf::st_as_sf(x)
+
+  if (!isTRUE(sf::st_crs(x) == sf::st_crs(4326))) {
+    x <- sf::st_transform(x, 4326)
+  }
+
+  x
 }
