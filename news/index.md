@@ -1,5 +1,10 @@
 # Changelog
 
+## locationallocation (development version)
+
+- The package citation (`citation("locationallocation")`) refers to
+  version 2 of the preprint.
+
 ## locationallocation 0.2.0
 
 ### Bug fixes

@@ -14,17 +14,17 @@
 Source:
 [`inst/CITATION`](https://github.com/giacfalk/locationallocation/blob/main/inst/CITATION)
 
-Falchetta, G. (2025). locationallocation: Solving Maximal Coverage
+Falchetta, G. (2026). locationallocation: Solving Maximal Coverage
 Location-Allocation geospatial infrastructure assessment and planning
-problems \[Preprint, manuscript submitted for publication\]. EarthArXiv.
-https://doi.org/10.31223/X5XQ69
+problems \[Preprint, version 2, manuscript submitted for publication\].
+EarthArXiv. https://doi.org/10.31223/X5XQ69
 
-    @Article{falchetta2025,
+    @Article{falchetta2026,
       title = {locationallocation: Solving Maximal Coverage Location-Allocation geospatial infrastructure assessment and planning problems},
       author = {Giacomo Falchetta},
-      year = {2025},
+      year = {2026},
       journal = {EarthArXiv},
       doi = {10.31223/X5XQ69},
       langid = {en},
-      note = {Preprint, manuscript submitted for publication},
+      note = {Preprint, version 2, manuscript submitted for publication},
     }
