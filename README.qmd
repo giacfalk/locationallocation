@@ -78,7 +78,7 @@ You can install `locationallocation` using the [`remotes`](https://github.com/r-
 remotes::install_github("giacfalk/locationallocation")
 ```
 
-A [CRAN](https://cran.r-project.org/) version of the package is planned for the near future.
+The package has been submitted to [CRAN](https://cran.r-project.org/) and is currently under review.
 
 ## Usage
 
