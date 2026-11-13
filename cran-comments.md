@@ -7,8 +7,9 @@ This is a resubmission. In this version I have:
   Debian and 11.3 s on Windows. The allocation and masking code is now
   faster (with unchanged results), and the spatial dependencies are imported
   in the `NAMESPACE`, so they are loaded with the package rather than inside
-  the first example. With `R CMD check --as-cran --timings`, the slowest
-  example (`allocation()`) now takes 1.5 s locally, down from about 8 s.
+  the first example. The slowest example (`allocation()`) now takes 2.8 s
+  on win-builder (R-devel), down from 11.3 s, and 1.5 s locally with
+  `R CMD check --as-cran --timings`.
 
 * The incoming checks also flagged the following words in the DESCRIPTION
   as possibly misspelled. They are spelled correctly: "ReVelle" and "Teitz"
@@ -20,7 +21,8 @@ This is a resubmission. In this version I have:
 
 0 errors | 0 warnings | 1 note
 
-* This is a new submission.
+* This is a new submission. The note also lists the words in the
+  DESCRIPTION discussed above.
 
 ## Test environments
 
