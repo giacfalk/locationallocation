@@ -9,7 +9,7 @@ type: software
 license: GPL-3.0-or-later
 title: 'locationallocation: Maximal Coverage Location-Allocation Using Geospatial
   Data'
-version: 0.2.0.9000
+version: 0.2.1
 doi: 10.31223/X5XQ69
 identifiers:
 - type: url

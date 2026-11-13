@@ -71,3 +71,13 @@
 #' @importFrom magrittr %>%
 ## usethis namespace: end
 NULL
+
+# Load the spatial dependencies with the package, rather than on the first
+# call of each function.
+#' @importFrom gdistance accCost
+#' @importFrom ggplot2 ggplot
+#' @importFrom igraph distances
+#' @importFrom raster raster
+#' @importFrom sf st_geometry
+#' @importFrom terra rast
+NULL

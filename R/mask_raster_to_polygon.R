@@ -36,29 +36,68 @@ mask_raster_to_polygon <- function(
   checkmate::assert_flag(inverse)
   checkmate::assert_atomic(updatevalue, len = 1)
 
-  out <- as_spatraster(ras)
-
   if (inherits(mask, c("sf", "sfc"))) {
     assert_bb_area(mask)
-
-    if (!is.na(sf::st_crs(mask)) && terra::crs(out) != "") {
-      mask <- sf::st_transform(mask, terra::crs(out))
-    }
-
-    mask <- terra::vect(mask)
-    terra::crs(mask) <- terra::crs(out)
-    mask <- terra::crop(mask, terra::ext(out))
+    keep <- inside_polygon(ras, mask)
   } else {
-    mask <- as_spatraster(mask)
-    terra::crs(mask) <- terra::crs(out)
+    keep <- !is.na(cell_values(mask))
   }
 
-  out <- terra::mask(
-    out,
-    mask,
-    inverse = inverse,
-    updatevalue = updatevalue
-  )
+  if (isTRUE(inverse)) keep <- !keep
 
-  if (inherits(ras, "RasterLayer")) raster::raster(out) else out
+  values <- cell_values(ras)
+  values[!keep] <- updatevalue
+
+  if (inherits(ras, "RasterLayer")) {
+    raster::setValues(ras, values)
+  } else {
+    terra::setValues(ras, values)
+  }
+}
+
+# Values of the cells of a `RasterLayer` or single-layer `SpatRaster`.
+cell_values <- function(x) {
+  if (inherits(x, "SpatRaster")) {
+    terra::values(x, mat = FALSE)
+  } else {
+    raster::values(x)
+  }
+}
+
+# A `SpatRaster` with the geometry (but not the values) of `x`.
+raster_template <- function(x) {
+  if (inherits(x, "SpatRaster")) {
+    return(terra::rast(x))
+  }
+
+  crs <- raster::crs(x)
+
+  terra::rast(
+    nrows = raster::nrow(x),
+    ncols = raster::ncol(x),
+    xmin = raster::xmin(x),
+    xmax = raster::xmax(x),
+    ymin = raster::ymin(x),
+    ymax = raster::ymax(x),
+    crs = if (is.na(crs)) "" else raster::wkt(x)
+  )
+}
+
+# Whether each cell of `x` is inside or touched by `polygon` (the rule used by
+# `terra::mask()` with a polygon, whose `touches` argument defaults to `TRUE`).
+inside_polygon <- function(x, polygon) {
+  template <- raster_template(x)
+
+  if (!is.na(sf::st_crs(polygon)) && terra::crs(template) != "") {
+    polygon <- sf::st_transform(polygon, terra::crs(template))
+  }
+
+  vector <- terra::vect(polygon)
+  terra::crs(vector) <- terra::crs(template)
+
+  vector |>
+    terra::rasterize(template, touches = TRUE) |>
+    terra::values(mat = FALSE) |>
+    is.na() |>
+    magrittr::not()
 }

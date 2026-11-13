@@ -29,6 +29,17 @@ in_extent <- function(xy, within) {
 # contains its centre. Unlike `terra::resample()`, which goes through GDAL in
 # single precision, this keeps values in double precision.
 grid_values <- function(x, template) {
+  if (!inherits(x, "SpatRaster") && !inherits(template, "SpatRaster")) {
+    if (same_grid(x, template)) return(raster::values(x))
+
+    index <- raster::cellFromXY(
+      x,
+      raster::xyFromCell(template, seq_len(raster::ncell(template)))
+    )
+
+    return(raster::values(x)[index])
+  }
+
   x <- as_spatraster(x)
   template <- as_spatraster(template)
 
@@ -38,6 +49,15 @@ grid_values <- function(x, template) {
   )
 
   terra::values(x, mat = FALSE)[index]
+}
+
+# Whether two `Raster*` objects have the same grid (dimensions and extent).
+same_grid <- function(a, b) {
+  identical(dim(a)[1:2], dim(b)[1:2]) &&
+    isTRUE(all.equal(
+      as.vector(raster::extent(a)),
+      as.vector(raster::extent(b))
+    ))
 }
 
 # Note: `terra::rast()` applied to a `SpatRaster` returns an empty template, so
@@ -101,15 +121,7 @@ travel_time_values <- function(router, xy, template) {
     for (i in seq_len(nrow(distances))) out <- pmin(out, distances[i, ])
   }
 
-  if (
-    !is.null(router$index) &&
-      isTRUE(raster::compareRaster(
-        router$template,
-        template,
-        crs = FALSE,
-        stopiffalse = FALSE
-      ))
-  ) {
+  if (!is.null(router$index) && same_grid(router$template, template)) {
     return(out[router$index])
   }
 
@@ -125,22 +137,23 @@ values_to_raster <- function(values, template, name = "travel_time") {
   out
 }
 
-normalize_raster <- function(r) {
-  r_min <- raster::cellStats(r, stat = "min")
-  r_max <- raster::cellStats(r, stat = "max")
+# Min-max normalization of a vector of cell values to [0, 1], ignoring `NA`.
+normalize_values <- function(x) {
+  range <- suppressWarnings(range(x, na.rm = TRUE))
 
-  if (isTRUE(all.equal(r_min, r_max))) {
+  if (!all(is.finite(range)) || isTRUE(all.equal(range[1], range[2]))) {
     # A constant layer carries no relative information.
-    return(r * 0 + 1)
+    return(ifelse(is.na(x), NA, 1))
   }
 
-  (r - r_min) / (r_max - r_min)
+  (x - range[1]) / (range[2] - range[1])
 }
 
-# Combine the demand and weights layers into the (weighted) demand that the
-# allocation routines try to cover.
+# Combine the demand values (cells of `template`) and the weights layer into
+# the (weighted) demand that the allocation routines try to cover.
 weighted_demand <- function(
   demand,
+  template,
   weights = NULL,
   approach = "norm",
   exp_demand = 1,
@@ -150,21 +163,27 @@ weighted_demand <- function(
     return(demand^exp_demand)
   }
 
-  if (!isTRUE(raster::compareRaster(demand, weights, stopiffalse = FALSE))) {
+  if (same_grid(weights, template)) {
+    weights <- raster::values(weights)
+  } else {
     cli::cli_alert_info(
       "Resampling {.strong weights} to the grid of {.strong demand}."
     )
 
-    raster::crs(weights) <- raster::crs(demand)
-    weights <- raster::resample(weights, demand, method = "bilinear")
+    raster::crs(weights) <- raster::crs(template)
+
+    weights <-
+      weights |>
+      raster::resample(template, method = "bilinear") |>
+      raster::values()
   }
 
-  weights <- raster::mask(weights, demand)
+  weights[is.na(demand)] <- NA
 
   if (approach == "norm") {
-    normalize_raster(demand)^exp_demand * normalize_raster(weights)^exp_weights
+    normalize_values(demand)^exp_demand * normalize_values(weights)^exp_weights
   } else {
-    if (isTRUE(raster::cellStats(weights, "min") < 0)) {
+    if (isTRUE(min(weights, na.rm = TRUE) < 0)) {
       cli::cli_abort(
         paste0(
           "{.strong weights} must be non-negative when ",
@@ -173,7 +192,7 @@ weighted_demand <- function(
       )
     }
 
-    normalize_raster(demand)^exp_demand * weights^exp_weights
+    normalize_values(demand)^exp_demand * weights^exp_weights
   }
 }
 

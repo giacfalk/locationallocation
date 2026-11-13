@@ -40,39 +40,29 @@ allocation_setup <- function(
   }
 
   friction_layer <- friction_data$friction_layer
-  router <- routing_graph(
-    friction_data$geocorrection_matrix,
-    raster::raster(demand)
-  )
+  template <- raster::raster(demand)
+  router <- routing_graph(friction_data$geocorrection_matrix, template)
 
-  inside_area <-
-    raster::raster(demand) |>
-    raster::setValues(1) |>
-    mask_raster_to_polygon(bb_area) |>
-    raster::values() |>
-    is.na()
+  inside_area <- inside_polygon(template, bb_area)
 
   inside_extent <-
-    raster::raster(friction_layer) |>
-    raster::setValues(1) |>
-    grid_values(demand) |>
-    is.na()
-
-  inside_area <- !inside_area
-  inside_extent <- !inside_extent
+    template |>
+    raster::xyFromCell(seq_len(raster::ncell(template))) |>
+    in_extent(friction_layer)
 
   domain <- inside_area & inside_extent
 
-  w <-
-    demand |>
-    mask_raster_to_polygon(bb_area) |>
-    weighted_demand(
-      weights = weights,
-      approach = approach,
-      exp_demand = exp_demand,
-      exp_weights = exp_weights
-    ) |>
-    raster::values()
+  demand_values <- raster::values(demand)
+  demand_values[!inside_area] <- NA
+
+  w <- weighted_demand(
+    demand_values,
+    template = template,
+    weights = weights,
+    approach = approach,
+    exp_demand = exp_demand,
+    exp_weights = exp_weights
+  )
 
   w[!domain] <- NA
 
@@ -117,7 +107,7 @@ allocation_setup <- function(
   friction_values <- grid_values(friction_layer, demand)
 
   list(
-    template = raster::raster(demand),
+    template = template,
     w = w,
     total = total,
     tt0 = tt0,
