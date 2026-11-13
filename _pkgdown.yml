@@ -44,7 +44,6 @@ reference:
     geospatial data.
   contents:
   - allocation
-  - allocation_discrete
 
 - title: Statistics
   desc: >

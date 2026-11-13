@@ -16,21 +16,21 @@ traveltime(
 }
 \arguments{
 \item{facilities}{A \code{\link[sf:st_as_sf]{sf}} object with the existing
-facilities.}
+facilities (\code{POINT} geometries).}
 
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
 
 \item{mode}{(optional) A \code{\link[base:character]{character}} string indicating
-the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default =
+the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default:
 \code{"walk"}).
 \itemize{
 \item For \code{"fastest"}: The friction layer accounts for multiple modes of
-transport, including walking, cycling, driving, and public transport, and are
-based on the Malaria Atlas Project (2019) \emph{Global Travel Speed Friction
+transport, including walking, cycling, driving, and public transport, and
+is based on the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
 Surface}.
 \item For \code{"walk"}: The friction layer accounts only for walking speeds and is
-based on the Malaria Atlas Project (2015) \emph{Global Walking Only Friction
+based on the Malaria Atlas Project (2020) \emph{Global Walking Only Friction
 Surface}.
 }}
 
@@ -46,29 +46,40 @@ resolution is less than \code{1000}, a spatial downscaling approach is used
 (default: \code{100}).}
 
 \item{cache}{(optional) A \code{\link[base:logical]{logical}} flag
-indicating whether to cache the downloaded friction data for future use
-(default: \code{TRUE}).}
+indicating whether to download the global friction surface once and cache
+it on disk (see \code{\link[tools:userdir]{tools::R_user_dir()}}) for future use, instead of
+downloading only the area of interest at each call
+(default: \code{FALSE}).}
 
 \item{file}{(optional) A \code{\link[base:character]{character}} string indicating
 the path to a local friction surface raster file. If provided, the
 function will use this file instead of downloading the friction data.}
 }
 \value{
-An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
-following elements:
+An \link[base:invisible]{invisible} \code{\link[base:list]{list}} of class
+\code{traveltime} with the following elements:
 \itemize{
 \item \code{travel_time}: A \code{\link[raster:raster]{RasterLayer}} object with the travel
-time map.
+time (in minutes) to the nearest facility.
 \item \code{friction}: A \code{\link[base:list]{list}} with the outputs of the
 \code{\link[=friction]{friction()}} function.
 }
 }
 \description{
-\code{traveltime()} generates a travel time map based on the input facilities,
-bounding box area, and travel mode.
+\code{traveltime()} generates a map of the travel time (in minutes) to the
+nearest facility, based on the input facilities, area of interest, and
+travel mode.
 
 See the \code{\link[=friction]{friction()}} function for details on how the friction
 layer is generated.
+}
+\details{
+All facilities within the extent of the friction surface (i.e., the
+bounding box of \code{bb_area}) are used as sources, including those located
+just outside the boundary of \code{bb_area}, since they can still serve demand
+within it. The resulting travel time map is masked to \code{bb_area}. Cells that
+cannot be reached from any facility (e.g., cells with no friction data, such
+as open water) have an infinite travel time.
 }
 \examples{
 \dontrun{
@@ -83,7 +94,7 @@ layer is generated.
       res_output = 100
     )
 
-  traveltime_data |> glimpse()
+  traveltime_data
 
   traveltime_data |>
     traveltime_plot(

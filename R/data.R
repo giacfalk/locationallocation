@@ -51,21 +51,26 @@
 #'
 #' @description
 #'
-#' A [`sf`][sf::st_as_sf()] polygon geometry object representing the
-#' locations of water fountains in the city of Naples, Italy.
+#' A [`sf`][sf::st_as_sf()] point geometry object representing the
+#' locations of public drinking water fountains in and around the city of
+#' Naples, Italy, retrieved from OpenStreetMap
+#' ([OSM](https://www.openstreetmap.org/)).
 #'
 #' @format A [`sf`][sf::st_as_sf()] `POINT` geometry object with 251
-#' feature and 24 fields:
+#' features and 24 fields (OSM tags).
+#'
+#' @source OpenStreetMap contributors
+#' ([ODbL](https://opendatacommons.org/licenses/odbl/)).
 #'
 #' @family datasets
 "naples_fountains"
 
-#' Population density in the city of Naples, Italy
+#' Population in the city of Naples, Italy
 #'
 #' @description
 #'
-#' A [`RasterLayer`][raster::raster()] object representing the population
-#' density in the city of Naples, Italy.
+#' A [`RasterLayer`][raster::raster()] object with the number of people per
+#' grid cell (3 arc-seconds, ~90 meters) in the city of Naples, Italy.
 #'
 #' The dataset is based on the Global Human
 #' Settlement Layer

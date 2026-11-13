@@ -6,14 +6,20 @@
 \title{Water fountains in the city of Naples, Italy}
 \format{
 A \code{\link[sf:st_as_sf]{sf}} \code{POINT} geometry object with 251
-feature and 24 fields:
+features and 24 fields (OSM tags).
+}
+\source{
+OpenStreetMap contributors
+(\href{https://opendatacommons.org/licenses/odbl/}{ODbL}).
 }
 \usage{
 naples_fountains
 }
 \description{
-A \code{\link[sf:st_as_sf]{sf}} polygon geometry object representing the
-locations of water fountains in the city of Naples, Italy.
+A \code{\link[sf:st_as_sf]{sf}} point geometry object representing the
+locations of public drinking water fountains in and around the city of
+Naples, Italy, retrieved from OpenStreetMap
+(\href{https://www.openstreetmap.org/}{OSM}).
 }
 \seealso{
 Other datasets: 

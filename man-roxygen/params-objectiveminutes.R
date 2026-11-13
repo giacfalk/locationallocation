@@ -1,2 +1,3 @@
-#' @param objectiveminutes (optional) A number indicating the target travel time
-#'   in minutes used to compute the statistics (default: `15`).
+#' @param objectiveminutes (optional) A number indicating the travel time
+#'   threshold, in minutes, within which demand is considered covered
+#'   (default: `15`).

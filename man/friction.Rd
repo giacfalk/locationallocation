@@ -14,19 +14,19 @@ friction(
 )
 }
 \arguments{
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
 
 \item{mode}{(optional) A \code{\link[base:character]{character}} string indicating
-the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default =
+the mode of transport. Options are \code{"fastest"} and \code{"walk"} (default:
 \code{"walk"}).
 \itemize{
 \item For \code{"fastest"}: The friction layer accounts for multiple modes of
-transport, including walking, cycling, driving, and public transport, and are
-based on the Malaria Atlas Project (2019) \emph{Global Travel Speed Friction
+transport, including walking, cycling, driving, and public transport, and
+is based on the Malaria Atlas Project (2015) \emph{Global Travel Speed Friction
 Surface}.
 \item For \code{"walk"}: The friction layer accounts only for walking speeds and is
-based on the Malaria Atlas Project (2015) \emph{Global Walking Only Friction
+based on the Malaria Atlas Project (2020) \emph{Global Walking Only Friction
 Surface}.
 }}
 
@@ -42,8 +42,10 @@ resolution is less than \code{1000}, a spatial downscaling approach is used
 (default: \code{100}).}
 
 \item{cache}{(optional) A \code{\link[base:logical]{logical}} flag
-indicating whether to cache the downloaded friction data for future use
-(default: \code{TRUE}).}
+indicating whether to download the global friction surface once and cache
+it on disk (see \code{\link[tools:userdir]{tools::R_user_dir()}}) for future use, instead of
+downloading only the area of interest at each call
+(default: \code{FALSE}).}
 
 \item{file}{(optional) A \code{\link[base:character]{character}} string indicating
 the path to a local friction surface raster file. If provided, the
@@ -54,7 +56,7 @@ An \link[base:invisible]{invisible} \code{\link[base:list]{list}} with the
 following elements:
 \itemize{
 \item \code{friction_layer}: A \code{\link[raster:raster]{RasterLayer}} object with the
-friction surface layer.
+friction surface layer (minutes per meter).
 \item \code{transition_matrix}: A \code{\link[gdistance:transition]{TransitionLayer}} with
 the transition matrix for cost-distance calculations.
 \item \code{geocorrection_matrix}: A \code{\link[gdistance:transition]{TransitionLayer}}
@@ -65,11 +67,30 @@ with the geocorrection matrix for accurate distance calculations.
 \code{friction()} retrieves a
 \href{https://en.wikipedia.org/wiki/Friction_of_distance}{friction surface} layer
 from the Malaria Atlas Project (\href{https://malariaatlas.org/}{MAP}) database
-(Hay et al., 2006; Malaria Atlas Project, 2015, 2019) and optionally
-downscale it to the spatial resolution of the analysis using road network
-data from OpenStreetMap (n.d.) (\href{https://www.openstreetmap.org/}{OSM}).
+(Hay et al., 2006; Weiss et al., 2020) and optionally downscales it to the
+spatial resolution of the analysis using road network data from
+OpenStreetMap (\href{https://www.openstreetmap.org/}{OSM}).
 
-This function requires an active internet connection.
+Friction values are expressed in minutes required to travel one meter.
+
+An internet connection is required, unless a local friction surface is
+supplied via \code{file} and no downscaling is requested (\code{res_output >= 1000}).
+}
+\details{
+\subsection{Downscaling}{
+
+When \code{res_output < 1000}, the ~1 km MAP friction surface is downscaled with
+\code{\link[dissever:dissever]{dissever}}, using the density of the OSM road
+network (computed on a grid of \code{res_output} meters in the local UTM zone)
+as a covariate. Because the downscaling is mass-preserving, it can push the
+friction of road cells below the fastest speed present in the original
+surface (e.g., faster than walking in \code{"walk"} mode). The downscaled values
+are therefore bounded below by the minimum friction of the original surface
+within the area of interest.
+
+When \code{res_output >= 1000}, the friction surface is used at its native
+resolution (30 arc-seconds, ~1 km).
+}
 }
 \examples{
 \dontrun{
@@ -81,11 +102,18 @@ Hay, S. I., & Snow, R. W. (2006). The Malaria Atlas Project: Developing
 global maps of malaria risk. \emph{PLOS Medicine}, \emph{3}(12), e473.
 \doi{10.1371/journal.pmed.0030473}
 
+Weiss, D. J., Nelson, A., Vargas-Ruiz, C. A., Gligorić, K., Bavadekar, S.,
+Gabrilovich, E., Bertozzi-Villa, A., Rozier, J., Gibson, H. S., Shekel, T.,
+Kamath, C., Lieber, A., Schulman, K., Shao, Y., Qarkaxhija, V., Nandi, A.
+K., Keddie, S. H., Rumisha, S., Amratia, P., ... Gething, P. W. (2020).
+Global maps of travel time to healthcare facilities. \emph{Nature Medicine},
+\emph{26}(12), 1835–1838. \doi{10.1038/s41591-020-1059-1}
+
 Malaria Atlas Project. (2015). \emph{Friction surface: Global travel speed
 friction surface} (Version 201501).
 \url{https://data.malariaatlas.org/maps}
 
-Malaria Atlas Project. (2019). \emph{Friction surface: Global walking only
+Malaria Atlas Project. (2020). \emph{Friction surface: Global walking only
 friction surface} (Version 202001).
 \url{https://data.malariaatlas.org/maps}
 

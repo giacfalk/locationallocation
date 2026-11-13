@@ -166,7 +166,7 @@ allocation_data <-
     weights = NULL,
     objectiveminutes = 15,
     objectiveshare = 0.99,
-    heur = "max",
+    heur = "kd",
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1
@@ -198,7 +198,7 @@ allocation_data <-
     weights = naples_hot_days, # <--- Changed
     objectiveminutes = 15,
     objectiveshare = 0.99,
-    heur = "max",
+    heur = "kd",
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1
@@ -231,7 +231,7 @@ allocation_data <-
     weights = naples_hot_days,
     objectiveminutes = 15,
     objectiveshare = 0.99,
-    heur = "max",
+    heur = "kd",
     approach = "norm",
     exp_demand = 2, # <--- Changed
     exp_weights = 1
@@ -253,12 +253,14 @@ across the study area as in the previous example.
 
 In this case, the user must provide a set of candidate points via the
 `candidate` parameter of the
-[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation_discrete.html)
+[`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation.html)
 function, along with the maximum number of facilities that can be
-selected (`n_fac` parameter). The function applies a quasi-optimality
-heuristic based on a randomization approach, where the number of
-replications (`n_samples` parameter) gradually approaches the global
-optimum, although computational time increases linearly. As with the
+selected (`n_fac` parameter). The function computes the travel time from
+each candidate location once, and then selects the candidates with a
+greedy heuristic (adding, at each step, the candidate that covers the
+most demand not yet covered), refined by swapping selected and
+non-selected candidates as long as coverage improves. The solution is
+deterministic and usually optimal or near-optimal. As with the
 continuous allocation problem, a weight layer and normalization and
 exponentiation parameters can also be specified.
 
@@ -272,7 +274,6 @@ allocation_data <-
     candidate = naples_shape |> st_sample(20),
     facilities = naples_fountains,
     n_fac = 5,
-    n_samples = 100,
     traveltime = traveltime_data,
     weights = NULL,
     objectiveminutes = 15,
@@ -307,7 +308,6 @@ allocation_data <-
     candidate = naples_shape |> st_sample(20),
     facilities = naples_fountains,
     n_fac = 5,
-    n_samples = 100,
     traveltime = traveltime_data,
     weights = NULL,
     objectiveminutes = 15,
@@ -343,7 +343,6 @@ allocation_data <-
     candidate = naples_shape |> st_sample(20),
     facilities = NULL,
     n_fac = 5,
-    n_samples = 100,
     traveltime = NULL,
     weights = NULL,
     objectiveminutes = 15,

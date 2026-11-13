@@ -7,17 +7,21 @@
 allocation_plot(
   allocation,
   bb_area,
+  facilities = NULL,
   annotation_location = "br",
   annotation_scale = TRUE,
   annotation_north_arrow = TRUE
 )
 }
 \arguments{
-\item{allocation}{The output of the \code{\link[=allocation]{allocation}} or
-\code{allocation_discrete()} function.}
+\item{allocation}{The output of the \code{\link[=allocation]{allocation()}} or
+\code{\link[=allocation_discrete]{allocation_discrete()}} function.}
 
-\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} boundary box object with the area
-of interest.}
+\item{bb_area}{A \code{\link[sf:st_as_sf]{sf}} object with the polygon(s) of the
+area of interest.}
+
+\item{facilities}{(optional) A \code{\link[sf:st_as_sf]{sf}} object with the
+existing facilities, plotted as hollow circles (default: \code{NULL}).}
 
 \item{annotation_location}{(optional) A \code{\link[base:character]{character}} string
 specifying the location of the annotation on the plot. See
@@ -33,78 +37,52 @@ indicating whether to include a north arrow annotation on the plot
 (default: \code{TRUE}).}
 }
 \value{
-A \code{\link[ggplot2:ggplot]{ggplot2}} plot showing the potential locations
-for new facilities.
+A \code{\link[ggplot2:ggplot]{ggplot2}} plot showing the travel time to
+the nearest facility and the location of the new facilities.
 }
 \description{
-\code{allocation_plot()} plot the results of the \code{\link[=allocation]{allocation}} and
-\code{allocation_discrete()} functions, showing the potential locations for new
-facilities and the coverage attained.
+\code{allocation_plot()} plots the results of the \code{\link[=allocation]{allocation()}}
+and \code{\link[=allocation_discrete]{allocation_discrete()}} functions, showing the
+travel time to the nearest facility after the allocation and the location
+of the new facilities.
 }
 \examples{
-
-## Plotting Results of the `allocation()` Function -----
-
-\dontrun{
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100
-    )
-
-  allocation_data <-
-    naples_population |>
-    allocation(
-      traveltime = traveltime_data,
-      bb_area = naples_shape,
-      facilities = naples_fountains,
-      weights = NULL,
-      objectiveminutes = 15,
-      objectiveshare = 0.99,
-      heur = "max",
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100
-    )
-
-  allocation_data |> allocation_plot(naples_shape)
-}
-
-## Plotting Results of the `allocation_discrete()` Function -----
-
 \dontrun{
   library(sf)
 
   traveltime_data <-
     naples_fountains |>
-    traveltime(
+    traveltime(bb_area = naples_shape)
+
+  ## Plotting Results of the `allocation()` Function -----
+
+  allocation_data <-
+    naples_population |>
+    allocation(
       bb_area = naples_shape,
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100
+      facilities = naples_fountains,
+      traveltime = traveltime_data,
+      objectiveminutes = 15,
+      objectiveshare = 0.99
     )
+
+  allocation_data |> allocation_plot(naples_shape)
+
+  ## Plotting Results of the `allocation_discrete()` Function -----
 
   allocation_data <-
     naples_population |>
     allocation_discrete(
-      traveltime = traveltime_data,
       bb_area = naples_shape,
-      facilities = naples_fountains,
       candidate = naples_shape |> st_sample(20),
+      facilities = naples_fountains,
+      traveltime = traveltime_data,
       n_fac = 2,
-      weights = NULL,
-      objectiveminutes = 15,
-      dowscaling_model_type = "lm",
-      mode = "walk",
-      res_output = 100,
-      n_samples = 1000,
-      par = TRUE
+      objectiveminutes = 15
     )
 
-  allocation_data |> allocation_plot(naples_shape)
+  allocation_data |>
+    allocation_plot(naples_shape, facilities = naples_fountains)
 }
 }
 \concept{plot functions}

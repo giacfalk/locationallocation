@@ -35,25 +35,25 @@ Imports:
     dplyr (>= 1.1.4),
     gdistance (>= 1.6.5),
     ggplot2 (>= 4.0.1),
-    graphics (>= 4.4),
     ggspatial (>= 1.1.10),
+    igraph (>= 2.0.0),
     magrittr (>= 2.0.4),
     malariaAtlas (>= 1.6.4),
+    methods (>= 4.4),
     osmdata (>= 0.3.0),
     parallel (>= 4.4),
     raster (>= 3.6.32),
     sf (>= 1.0.23),
-    spatialEco (>= 2.0.3),
     stats (>= 4.4),
     terra (>= 1.8.86),
     tools (>= 4.4),
+    utils (>= 4.4),
     zip (>= 2.3.3)
 Suggests:
     bslib (>= 0.9.0),
     covr (>= 3.6.5),
     knitr (>= 1.50),
     lifecycle (>= 1.0.4),
-    lwgeom (>= 0.2.14),
     rmarkdown (>= 2.30),
     spelling (>= 2.3.2),
     testthat (>= 3.3.0)
@@ -63,4 +63,3 @@ Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 LazyData: true
-VignetteBuilder: knitr
