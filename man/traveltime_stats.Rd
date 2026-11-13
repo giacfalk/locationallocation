@@ -60,22 +60,27 @@ the travel time map (i.e., within \code{bb_area}). Demand in cells that cannot
 be reached (infinite travel time) counts as not covered.
 }
 \examples{
-\dontrun{
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      mode = "walk",
-      res_output = 100
-    )
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data |>
-    traveltime_stats(
-      demand = naples_population,
-      objectiveminutes = 15,
-      breaks = c(5, 10, 15, 30)
-    )
-}
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
+
+traveltime_data |>
+  traveltime_stats(
+    demand = naples_population,
+    objectiveminutes = 15,
+    breaks = c(5, 10, 15, 30),
+    print = FALSE
+  ) |>
+  magrittr::extract2("coverage")
 }
 \seealso{
 Other travel time functions: 

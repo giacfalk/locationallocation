@@ -1,4 +1,4 @@
-# locationallocation 0.1.1.9000 (development version)
+# locationallocation 0.2.0
 
 ## Bug fixes
 
@@ -34,6 +34,7 @@
 - New `print()` methods for the outputs of `traveltime()`, `allocation()` and `allocation_discrete()`.
 - The `P15_cumsum` column of the `traveltime_stats()` data is renamed to `cumulative_coverage`.
 - Updated the README, the package documentation (see `?locationallocation`), the package description, the citation metadata, and the package paper (methods, use case, and figures) to the current methods.
+- All examples run offline, using a small copy of the Malaria Atlas Project walking surface for the Naples example (`inst/extdata/naples-friction-walk.tif`). Examples that download data are marked as requiring an internet connection.
 - Added an offline test suite based on a synthetic problem, including a brute-force check of `allocation_discrete()`.
 
 - Added a `cache` argument to `friction()` and `traveltime()` functions to enable caching of friction surfaces for improved performance on repeated calls.

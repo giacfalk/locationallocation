@@ -33,24 +33,27 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'   library(dplyr)
+#' # Offline example with a bundled copy of the walking surface for Naples
+#' friction_file <- system.file(
+#'   "extdata", "naples-friction-walk.tif",
+#'   package = "locationallocation"
+#' )
 #'
-#'   traveltime_data <-
-#'     naples_fountains |>
-#'     traveltime(
-#'       bb_area = naples_shape,
-#'       mode = "walk",
-#'       res_output = 100
-#'     )
-#'
-#'   traveltime_data
-#'
-#'   traveltime_data |>
-#'     traveltime_plot(
-#'       bb_area = naples_shape,
-#'       facilities = naples_fountains
+#' traveltime_data <-
+#'   naples_fountains |>
+#'   traveltime(
+#'     bb_area = naples_shape,
+#'     res_output = 1000,
+#'     file = friction_file
 #'   )
+#'
+#' traveltime_data
+#'
+#' \dontrun{
+#' # Download the friction surface (requires an internet connection)
+#' traveltime_data <-
+#'   naples_fountains |>
+#'   traveltime(bb_area = naples_shape, mode = "walk", res_output = 100)
 #' }
 traveltime <- function(
   facilities,

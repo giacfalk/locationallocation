@@ -51,21 +51,24 @@ function, showing the travel time to the nearest facility across the area
 of interest.
 }
 \examples{
-\dontrun{
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      mode = "walk",
-      res_output = 100
-    )
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data |>
-    traveltime_plot(
-      bb_area = naples_shape,
-      facilities = naples_fountains
-    )
-}
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
+
+traveltime_data |>
+  traveltime_plot(
+    bb_area = naples_shape,
+    facilities = naples_fountains
+  )
 }
 \seealso{
 Other travel time functions: 

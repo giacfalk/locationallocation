@@ -40,6 +40,13 @@
 #' ([OSM](https://www.openstreetmap.org/)) through the Overpass API, unless it
 #' is supplied via `roads`.
 #'
+#' ## Example data
+#'
+#' The package includes a copy of the MAP walking-only friction surface for
+#' the area of [`naples_shape`] (`naples-friction-walk.tif`, see the
+#' examples), used to run the examples offline. Source: Malaria Atlas
+#' Project (2020); see <https://data.malariaatlas.org> for the terms of use.
+#'
 #' ## Online data and fallbacks
 #'
 #' Online services can be unavailable or overloaded. The friction surface is
@@ -147,10 +154,23 @@
 #' \url{https://www.openstreetmap.org}
 #'
 #' @examples
-#' \dontrun{
-#'   naples_shape |> friction()
+#' # Offline example with a bundled copy of the walking surface for Naples
+#' friction_file <- system.file(
+#'   "extdata", "naples-friction-walk.tif",
+#'   package = "locationallocation"
+#' )
 #'
-#'   naples_shape |> friction(mode = "fastest")
+#' friction_data <-
+#'   naples_shape |>
+#'   friction(res_output = 1000, file = friction_file)
+#'
+#' friction_data$friction_layer
+#'
+#' \dontrun{
+#' # Download the surfaces (requires an internet connection)
+#' naples_shape |> friction()
+#'
+#' naples_shape |> friction(mode = "fastest", cache = TRUE)
 #' }
 friction <- function(
   bb_area,
