@@ -1,7 +1,17 @@
 # Changelog
 
-## locationallocation (development version)
+## locationallocation 0.2.1
 
+- [`allocation()`](https://giacfalk.github.io/locationallocation/reference/allocation.md),
+  [`allocation_discrete()`](https://giacfalk.github.io/locationallocation/reference/allocation.md)
+  and
+  [`mask_raster_to_polygon()`](https://giacfalk.github.io/locationallocation/reference/mask_raster_to_polygon.md)
+  are faster. Polygon masks are computed by rasterizing the polygon, and
+  demand weights are computed on the cell values instead of on rasters.
+  Results are unchanged.
+- The spatial dependencies (`gdistance`, `igraph`, `raster`, `sf`,
+  `terra`, `ggplot2`) are loaded with the package rather than on the
+  first call of each function, and the examples run faster.
 - The package citation (`citation("locationallocation")`) refers to
   version 2 of the preprint.
 

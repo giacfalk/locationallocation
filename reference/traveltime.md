@@ -150,13 +150,13 @@ traveltime_data <-
     file = friction_file
   )
 #> ℹ Using user-provided friction data file
-#> ✔ Using user-provided friction data file [572ms]
+#> ✔ Using user-provided friction data file [547ms]
 #> 
 #> ℹ Computing transition matrix and geocorrection
-#> ✔ Computing transition matrix and geocorrection [38ms]
+#> ✔ Computing transition matrix and geocorrection [36ms]
 #> 
 #> ℹ Computing travel time map
-#> ✔ Computing travel time map [575ms]
+#> ✔ Computing travel time map [13ms]
 #> 
 
 traveltime_data

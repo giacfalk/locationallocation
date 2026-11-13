@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">locationallocation</a>
 
-    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0.9000</small>
+    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,8 +44,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="locationallocation-development-version">locationallocation (development version)<a class="anchor" aria-label="anchor" href="#locationallocation-development-version"></a></h2>
-<ul><li>The package citation (<code>citation("locationallocation")</code>) refers to version 2 of the preprint.</li>
+<h2 class="pkg-version" data-toc-text="0.2.1" id="locationallocation-021">locationallocation 0.2.1<a class="anchor" aria-label="anchor" href="#locationallocation-021"></a></h2>
+<ul><li>
+<code><a href="../reference/allocation.html">allocation()</a></code>, <code><a href="../reference/allocation.html">allocation_discrete()</a></code> and <code><a href="../reference/mask_raster_to_polygon.html">mask_raster_to_polygon()</a></code> are faster. Polygon masks are computed by rasterizing the polygon, and demand weights are computed on the cell values instead of on rasters. Results are unchanged.</li>
+<li>The spatial dependencies (<code>gdistance</code>, <code>igraph</code>, <code>raster</code>, <code>sf</code>, <code>terra</code>, <code>ggplot2</code>) are loaded with the package rather than on the first call of each function, and the examples run faster.</li>
+<li>The package citation (<code>citation("locationallocation")</code>) refers to version 2 of the preprint.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="locationallocation-020">locationallocation 0.2.0<a class="anchor" aria-label="anchor" href="#locationallocation-020"></a></h2>
