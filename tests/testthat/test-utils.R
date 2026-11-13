@@ -19,14 +19,22 @@ test_that("mclp_solve() finds the optimum of a toy problem", {
   expect_setequal(two$selected, c(2, 3))
 })
 
-test_that("normalize_raster() handles constant layers", {
-  constant <- raster::setValues(problem$demand, 5)
+test_that("normalize_values() handles constant layers", {
+  expect_equal(normalize_values(c(5, 5, NA)), c(1, 1, NA))
 
-  expect_equal(unique(raster::values(normalize_raster(constant))), 1)
+  normalized <- normalize_values(raster::values(problem$demand))
 
-  normalized <- normalize_raster(problem$demand)
+  expect_equal(range(normalized), c(0, 1))
+})
 
-  expect_equal(range(raster::values(normalized)), c(0, 1))
+test_that("faster masking matches terra::mask()", {
+  inner <- sf::st_buffer(sf::st_centroid(problem$bb_area), 1000)
+  reference <- terra::mask(terra::rast(problem$demand), terra::vect(inner))
+
+  expect_equal(
+    raster::values(mask_raster_to_polygon(problem$demand, inner)),
+    terra::values(reference, mat = FALSE)
+  )
 })
 
 test_that("input checks work", {
