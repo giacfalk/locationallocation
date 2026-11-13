@@ -359,13 +359,13 @@ traveltime_data <-
     file = friction_file
   )
 #> ℹ Using user-provided friction data file
-#> ✔ Using user-provided friction data file [3.5s]
+#> ✔ Using user-provided friction data file [3.2s]
 #> 
 #> ℹ Computing transition matrix and geocorrection
-#> ✔ Computing transition matrix and geocorrection [1.2s]
+#> ✔ Computing transition matrix and geocorrection [1.1s]
 #> 
 #> ℹ Computing travel time map
-#> ✔ Computing travel time map [547ms]
+#> ✔ Computing travel time map [500ms]
 #> 
 
 # A coarser demand grid (~360 m) keeps the example fast
