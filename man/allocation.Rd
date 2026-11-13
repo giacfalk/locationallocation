@@ -279,47 +279,57 @@ this weighted demand.
 }
 }
 \examples{
-\dontrun{
-  library(sf)
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(bb_area = naples_shape)
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
 
-  ## Continuous problem -----
+# A coarser demand grid (~360 m) keeps the example fast
+demand <- raster::aggregate(naples_population, fact = 4, fun = sum)
 
-  allocation_data <-
-    naples_population |>
-    allocation(
-      bb_area = naples_shape,
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      weights = naples_hot_days,
-      objectiveminutes = 15,
-      objectiveshare = 0.99
-    )
+## Continuous problem: 3 new facilities -----
 
-  allocation_data
+allocation_data <-
+  demand |>
+  allocation(
+    bb_area = naples_shape,
+    facilities = naples_fountains,
+    traveltime = traveltime_data,
+    weights = naples_hot_days,
+    objectiveminutes = 15,
+    objectiveshare = NULL,
+    n_fac = 3,
+    refine = FALSE # Faster, greedy-only solution
+  )
 
-  allocation_data |> allocation_plot(naples_shape)
+allocation_data
 
-  ## Discrete problem -----
+## Discrete problem: 2 of 6 candidate locations -----
 
-  allocation_data <-
-    naples_population |>
-    allocation_discrete(
-      bb_area = naples_shape,
-      candidate = naples_shape |> st_sample(20),
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      n_fac = 2,
-      objectiveminutes = 15
-    )
+set.seed(1)
 
-  allocation_data
+candidate <- sf::st_sample(naples_shape, 6)
 
-  allocation_data |> allocation_plot(naples_shape)
-}
+allocation_data <-
+  demand |>
+  allocation_discrete(
+    bb_area = naples_shape,
+    candidate = candidate,
+    facilities = naples_fountains,
+    traveltime = traveltime_data,
+    n_fac = 2,
+    objectiveminutes = 15
+  )
+
+allocation_data
 }
 \references{
 Church, R., & ReVelle, C. (1974). The maximal covering location problem.

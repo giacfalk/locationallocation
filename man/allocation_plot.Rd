@@ -47,43 +47,36 @@ travel time to the nearest facility after the allocation and the location
 of the new facilities.
 }
 \examples{
-\dontrun{
-  library(sf)
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(bb_area = naples_shape)
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
 
-  ## Plotting Results of the `allocation()` Function -----
+# A coarser demand grid (~360 m) keeps the example fast
+demand <- raster::aggregate(naples_population, fact = 4, fun = sum)
 
-  allocation_data <-
-    naples_population |>
-    allocation(
-      bb_area = naples_shape,
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      objectiveminutes = 15,
-      objectiveshare = 0.99
-    )
+allocation_data <-
+  demand |>
+  allocation(
+    bb_area = naples_shape,
+    facilities = naples_fountains,
+    traveltime = traveltime_data,
+    objectiveminutes = 15,
+    objectiveshare = NULL,
+    n_fac = 3,
+    refine = FALSE # Faster, greedy-only solution
+  )
 
-  allocation_data |> allocation_plot(naples_shape)
-
-  ## Plotting Results of the `allocation_discrete()` Function -----
-
-  allocation_data <-
-    naples_population |>
-    allocation_discrete(
-      bb_area = naples_shape,
-      candidate = naples_shape |> st_sample(20),
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      n_fac = 2,
-      objectiveminutes = 15
-    )
-
-  allocation_data |>
-    allocation_plot(naples_shape, facilities = naples_fountains)
-}
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 }
 \concept{plot functions}
 \keyword{reporting}

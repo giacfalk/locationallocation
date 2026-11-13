@@ -118,6 +118,14 @@ The road network is downloaded from OpenStreetMap
 is supplied via \code{roads}.
 }
 
+\subsection{Example data}{
+
+The package includes a copy of the MAP walking-only friction surface for
+the area of \code{\link{naples_shape}} (\code{naples-friction-walk.tif}, see the
+examples), used to run the examples offline. Source: Malaria Atlas
+Project (2020); see \url{https://data.malariaatlas.org} for the terms of use.
+}
+
 \subsection{Online data and fallbacks}{
 
 Online services can be unavailable or overloaded. The friction surface is
@@ -152,10 +160,23 @@ retrying a failed download (default: \code{30}).
 }
 }
 \examples{
-\dontrun{
-  naples_shape |> friction()
+# Offline example with a bundled copy of the walking surface for Naples
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  naples_shape |> friction(mode = "fastest")
+friction_data <-
+  naples_shape |>
+  friction(res_output = 1000, file = friction_file)
+
+friction_data$friction_layer
+
+\dontrun{
+# Download the surfaces (requires an internet connection)
+naples_shape |> friction()
+
+naples_shape |> friction(mode = "fastest", cache = TRUE)
 }
 }
 \references{

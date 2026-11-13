@@ -148,7 +148,7 @@ package.\
 - $N_j = \{ i \in I \mid d_{ij} \leq T \}$ : Set of candidate facilities
   that can cover demand point $j$.
 
-- *Optionally,* $P^(\star)$ : Maximum number of facilities to be located
+- *Optionally,* $P^{\star}$ : Maximum number of facilities to be located
   from a discrete set of pre-defined locations $P$ on the lattice space.
 
 \
@@ -177,9 +177,9 @@ $$\max \sum_{j \in J} w_j y_j$$
 
     and, optionally:\
 
-3.  Facility location constraint (at most $P^(\star)$ facilities must be
+3.  Facility location constraint (at most $P^{\star}$ facilities must be
     chosen from a discrete set of pre-defined locations $P$ on the
-    lattice space): $$\sum_{i \in I} x_i \leq P^(\star)$$
+    lattice space): $$\sum_{i \in I} x_i \leq P^{\star}$$
 
 ## Problem solution algorithm {#problem-solution-algorithm .unnumbered}
 
@@ -196,7 +196,7 @@ Ensure: A set $S$ of selected facility locations.\
 ***
 1: Initialize $S \gets \emptyset$ \
 2: Initialize $J_{\text{unmet}} \gets J$ \
-3: for k = 1 to P* \in P do \
+3: for $k = 1$ to $P^{\star}$ do \
 4: Find the facility $i^*$ that maximizes covered demand: \
 $$i^* = \arg\max_{i \in I \setminus S} \sum_{j \in J_{\text{unmet}}} w_j \mathbb{1}(d_{ij} \leq T)$$
 5: Add $i^*$ to the selected facilities: $S \gets S \cup \{ i^* \}$  \
@@ -242,7 +242,7 @@ guaranteed to be globally optimal.
 
 The approach includes consideration of different travel modes and can be
 applied to any location in the world. The Malaria Atlas Project friction
-surfaces have a resolution of 30 arc-seconds (~1 km), and each of their
+surfaces have a resolution of 30 arc-seconds (about 1 km), and each of their
 pixels takes the speed of the fastest mode of transport available within
 it [@Weiss2018]. To perform location-allocation at a higher spatial
 resolution (particularly useful in urban-scale applications), the
@@ -285,8 +285,8 @@ The package core functions are the following:
 
 ``` {.r language="R"}
 
-traveltime(facilities, bb_area, mode = "walk", res_output = 100,
-cache = FALSE)
+traveltime(facilities, bb_area, mode = "walk",
+  res_output = 100, cache = FALSE)
 ```
 
 The $traveltime$ function generates a map of the travel time to the
@@ -307,8 +307,8 @@ travel mode, having the following arguments:
 ``` {.r language="R"}
 
 allocation(demand, bb_area, facilities, traveltime = NULL,
-weights = NULL, objectiveminutes = 15, objectiveshare = 0.99,
-heur = "kd", n_fac = Inf)
+  weights = NULL, objectiveminutes = 15,
+  objectiveshare = 0.99, heur = "kd", n_fac = Inf)
 ```
 
 The $allocation$ function allocates facilities in a continuous location
@@ -343,9 +343,10 @@ following arguments:
 
 ``` {.r language="R"}
 
-allocation_discrete(demand, bb_area, candidate, facilities = NULL,
-n_fac = Inf, traveltime = NULL, weights = NULL, objectiveminutes = 15,
-objectiveshare = NULL)
+allocation_discrete(demand, bb_area, candidate,
+  facilities = NULL, n_fac = Inf, traveltime = NULL,
+  weights = NULL, objectiveminutes = 15,
+  objectiveshare = NULL)
 ```
 
 The $allocation\_discrete$ function solves the discrete location
@@ -395,16 +396,17 @@ database, as depicted in Figure
 [1](fig:maps_naples){reference-type="ref" reference="fig:maps_naples"}.
 The following example datasets are fully embedded in the package.
 
-![Map of population density and location of public drinking water
-fountains in Naples, Italy.\label{fig:maps_naples}](figures_paper/maps_Napoli.pdf)
+![Map of population (people per grid cell) and location of public
+drinking water fountains within the city of Naples,
+Italy.\label{fig:maps_naples}](figures_paper/maps_Napoli.pdf)
 
 Then, we implement the *traveltime* function to calculate a map of
 accessibility to public drinking water sources as follows:
 
 ``` {.r language="R"}
 
-out_tt <- traveltime(facilities = naples_fountains, bb_area = naples_shape,
-mode = "walk", res_output = 100)
+out_tt <- traveltime(facilities = naples_fountains,
+  bb_area = naples_shape, mode = "walk", res_output = 100)
 ```
 
 The function yields a raster output which - for each pixel - shows the
@@ -414,7 +416,8 @@ be visualized via:
 
 ``` {.r language="R"}
 
-traveltime_plot(traveltime=out_tt,  bb_area=naples_shape, facilities = naples_fountains)
+traveltime_plot(traveltime = out_tt, bb_area = naples_shape,
+  facilities = naples_fountains)
 ```
 
 ![Map of the walking travel time to the nearest public drinking water
@@ -427,8 +430,9 @@ as well as a given time threshold parameter:
 
 ``` {.r language="R"}
 
-traveltime_stats(traveltime = out_tt, demand = naples_population, breaks=c(5, 10, 15, 30),
-objectiveminutes=5)
+traveltime_stats(traveltime = out_tt,
+  demand = naples_population, breaks = c(5, 10, 15, 30),
+  objectiveminutes = 5)
 ```
 
 yielding:
@@ -446,13 +450,14 @@ population (exposure), we can use:
 
 ``` {.r language="R"}
 
-output_allocation <- allocation(demand = naples_population,
-traveltime = out_tt, bb_area = naples_shape,
-facilities = naples_fountains, weights = NULL, objectiveminutes = 15,
-objectiveshare = 0.99)
+output_allocation <- allocation(
+  demand = naples_population, traveltime = out_tt,
+  bb_area = naples_shape, facilities = naples_fountains,
+  weights = NULL, objectiveminutes = 15,
+  objectiveshare = 0.99)
 
 allocation_plot(output_allocation, bb_area = naples_shape,
-facilities = naples_fountains)
+  facilities = naples_fountains)
 ```
 
 This yields an output object containing both the coordinate location of
@@ -465,17 +470,18 @@ share of the population within a 15-minute walk from 90.14% to 99.11%:
 public drinking water fountain in Naples,
 Italy.\label{fig:sol_cont}](figures_paper/allocation_15mins_fountains.png)
 
-If we use demand weights (e.g. maximum temperature), we can use:
+If we use demand weights (e.g., the frequency of hot days), we can use:
 
 ``` {.r language="R"}
 
-output_allocation_weighted <- allocation(demand = naples_population,
-traveltime = out_tt, bb_area = naples_shape,
-facilities = naples_fountains, weights = naples_hot_days,
-objectiveminutes = 15, objectiveshare = 0.99)
+output_allocation_weighted <- allocation(
+  demand = naples_population, traveltime = out_tt,
+  bb_area = naples_shape, facilities = naples_fountains,
+  weights = naples_hot_days, objectiveminutes = 15,
+  objectiveshare = 0.99)
 
-allocation_plot(output_allocation_weighted, bb_area = naples_shape,
-facilities = naples_fountains)
+allocation_plot(output_allocation_weighted,
+  bb_area = naples_shape, facilities = naples_fountains)
 ```
 
 where $naples\_hot\_days$ is a raster layer with the number of hot days
@@ -499,13 +505,14 @@ set.seed(333)
 
 candidates <- st_sample(naples_shape, 30)
 
-output_allocation_discrete <- allocation_discrete(demand = naples_population,
-traveltime = out_tt, bb_area = naples_shape,
-facilities = naples_fountains, candidate = candidates, n_fac = 10,
-weights = NULL, objectiveminutes = 15)
+output_allocation_discrete <- allocation_discrete(
+  demand = naples_population, traveltime = out_tt,
+  bb_area = naples_shape, facilities = naples_fountains,
+  candidate = candidates, n_fac = 10, weights = NULL,
+  objectiveminutes = 15)
 
-allocation_plot(output_allocation_discrete, bb_area = naples_shape,
-facilities = naples_fountains)
+allocation_plot(output_allocation_discrete,
+  bb_area = naples_shape, facilities = naples_fountains)
 ```
 
 The resulting map shows the coordinate location of the selected
@@ -524,12 +531,13 @@ scratch, i.e. in the absence of pre-existing facilities:
 ``` {.r language="R"}
 
 output_allocation_discrete_from_scratch <- allocation_discrete(
-demand = naples_population, traveltime = out_tt, bb_area = naples_shape,
-facilities = NULL, candidate = candidates, n_fac = 10, weights = NULL,
-objectiveminutes = 15)
+  demand = naples_population, traveltime = out_tt,
+  bb_area = naples_shape, facilities = NULL,
+  candidate = candidates, n_fac = 10, weights = NULL,
+  objectiveminutes = 15)
 
 allocation_plot(output_allocation_discrete_from_scratch,
-bb_area = naples_shape)
+  bb_area = naples_shape)
 ```
 
 Also in this case, the resulting map shows the coordinate location of
