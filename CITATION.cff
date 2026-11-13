@@ -9,7 +9,7 @@ type: software
 license: GPL-3.0-or-later
 title: 'locationallocation: Maximal Coverage Location-Allocation Using Geospatial
   Data'
-version: 0.2.0
+version: 0.2.0.9000
 doi: 10.31223/X5XQ69
 identifiers:
 - type: url
@@ -39,11 +39,11 @@ preferred-citation:
     given-names: Giacomo
     email: giacomo.falchetta@cmcc.it
     orcid: https://orcid.org/0000-0003-2607-2195
-  year: '2025'
+  year: '2026'
   journal: EarthArXiv
   doi: 10.31223/X5XQ69
-  notes: Preprint, manuscript submitted for publication
-repository-code: https://github.com/giacfalk/locationallocation/issues/
+  notes: Preprint, version 2, manuscript submitted for publication
+repository-code: https://github.com/giacfalk/locationallocation
 url: https://giacfalk.github.io/locationallocation/
 contact:
 - family-names: Falchetta

@@ -86,8 +86,8 @@ You can install `locationallocation` using the
 remotes::install_github("giacfalk/locationallocation")
 ```
 
-A [CRAN](https://cran.r-project.org/) version of the package is planned
-for the near future.
+The package has been submitted to [CRAN](https://cran.r-project.org/)
+and is currently under review.
 
 ## Usage
 
@@ -443,21 +443,21 @@ support its continued improvement.
 citation("locationallocation")
 #> To cite locationallocation in publications use:
 #> 
-#>   Falchetta, G. (2025). locationallocation: Solving Maximal Coverage
+#>   Falchetta, G. (2026). locationallocation: Solving Maximal Coverage
 #>   Location-Allocation geospatial infrastructure assessment and
-#>   planning problems [Preprint, manuscript submitted for
+#>   planning problems [Preprint, version 2, manuscript submitted for
 #>   publication]. EarthArXiv. https://doi.org/10.31223/X5XQ69
 #> 
-#> Una voce BibTeX per gli utenti LaTeX è
+#> A BibTeX entry for LaTeX users is
 #> 
-#>   @Article{falchetta2025,
+#>   @Article{falchetta2026,
 #>     title = {locationallocation: Solving Maximal Coverage Location-Allocation geospatial infrastructure assessment and planning problems},
 #>     author = {Giacomo Falchetta},
-#>     year = {2025},
+#>     year = {2026},
 #>     journal = {EarthArXiv},
 #>     doi = {10.31223/X5XQ69},
 #>     langid = {en},
-#>     note = {Preprint, manuscript submitted for publication},
+#>     note = {Preprint, version 2, manuscript submitted for publication},
 #>   }
 ```
 

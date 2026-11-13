@@ -1,7 +1,7 @@
 utils::bibentry(
   header = "To cite locationallocation in publications use:",
   bibtype = "article",
-  key = "falchetta2025",
+  key = "falchetta2026",
   title = paste0(
     "locationallocation:", " ",
     "Solving Maximal Coverage Location-Allocation geospatial infrastructure ",
@@ -16,18 +16,18 @@ utils::bibentry(
       comment = c(ORCID = "0000-0003-2607-2195")
     )
   ),
-  year = "2025",
+  year = "2026",
   journal = "EarthArXiv",
   doi = "10.31223/X5XQ69",
   langid = "en",
-  note = "Preprint, manuscript submitted for publication",
+  note = "Preprint, version 2, manuscript submitted for publication",
   textVersion = paste0(
     "Falchetta, G", ". ",
-    "(2025)", ". ",
+    "(2026)", ". ",
     "locationallocation:", " ",
     "Solving Maximal Coverage Location-Allocation geospatial infrastructure ",
     "assessment and planning problems", " ",
-    "[Preprint, manuscript submitted for publication]", ". ",
+    "[Preprint, version 2, manuscript submitted for publication]", ". ",
     "EarthArXiv", ". ",
     "https://doi.org/10.31223/X5XQ69"
   )
