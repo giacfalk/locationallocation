@@ -346,45 +346,102 @@ generalized vertex median of a weighted graph. *Operations Research*,
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  library(sf)
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(bb_area = naples_shape)
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
+#> ℹ Using user-provided friction data file
+#> ✔ Using user-provided friction data file [3.5s]
+#> 
+#> ℹ Computing transition matrix and geocorrection
+#> ✔ Computing transition matrix and geocorrection [1.2s]
+#> 
+#> ℹ Computing travel time map
+#> ✔ Computing travel time map [547ms]
+#> 
 
-  ## Continuous problem -----
+# A coarser demand grid (~360 m) keeps the example fast
+demand <- raster::aggregate(naples_population, fact = 4, fun = sum)
 
-  allocation_data <-
-    naples_population |>
-    allocation(
-      bb_area = naples_shape,
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      weights = naples_hot_days,
-      objectiveminutes = 15,
-      objectiveshare = 0.99
-    )
+## Continuous problem: 3 new facilities -----
 
-  allocation_data
+allocation_data <-
+  demand |>
+  allocation(
+    bb_area = naples_shape,
+    facilities = naples_fountains,
+    traveltime = traveltime_data,
+    weights = naples_hot_days,
+    objectiveminutes = 15,
+    objectiveshare = NULL,
+    n_fac = 3,
+    refine = FALSE # Faster, greedy-only solution
+  )
+#> ℹ Resampling weights to the grid of demand.
+#> ℹ Facility 1: share of unmet demand: 4.75306%.
+#> ℹ Facility 2: share of unmet demand: 3.31196%.
+#> ℹ Facility 3: share of unmet demand: 2.21634%.
+#> 
+#> ℹ 3 facilities allocated within the 15 minutes threshold. The coverage share
+#> attained is 97.78366%.
 
-  allocation_data |> allocation_plot(naples_shape)
+allocation_data
+#> Maximal coverage location-allocation (continuous problem)
+#> ℹ 3 facilities allocated within the 15 minutes threshold. The coverage share
+#> attained is 97.78366%.
+#> 
+#> Simple feature collection with 3 features and 0 fields
+#> Geometry type: POINT
+#> Dimension:     XY
+#> Bounding box:  xmin: 14.23708 ymin: 40.85292 xmax: 14.28708 ymax: 40.89625
+#> Geodetic CRS:  WGS 84
+#>                    geometry
+#> 1 POINT (14.27042 40.88625)
+#> 2 POINT (14.23708 40.89625)
+#> 3 POINT (14.28708 40.85292)
 
-  ## Discrete problem -----
+## Discrete problem: 2 of 6 candidate locations -----
 
-  allocation_data <-
-    naples_population |>
-    allocation_discrete(
-      bb_area = naples_shape,
-      candidate = naples_shape |> st_sample(20),
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      n_fac = 2,
-      objectiveminutes = 15
-    )
+set.seed(1)
 
-  allocation_data
+candidate <- sf::st_sample(naples_shape, 6)
+#> Warning: coordinate ranges not computed along great circles; install package lwgeom to get rid of this warning
 
-  allocation_data |> allocation_plot(naples_shape)
-} # }
+allocation_data <-
+  demand |>
+  allocation_discrete(
+    bb_area = naples_shape,
+    candidate = candidate,
+    facilities = naples_fountains,
+    traveltime = traveltime_data,
+    n_fac = 2,
+    objectiveminutes = 15
+  )
+#> ℹ Facility 1: share of unmet demand: 7.35845%.
+#> ℹ Facility 2: share of unmet demand: 7.31739%.
+#> 
+#> ℹ 2 facilities allocated within the 15 minutes threshold. The coverage share
+#> attained is 92.68261%.
+
+allocation_data
+#> Maximal coverage location-allocation (discrete problem)
+#> ℹ 2 facilities allocated within the 15 minutes threshold. The coverage share
+#> attained is 92.68261%.
+#> 
+#> Simple feature collection with 2 features and 0 fields
+#> Geometry type: POINT
+#> Dimension:     XY
+#> Bounding box:  xmin: 14.17376 ymin: 40.82542 xmax: 14.21626 ymax: 40.8868
+#> Geodetic CRS:  WGS 84
+#>                           x
+#> 1 POINT (14.17376 40.82542)
+#> 2  POINT (14.21626 40.8868)
 ```

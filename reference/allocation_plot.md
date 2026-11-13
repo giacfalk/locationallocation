@@ -70,41 +70,49 @@ new facilities.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  library(sf)
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(bb_area = naples_shape)
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
+#> ℹ Using user-provided friction data file
+#> ✔ Using user-provided friction data file [539ms]
+#> 
+#> ℹ Computing transition matrix and geocorrection
+#> ✔ Computing transition matrix and geocorrection [94ms]
+#> 
+#> ℹ Computing travel time map
+#> ✔ Computing travel time map [535ms]
+#> 
 
-  ## Plotting Results of the `allocation()` Function -----
+# A coarser demand grid (~360 m) keeps the example fast
+demand <- raster::aggregate(naples_population, fact = 4, fun = sum)
 
-  allocation_data <-
-    naples_population |>
-    allocation(
-      bb_area = naples_shape,
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      objectiveminutes = 15,
-      objectiveshare = 0.99
-    )
+allocation_data <-
+  demand |>
+  allocation(
+    bb_area = naples_shape,
+    facilities = naples_fountains,
+    traveltime = traveltime_data,
+    objectiveminutes = 15,
+    objectiveshare = NULL,
+    n_fac = 3,
+    refine = FALSE # Faster, greedy-only solution
+  )
+#> ℹ Facility 1: share of unmet demand: 4.59625%.
+#> ℹ Facility 2: share of unmet demand: 3.13073%.
+#> ℹ Facility 3: share of unmet demand: 2.2453%.
+#> 
+#> ℹ 3 facilities allocated within the 15 minutes threshold. The coverage share
+#> attained is 97.7547%.
 
-  allocation_data |> allocation_plot(naples_shape)
-
-  ## Plotting Results of the `allocation_discrete()` Function -----
-
-  allocation_data <-
-    naples_population |>
-    allocation_discrete(
-      bb_area = naples_shape,
-      candidate = naples_shape |> st_sample(20),
-      facilities = naples_fountains,
-      traveltime = traveltime_data,
-      n_fac = 2,
-      objectiveminutes = 15
-    )
-
-  allocation_data |>
-    allocation_plot(naples_shape, facilities = naples_fountains)
-} # }
+allocation_data |>
+  allocation_plot(naples_shape, facilities = naples_fountains)
 ```

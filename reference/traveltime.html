@@ -21,7 +21,7 @@ layer is generated."><meta property="og:image" content="https://giacfalk.github.
 
     <a class="navbar-brand me-2" href="../index.html">locationallocation</a>
 
-    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.1.9000</small>
+    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -176,24 +176,40 @@ as open water) have an infinite travel time.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Offline example with a bundled copy of the walking surface for Naples</span></span></span>
+<span class="r-in"><span><span class="va">friction_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"extdata"</span>, <span class="st">"naples-friction-walk.tif"</span>,</span></span>
+<span class="r-in"><span>  package <span class="op">=</span> <span class="st">"locationallocation"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">traveltime</span><span class="op">(</span></span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      mode <span class="op">=</span> <span class="st">"walk"</span>,</span></span>
-<span class="r-in"><span>      res_output <span class="op">=</span> <span class="fl">100</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">traveltime_data</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">traveltime_data</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="traveltime_plot.html">traveltime_plot</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      facilities <span class="op">=</span> <span class="va">naples_fountains</span></span></span>
+<span class="r-in"><span><span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">traveltime</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
+<span class="r-in"><span>    res_output <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span>    file <span class="op">=</span> <span class="va">friction_file</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using user-provided friction data file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Using user-provided friction data file <span style="color: #B2B2B2;">[588ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing transition matrix and geocorrection</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing transition matrix and geocorrection <span style="color: #B2B2B2;">[41ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing travel time map</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing travel time map <span style="color: #B2B2B2;">[592ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">traveltime_data</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Travel time map</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Travel time (minutes): median 8.44, max 53.18</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Unreachable cells: 0 of 231</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • Resolution: 0.00833 and 0.00833 degrees (15 x 26 cells)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Download the friction surface (requires an internet connection)</span></span></span>
+<span class="r-in"><span><span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">traveltime</span><span class="op">(</span>bb_area <span class="op">=</span> <span class="va">naples_shape</span>, mode <span class="op">=</span> <span class="st">"walk"</span>, res_output <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

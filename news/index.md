@@ -1,6 +1,6 @@
 # Changelog
 
-## locationallocation 0.1.1.9000 (development version)
+## locationallocation 0.2.0
 
 ### Bug fixes
 
@@ -178,6 +178,11 @@
   [`?locationallocation`](https://giacfalk.github.io/locationallocation/reference/locationallocation-package.md)),
   the package description, the citation metadata, and the package paper
   (methods, use case, and figures) to the current methods.
+
+- All examples run offline, using a small copy of the Malaria Atlas
+  Project walking surface for the Naples example
+  (`inst/extdata/naples-friction-walk.tif`). Examples that download data
+  are marked as requiring an internet connection.
 
 - Added an offline test suite based on a synthetic problem, including a
   brute-force check of

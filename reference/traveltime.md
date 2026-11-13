@@ -136,23 +136,39 @@ Other travel time functions:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  library(dplyr)
+# Offline example with a bundled copy of the walking surface for Naples
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      mode = "walk",
-      res_output = 100
-    )
-
-  traveltime_data
-
-  traveltime_data |>
-    traveltime_plot(
-      bb_area = naples_shape,
-      facilities = naples_fountains
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
   )
+#> ℹ Using user-provided friction data file
+#> ✔ Using user-provided friction data file [588ms]
+#> 
+#> ℹ Computing transition matrix and geocorrection
+#> ✔ Computing transition matrix and geocorrection [41ms]
+#> 
+#> ℹ Computing travel time map
+#> ✔ Computing travel time map [592ms]
+#> 
+
+traveltime_data
+#> Travel time map
+#> • Travel time (minutes): median 8.44, max 53.18
+#> • Unreachable cells: 0 of 231
+#> • Resolution: 0.00833 and 0.00833 degrees (15 x 26 cells)
+
+if (FALSE) { # \dontrun{
+# Download the friction surface (requires an internet connection)
+traveltime_data <-
+  naples_fountains |>
+  traveltime(bb_area = naples_shape, mode = "walk", res_output = 100)
 } # }
 ```

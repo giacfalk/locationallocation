@@ -90,20 +90,35 @@ Other travel time functions:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      mode = "walk",
-      res_output = 100
-    )
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data |>
-    traveltime_stats(
-      demand = naples_population,
-      objectiveminutes = 15,
-      breaks = c(5, 10, 15, 30)
-    )
-} # }
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
+#> ℹ Using user-provided friction data file
+#> ✔ Using user-provided friction data file [600ms]
+#> 
+#> ℹ Computing transition matrix and geocorrection
+#> ✔ Computing transition matrix and geocorrection [40ms]
+#> 
+#> ℹ Computing travel time map
+#> ✔ Computing travel time map [607ms]
+#> 
+
+traveltime_data |>
+  traveltime_stats(
+    demand = naples_population,
+    objectiveminutes = 15,
+    breaks = c(5, 10, 15, 30),
+    print = FALSE
+  ) |>
+  magrittr::extract2("coverage")
+#> [1] 0.9283284
 ```

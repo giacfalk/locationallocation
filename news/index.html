@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">locationallocation</a>
 
-    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.1.9000</small>
+    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,9 +44,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.1.9000" id="locationallocation-0119000-development-version">locationallocation 0.1.1.9000 (development version)<a class="anchor" aria-label="anchor" href="#locationallocation-0119000-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.0" id="locationallocation-020">locationallocation 0.2.0<a class="anchor" aria-label="anchor" href="#locationallocation-020"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-0-1-1-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-1-9000"></a></h3>
+<h3 id="bug-fixes-0-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-0"></a></h3>
 <ul><li>
 <code><a href="../reference/allocation.html">allocation_discrete()</a></code> is exported again (it was dropped from the <code>NAMESPACE</code> when its source was merged into <code>R/allocation.R</code>).</li>
 <li>
@@ -75,7 +75,7 @@
 <li>Documentation: the effect of <code>exp_demand</code> and <code>exp_weights</code> was described backwards; the years of the MAP friction surfaces were swapped; the default of <code>cache</code> was wrong; <code>naples_population</code> holds people per cell, not density.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="changes-0-1-1-9000">Changes<a class="anchor" aria-label="anchor" href="#changes-0-1-1-9000"></a></h3>
+<h3 id="changes-0-2-0">Changes<a class="anchor" aria-label="anchor" href="#changes-0-2-0"></a></h3>
 <ul><li><p><code><a href="../reference/allocation.html">allocation_discrete()</a></code> now uses the deterministic greedy algorithm described in the package paper, refined with vertex substitution (Teitz &amp; Bart, 1968), instead of random sampling. The travel time from each candidate is computed once, so the solver is much faster and returns optimal or near-optimal solutions. <code>n_samples</code> is deprecated and ignored; <code>par</code> now parallelizes the travel time computations.</p></li>
 <li><p><code><a href="../reference/allocation.html">allocation()</a></code> now implements the greedy step of the package paper (a lazy greedy heuristic): at each iteration, the heuristic score only shortlists promising locations, their actual catchments are computed, and the new facility goes to the evaluated location that covers the most uncovered demand. Previously, the facility was placed directly at the highest-scoring cell. The greedy solution is then refined by vertex substitution (Teitz &amp; Bart, 1968) with a pattern search for new locations around each facility, and, with <code>objectiveshare</code>, by dropping facilities as long as the target is still met. New arguments: <code>shortlist</code> (locations evaluated per iteration) and <code>refine</code> (set to <code>FALSE</code> for faster, greedy-only solutions). The default <code>heur</code> is now <code>"kd"</code>. In the Naples example (with the downscaled friction surface of the previous version), 99% coverage was reached with 25 new facilities instead of 37, matching a near-optimal reference solution computed over a dense grid of candidate locations.</p></li>
 <li><p>Travel times in <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code> are computed on a routing graph built once per problem, instead of rebuilding it at each <code><a href="https://AgrDataSci.github.io/gdistance/reference/accCost.html" class="external-link">gdistance::accCost()</a></code> call. Results are identical, and each computation is about 8 times faster on the Naples example. Travel times are aligned to the <code>demand</code> grid in double precision (<code><a href="https://rspatial.github.io/terra/reference/resample.html" class="external-link">terra::resample()</a></code> rounds values to single precision).</p></li>
@@ -90,6 +90,7 @@
 <li><p>New <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> methods for the outputs of <code><a href="../reference/traveltime.html">traveltime()</a></code>, <code><a href="../reference/allocation.html">allocation()</a></code> and <code><a href="../reference/allocation.html">allocation_discrete()</a></code>.</p></li>
 <li><p>The <code>P15_cumsum</code> column of the <code><a href="../reference/traveltime_stats.html">traveltime_stats()</a></code> data is renamed to <code>cumulative_coverage</code>.</p></li>
 <li><p>Updated the README, the package documentation (see <code><a href="../reference/locationallocation-package.html">?locationallocation</a></code>), the package description, the citation metadata, and the package paper (methods, use case, and figures) to the current methods.</p></li>
+<li><p>All examples run offline, using a small copy of the Malaria Atlas Project walking surface for the Naples example (<code>inst/extdata/naples-friction-walk.tif</code>). Examples that download data are marked as requiring an internet connection.</p></li>
 <li><p>Added an offline test suite based on a synthetic problem, including a brute-force check of <code><a href="../reference/allocation.html">allocation_discrete()</a></code>.</p></li>
 <li><p>Added a <code>cache</code> argument to <code><a href="../reference/friction.html">friction()</a></code> and <code><a href="../reference/traveltime.html">traveltime()</a></code> functions to enable caching of friction surfaces for improved performance on repeated calls.</p></li>
 <li><p>Added a <code>file</code> argument to <code><a href="../reference/friction.html">friction()</a></code> and <code><a href="../reference/traveltime.html">traveltime()</a></code> functions to allow loading a friction surface from disk.</p></li>

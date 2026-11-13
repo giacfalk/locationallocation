@@ -35,7 +35,7 @@ allocate a fixed maximum number of facilities (n_fac)."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">locationallocation</a>
 
-    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.1.9000</small>
+    <small class="nav-text text-warning me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -386,47 +386,104 @@ generalized vertex median of a weighted graph. <em>Operations Research</em>,
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">friction_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"extdata"</span>, <span class="st">"naples-friction-walk.tif"</span>,</span></span>
+<span class="r-in"><span>  package <span class="op">=</span> <span class="st">"locationallocation"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="traveltime.html">traveltime</a></span><span class="op">(</span>bb_area <span class="op">=</span> <span class="va">naples_shape</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">traveltime_data</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="va">naples_fountains</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="traveltime.html">traveltime</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
+<span class="r-in"><span>    res_output <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span>    file <span class="op">=</span> <span class="va">friction_file</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using user-provided friction data file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Using user-provided friction data file <span style="color: #B2B2B2;">[3.5s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing transition matrix and geocorrection</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing transition matrix and geocorrection <span style="color: #B2B2B2;">[1.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing travel time map</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing travel time map <span style="color: #B2B2B2;">[547ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co">## Continuous problem -----</span></span></span>
+<span class="r-in"><span><span class="co"># A coarser demand grid (~360 m) keeps the example fast</span></span></span>
+<span class="r-in"><span><span class="va">demand</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">naples_population</span>, fact <span class="op">=</span> <span class="fl">4</span>, fun <span class="op">=</span> <span class="va">sum</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="va">naples_population</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">allocation</span><span class="op">(</span></span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
-<span class="r-in"><span>      traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
-<span class="r-in"><span>      weights <span class="op">=</span> <span class="va">naples_hot_days</span>,</span></span>
-<span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span></span>
-<span class="r-in"><span>      objectiveshare <span class="op">=</span> <span class="fl">0.99</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Continuous problem: 3 new facilities -----</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span></span></span>
+<span class="r-in"><span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="va">demand</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">allocation</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
+<span class="r-in"><span>    facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
+<span class="r-in"><span>    traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
+<span class="r-in"><span>    weights <span class="op">=</span> <span class="va">naples_hot_days</span>,</span></span>
+<span class="r-in"><span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span>,</span></span>
+<span class="r-in"><span>    objectiveshare <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>    n_fac <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>    refine <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># Faster, greedy-only solution</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Resampling <span style="font-weight: bold;">weights</span> to the grid of <span style="font-weight: bold;">demand</span>.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Facility <span style="color: #BBBB00; font-weight: bold;">1</span>: share of unmet demand: <span style="color: #BB0000; font-weight: bold;">4.75306</span>%.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Facility <span style="color: #BBBB00; font-weight: bold;">2</span>: share of unmet demand: <span style="color: #BB0000; font-weight: bold;">3.31196</span>%.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Facility <span style="color: #BBBB00; font-weight: bold;">3</span>: share of unmet demand: <span style="color: #BB0000; font-weight: bold;">2.21634</span>%.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #BB0000; font-weight: bold;">3</span> facilities allocated within the <span style="color: #BBBB00; font-weight: bold;">15</span> minutes threshold. The coverage share</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> attained is <span style="color: #00BB00; font-weight: bold;">97.78366</span>%.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">allocation_data</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Maximal coverage location-allocation</span> (continuous problem)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #BB0000; font-weight: bold;">3</span> facilities allocated within the <span style="color: #BBBB00; font-weight: bold;">15</span> minutes threshold. The coverage share</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> attained is <span style="color: #00BB00; font-weight: bold;">97.78366</span>%.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 3 features and 0 fields</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POINT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 14.23708 ymin: 40.85292 xmax: 14.28708 ymax: 40.89625</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geodetic CRS:  WGS 84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    geometry</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 POINT (14.27042 40.88625)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 POINT (14.23708 40.89625)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 POINT (14.28708 40.85292)</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co">## Discrete problem -----</span></span></span>
+<span class="r-in"><span><span class="co">## Discrete problem: 2 of 6 candidate locations -----</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
-<span class="r-in"><span>    <span class="va">naples_population</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu">allocation_discrete</span><span class="op">(</span></span></span>
-<span class="r-in"><span>      bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
-<span class="r-in"><span>      candidate <span class="op">=</span> <span class="va">naples_shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
-<span class="r-in"><span>      traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
-<span class="r-in"><span>      n_fac <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>      objectiveminutes <span class="op">=</span> <span class="fl">15</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span></span></span>
+<span class="r-in"><span><span class="va">candidate</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html" class="external-link">st_sample</a></span><span class="op">(</span><span class="va">naples_shape</span>, <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>coordinate ranges not computed along great circles; install package lwgeom to get rid of this warning</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="va">allocation_data</span> <span class="op">|&gt;</span> <span class="fu"><a href="allocation_plot.html">allocation_plot</a></span><span class="op">(</span><span class="va">naples_shape</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="va">allocation_data</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="va">demand</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">allocation_discrete</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    bb_area <span class="op">=</span> <span class="va">naples_shape</span>,</span></span>
+<span class="r-in"><span>    candidate <span class="op">=</span> <span class="va">candidate</span>,</span></span>
+<span class="r-in"><span>    facilities <span class="op">=</span> <span class="va">naples_fountains</span>,</span></span>
+<span class="r-in"><span>    traveltime <span class="op">=</span> <span class="va">traveltime_data</span>,</span></span>
+<span class="r-in"><span>    n_fac <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>    objectiveminutes <span class="op">=</span> <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Facility <span style="color: #BBBB00; font-weight: bold;">1</span>: share of unmet demand: <span style="color: #BB0000; font-weight: bold;">7.35845</span>%.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Facility <span style="color: #BBBB00; font-weight: bold;">2</span>: share of unmet demand: <span style="color: #BB0000; font-weight: bold;">7.31739</span>%.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #BB0000; font-weight: bold;">2</span> facilities allocated within the <span style="color: #BBBB00; font-weight: bold;">15</span> minutes threshold. The coverage share</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> attained is <span style="color: #00BB00; font-weight: bold;">92.68261</span>%.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">allocation_data</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Maximal coverage location-allocation</span> (discrete problem)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #BB0000; font-weight: bold;">2</span> facilities allocated within the <span style="color: #BBBB00; font-weight: bold;">15</span> minutes threshold. The coverage share</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> attained is <span style="color: #00BB00; font-weight: bold;">92.68261</span>%.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 2 features and 0 fields</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: POINT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 14.17376 ymin: 40.82542 xmax: 14.21626 ymax: 40.8868</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Geodetic CRS:  WGS 84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 POINT (14.17376 40.82542)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  POINT (14.21626 40.8868)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

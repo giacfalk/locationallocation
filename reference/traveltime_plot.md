@@ -79,19 +79,31 @@ Other travel time functions:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  traveltime_data <-
-    naples_fountains |>
-    traveltime(
-      bb_area = naples_shape,
-      mode = "walk",
-      res_output = 100
-    )
+friction_file <- system.file(
+  "extdata", "naples-friction-walk.tif",
+  package = "locationallocation"
+)
 
-  traveltime_data |>
-    traveltime_plot(
-      bb_area = naples_shape,
-      facilities = naples_fountains
-    )
-} # }
+traveltime_data <-
+  naples_fountains |>
+  traveltime(
+    bb_area = naples_shape,
+    res_output = 1000,
+    file = friction_file
+  )
+#> ℹ Using user-provided friction data file
+#> ✔ Using user-provided friction data file [590ms]
+#> 
+#> ℹ Computing transition matrix and geocorrection
+#> ✔ Computing transition matrix and geocorrection [41ms]
+#> 
+#> ℹ Computing travel time map
+#> ✔ Computing travel time map [597ms]
+#> 
+
+traveltime_data |>
+  traveltime_plot(
+    bb_area = naples_shape,
+    facilities = naples_fountains
+  )
 ```
